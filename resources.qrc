@@ -1,0 +1,29 @@
+<RCC>
+    <qresource prefix="/">
+        <file>qml/main.qml</file>
+        <file>qml/components/AppIcon.qml</file>
+        <file>qml/components/Checkerboard.qml</file>
+        <file>qml/components/CueCard.qml</file>
+        <file>qml/components/Field.qml</file>
+        <file>qml/components/GradientThumb.qml</file>
+        <file>qml/components/IconButton.qml</file>
+        <file>qml/components/MiniSlider.qml</file>
+        <file>qml/components/PillButton.qml</file>
+        <file>qml/components/SectionLabel.qml</file>
+        <file>qml/components/Segmented.qml</file>
+        <file>qml/components/SettingField.qml</file>
+        <file>qml/components/SettingRow.qml</file>
+        <file>qml/components/ToggleSwitch.qml</file>
+        <file>qml/components/ToolButton.qml</file>
+        <file>qml/components/TrafficLights.qml</file>
+        <file>qml/theme/Icons.qml</file>
+        <file>qml/theme/Theme.qml</file>
+        <file>qml/theme/qmldir</file>
+        <file>qml/screens/EditScreen.qml</file>
+        <file>qml/screens/LibraryScreen.qml</file>
+        <file>qml/screens/PresentScreen.qml</file>
+        <file>qml/screens/SettingsScreen.qml</file>
+        <file>qml/screens/StageScreen.qml</file>
+        <file>resources/icons/checker.png</file>
+    </qresource>
+</RCC>

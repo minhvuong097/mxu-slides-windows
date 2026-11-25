@@ -1,0 +1,359 @@
+#include "AppController.h"
+
+#include <QGuiApplication>
+#include <QScreen>
+#include <QTime>
+#include <QStandardPaths>
+#include <QJsonValue>
+
+namespace mxu::app {
+
+namespace {
+QString clockText()
+{
+    return QTime::currentTime().toString(QStringLiteral(u"h:mm AP"));
+}
+}
+
+AppController::AppController(QObject* parent)
+    : QObject(parent)
+{
+    m_document = core::Document::demo();
+    m_service.setDocument(&m_document);
+    m_cues.setDocument(&m_document);
+    m_library.setDocument(&m_document);
+
+    loadSettings();
+
+    m_api.attach(this);
+    connect(&m_api, &api::LocalApiServer::stateChanged, this, &AppController::apiChanged);
+    connect(&m_api, &api::LocalApiServer::tokenChanged, this, &AppController::apiChanged);
+    connect(&m_api, &api::LocalApiServer::errorOccurred, this, &AppController::notification);
+
+    connect(&m_service, &ServiceModel::currentChanged, this, &AppController::refreshPreview);
+    connect(&m_cues, &CueModel::currentChanged, this, &AppController::refreshPreview);
+    connect(&m_library, &LibraryModel::notification, this, &AppController::notification);
+
+    m_clock.setInterval(1000);
+    connect(&m_clock, &QTimer::timeout, this, &AppController::onTick);
+    m_clock.start();
+}
+
+AppController::~AppController()
+{
+    m_api.stop();
+}
+
+QString AppController::duration(int seconds)
+{
+    seconds = qMax(0, seconds);
+    return QStringLiteral(u"%1:%2").arg(seconds / 60).arg(seconds % 60, 2, 10, QChar(u'0'));
+}
+
+void AppController::loadSettings()
+{
+    const QStringList defaults = m_document.settings.keys();
+    for (const QString& key : defaults)
+        m_document.settings.insert(key, QJsonValue::fromVariant(m_store.value(
+        QStringLiteral(u"mxu/") + key, m_document.settings.value(key))));
+    m_stageLayout = m_store.value(QStringLiteral(u"mxu/stageLayout"), m_stageLayout).toString();
+    m_lyricsFontSize = m_store.value(QStringLiteral(u"mxu/lyricsFontSize"), m_lyricsFontSize).toInt();
+}
+
+void AppController::persistSettings()
+{
+    const QStringList keys = m_document.settings.keys();
+    for (const QString& key : keys)
+        m_store.setValue(QStringLiteral(u"mxu/") + key, m_document.settings.value(key));
+    m_store.setValue(QStringLiteral(u"mxu/stageLayout"), m_stageLayout);
+    m_store.setValue(QStringLiteral(u"mxu/lyricsFontSize"), m_lyricsFontSize);
+    m_store.sync();
+}
+
+QString AppController::serviceClock() const { return clockText(); }
+QString AppController::previewClock() const { return clockText(); }
+QString AppController::serviceTimerText() const { return duration(m_seconds); }
+QString AppController::serviceTimerDelta() const
+{
+    return m_timerRunning ? QStringLiteral(u"+0:00") : QStringLiteral(u"+7:24");
+}
+QString AppController::timerState() const
+{
+    return m_timerRunning ? QStringLiteral(u"Running preview") : QStringLiteral(u"Not started");
+}
+QString AppController::advanceHeld() const { return duration(m_held); }
+
+QVariantList AppController::timerRows() const
+{
+    return {
+        QVariantMap{ { QStringLiteral(u"label"), QStringLiteral(u"Section") },
+                     { QStringLiteral(u"delta"), QStringLiteral(u"+7:24") },
+                     { QStringLiteral(u"value"), serviceTimerText() } },
+        QVariantMap{ { QStringLiteral(u"label"), QStringLiteral(u"Service") },
+                     { QStringLiteral(u"delta"), QStringLiteral(u"+1:03:53") },
+                     { QStringLiteral(u"value"), QStringLiteral(u"23:20") } },
+        QVariantMap{ { QStringLiteral(u"label"), QStringLiteral(u"Pre-Service") },
+                     { QStringLiteral(u"delta"), QStringLiteral(u"+0:00") },
+                     { QStringLiteral(u"value"), QStringLiteral(u"0:00") } },
+        QVariantMap{ { QStringLiteral(u"label"), QStringLiteral(u"Next · Amazing Grace") },
+                     { QStringLiteral(u"delta"), QString() },
+                     { QStringLiteral(u"value"), QStringLiteral(u"4:42") } },
+        QVariantMap{ { QStringLiteral(u"label"), QStringLiteral(u"Next service · Retreat") },
+                     { QStringLiteral(u"delta"), QString() },
+                     { QStringLiteral(u"value"), QStringLiteral(u"44:38:06") } },
+    };
+}
+
+bool AppController::chordsVisible() const { return setting(QStringLiteral(u"showChords")).toBool(); }
+bool AppController::clockVisible() const { return setting(QStringLiteral(u"showClock")).toBool(); }
+bool AppController::sectionTimerVisible() const { return setting(QStringLiteral(u"showSectionTimer")).toBool(); }
+
+QString AppController::connectedScreens() const
+{
+    return QStringLiteral(u"%1 screens connected")
+        .arg(qMax(1, QGuiApplication::screens().size()));
+}
+
+QString AppController::currentSlideText() const
+{
+    const QString text = m_cues.currentSlide().value(QStringLiteral(u"text")).toString();
+    if (!text.isEmpty())
+        return text.split(QLatin1Char('\n')).first();
+    return QStringLiteral(u"Amazing grace, how sweet");
+}
+
+QString AppController::currentChord() const
+{
+    static const QStringList chords = { QStringLiteral(u"G"), QStringLiteral(u"D"),
+                                        QStringLiteral(u"Em"), QStringLiteral(u"C") };
+    return chords.at(qAbs(m_cues.currentSlideIndex()) % chords.size());
+}
+
+QString AppController::nextSlideText() const
+{
+    const QVariantList slides = m_cues.currentCue().value(QStringLiteral(u"slides")).toList();
+    const int next = m_cues.currentSlideIndex() + 1;
+    if (next >= 0 && next < slides.size()) {
+        const QString text = slides.at(next).toMap().value(QStringLiteral(u"text")).toString();
+        if (!text.isEmpty())
+            return text.split(QLatin1Char('\n')).first();
+    }
+    return QStringLiteral(u"That saved a wretch like me");
+}
+
+QString AppController::nextChord() const
+{
+    static const QStringList chords = { QStringLiteral(u"D"), QStringLiteral(u"C"),
+                                        QStringLiteral(u"G"), QStringLiteral(u"Em") };
+    return chords.at(qAbs(m_cues.currentSlideIndex() + 1) % chords.size());
+}
+
+bool AppController::localApiEnabled() const { return m_api.running(); }
+QString AppController::localApiToken() const { return m_api.token(); }
+
+QVariant AppController::setting(const QString& key) const
+{
+    return m_document.settings.value(key);
+}
+
+void AppController::setSetting(const QString& key, const QVariant& value)
+{
+    if (!m_document.settings.contains(key) || m_document.settings.value(key) == value)
+        return;
+    m_document.settings.insert(key, QJsonValue::fromVariant(value));
+    persistSettings();
+    emit stageChanged();
+}
+
+void AppController::setScreen(const QString& value)
+{
+    if (m_screen == value)
+        return;
+    m_screen = value;
+    emit screenChanged();
+}
+
+void AppController::toggleSidebar()
+{
+    emit notification(QStringLiteral(u"Sidebar toggled"));
+}
+
+void AppController::goToCue(int index)
+{
+    m_cues.selectCue(index);
+    m_service.selectItem(index);
+}
+
+void AppController::next()
+{
+    m_cues.nextSlide();
+    m_service.nextItem();
+    m_api.broadcastState();
+}
+
+void AppController::previous()
+{
+    m_cues.previousSlide();
+    m_service.previousItem();
+    m_api.broadcastState();
+}
+
+void AppController::toggleClear()
+{
+    emit notification(QStringLiteral(u"Output toggled"));
+    m_api.broadcastState();
+}
+
+void AppController::toggleRecording()
+{
+    emit notification(QStringLiteral(u"Recording toggled"));
+}
+
+void AppController::toggleTimer()
+{
+    m_timerRunning = !m_timerRunning;
+    emit timersChanged();
+    emit notification(m_timerRunning ? QStringLiteral(u"Service preview running")
+                                     : QStringLiteral(u"Service preview paused"));
+}
+
+void AppController::resetTimer()
+{
+    m_timerRunning = false;
+    m_seconds = 155;
+    m_held = 4;
+    emit timersChanged();
+}
+
+void AppController::setStageLayout(const QString& value)
+{
+    if (m_stageLayout == value)
+        return;
+    m_stageLayout = value;
+    persistSettings();
+    emit stageChanged();
+}
+
+void AppController::setLyricsFontSize(int value)
+{
+    value = qBound(14, value, 72);
+    if (m_lyricsFontSize == value)
+        return;
+    m_lyricsFontSize = value;
+    persistSettings();
+    emit stageChanged();
+}
+
+void AppController::sendStageMessage(const QString& message)
+{
+    if (message.trimmed().isEmpty())
+        return;
+    m_stageMessage = message.trimmed();
+    emit stageChanged();
+    emit notification(QStringLiteral(u"Message sent to stage"));
+}
+
+void AppController::toggleStageFlag(const QString& flag)
+{
+    if (!m_document.settings.contains(flag))
+        return;
+    setSetting(flag, !m_document.settings.value(flag).toBool());
+}
+
+void AppController::undo()
+{
+    emit notification(QStringLiteral(u"Undo"));
+}
+
+void AppController::redo()
+{
+    emit notification(QStringLiteral(u"Redo"));
+}
+
+void AppController::identifyDisplays()
+{
+    QStringList names;
+    const auto screens = QGuiApplication::screens();
+    for (qsizetype i = 0; i < screens.size(); ++i) {
+        const QSize size = screens.at(i)->geometry().size();
+        names.append(QStringLiteral(u"Display %1 (%2 × %3)")
+                         .arg(i + 1).arg(size.width()).arg(size.height()));
+    }
+    emit notification(names.isEmpty() ? QStringLiteral(u"No displays found")
+                                      : names.join(QStringLiteral(u", ")));
+}
+
+void AppController::setLocalApiEnabled(bool value)
+{
+    if (value == m_api.running())
+        return;
+    if (value) {
+        if (!m_api.start())
+            return;
+        emit notification(QStringLiteral(u"Local API listening on %1").arg(m_api.address()));
+    } else {
+        m_api.stop();
+        emit notification(QStringLiteral(u"Local API stopped"));
+    }
+    emit apiChanged();
+}
+
+void AppController::regenerateLocalApiToken()
+{
+    m_api.regenerateToken();
+    emit apiChanged();
+    emit notification(QStringLiteral(u"Local API token regenerated"));
+}
+
+bool AppController::saveDocument(const QString& path)
+{
+    const QString target = path.isEmpty() ? m_documentPath : path;
+    if (target.isEmpty())
+        return false;
+    QString error;
+    if (!m_document.save(target, &error)) {
+        emit notification(error);
+        return false;
+    }
+    m_documentPath = target;
+    emit documentChanged();
+    emit notification(QStringLiteral(u"Saved %1").arg(target));
+    return true;
+}
+
+bool AppController::openDocument(const QString& path)
+{
+    QString error;
+    core::Document loaded;
+    if (!loaded.load(path, &error)) {
+        emit notification(error);
+        return false;
+    }
+    m_document = loaded;
+    m_service.setDocument(&m_document);
+    m_cues.setDocument(&m_document);
+    m_library.setDocument(&m_document);
+    loadSettings();
+    m_documentPath = path;
+    emit documentChanged();
+    return true;
+}
+
+void AppController::refreshPreview()
+{
+    emit previewChanged();
+    m_api.broadcastState();
+}
+
+void AppController::onTick()
+{
+    emit tick();
+    if (!m_timerRunning)
+        return;
+    if (m_seconds > 0)
+        --m_seconds;
+    ++m_held;
+    emit timersChanged();
+}
+
+} // namespace mxu::app
