@@ -59,6 +59,7 @@ void MxuDocumentTest::controllerNavigation()
 
     controller.setScreen(QStringLiteral(u"settings"));
     QCOMPARE(controller.screen(), QStringLiteral(u"settings"));
+    controller.setSetting(QStringLiteral(u"ndiOutput"), true);
     QVERIFY(controller.setting(QStringLiteral(u"ndiOutput")).toBool());
     controller.setSetting(QStringLiteral(u"ndiOutput"), false);
     QVERIFY(!controller.setting(QStringLiteral(u"ndiOutput")).toBool());

@@ -3,6 +3,7 @@ import QtQuick.Controls
 import QtQuick.Window
 import "qrc:/qml/theme"
 import "qrc:/qml/screens"
+import "qrc:/qml/windows"
 
 // Frameless macOS-style shell. The five screens mirror the Claude mockup.
 ApplicationWindow {
@@ -130,6 +131,11 @@ ApplicationWindow {
         }
     }
 
+    PresentationWindow { id: presentationOutput }
+    StageOutputWindow { id: stageOutput }
+
+    Shortcut { sequence: "F5"; onActivated: Mxu.togglePresenting() }
+    Shortcut { sequence: "F6"; onActivated: Mxu.toggleStageOutput() }
     Shortcut { sequence: "Right"; onActivated: Mxu.next() }
     Shortcut { sequence: "Space"; onActivated: Mxu.next() }
     Shortcut { sequence: "Left"; onActivated: Mxu.previous() }

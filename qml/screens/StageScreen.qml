@@ -72,6 +72,10 @@ Item {
                     }
                     Item { Layout.fillWidth: true; height: 1 }
                     PillButton { icon: "record"; iconSize: 16; onClicked: Mxu.toggleRecording() }
+                    PillButton {
+                        icon: "monitor"; text: Mxu.stageOutputVisible ? "Close Stage" : "Open Stage"
+                        onClicked: Mxu.toggleStageOutput()
+                    }
                 }
 
                 Rectangle {

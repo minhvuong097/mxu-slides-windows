@@ -200,8 +200,9 @@ void AppController::previous()
 
 void AppController::toggleClear()
 {
-    emit notification(QStringLiteral(u"Output toggled"));
-    m_api.broadcastState();
+    setOutputCleared(!m_outputCleared);
+    emit notification(m_outputCleared ? QStringLiteral(u"Output cleared")
+                                      : QStringLiteral(u"Output restored"));
 }
 
 void AppController::toggleRecording()
@@ -258,6 +259,46 @@ void AppController::toggleStageFlag(const QString& flag)
     if (!m_document.settings.contains(flag))
         return;
     setSetting(flag, !m_document.settings.value(flag).toBool());
+}
+
+void AppController::setPresenting(bool value)
+{
+    if (m_presenting == value)
+        return;
+    m_presenting = value;
+    emit outputChanged();
+    emit notification(m_presenting ? QStringLiteral(u"Presentation output started")
+                                   : QStringLiteral(u"Presentation output stopped"));
+    m_api.broadcastState();
+}
+
+void AppController::setStageOutputVisible(bool value)
+{
+    if (m_stageOutputVisible == value)
+        return;
+    m_stageOutputVisible = value;
+    emit outputChanged();
+    emit notification(m_stageOutputVisible ? QStringLiteral(u"Stage display opened")
+                                           : QStringLiteral(u"Stage display closed"));
+}
+
+void AppController::setOutputCleared(bool value)
+{
+    if (m_outputCleared == value)
+        return;
+    m_outputCleared = value;
+    emit outputChanged();
+    m_api.broadcastState();
+}
+
+void AppController::togglePresenting()
+{
+    setPresenting(!m_presenting);
+}
+
+void AppController::toggleStageOutput()
+{
+    setStageOutputVisible(!m_stageOutputVisible);
 }
 
 void AppController::undo()

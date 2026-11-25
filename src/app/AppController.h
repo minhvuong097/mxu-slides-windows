@@ -51,6 +51,10 @@ class AppController : public QObject
     Q_PROPERTY(QString localApiToken READ localApiToken NOTIFY apiChanged)
     Q_PROPERTY(QString documentPath READ documentPath NOTIFY documentChanged)
 
+    Q_PROPERTY(bool presenting READ presenting WRITE setPresenting NOTIFY outputChanged)
+    Q_PROPERTY(bool stageOutputVisible READ stageOutputVisible WRITE setStageOutputVisible NOTIFY outputChanged)
+    Q_PROPERTY(bool outputCleared READ outputCleared WRITE setOutputCleared NOTIFY outputChanged)
+
 public:
     explicit AppController(QObject* parent = nullptr);
     ~AppController() override;
@@ -87,6 +91,10 @@ public:
     QString localApiToken() const;
     QString documentPath() const { return m_documentPath; }
 
+    bool presenting() const { return m_presenting; }
+    bool stageOutputVisible() const { return m_stageOutputVisible; }
+    bool outputCleared() const { return m_outputCleared; }
+
     Q_INVOKABLE QVariant setting(const QString& key) const;
     Q_INVOKABLE void setSetting(const QString& key, const QVariant& value);
 
@@ -109,6 +117,11 @@ public slots:
     void identifyDisplays();
     void setLocalApiEnabled(bool value);
     void regenerateLocalApiToken();
+    void setPresenting(bool value);
+    void setStageOutputVisible(bool value);
+    void setOutputCleared(bool value);
+    void togglePresenting();
+    void toggleStageOutput();
     bool saveDocument(const QString& path = {});
     bool openDocument(const QString& path);
 
@@ -120,6 +133,7 @@ signals:
     void previewChanged();
     void apiChanged();
     void documentChanged();
+    void outputChanged();
     void notification(const QString& message);
 
 private slots:
@@ -147,6 +161,9 @@ private:
     QString m_stageLayout = QStringLiteral(u"Lyrics + Next");
     QString m_stageMessage = QStringLiteral(u"Please wrap up the song in 1 minute");
     int m_lyricsFontSize = 30;
+    bool m_presenting = false;
+    bool m_stageOutputVisible = false;
+    bool m_outputCleared = false;
 };
 
 } // namespace mxu::app

@@ -19,6 +19,8 @@
         <file>qml/theme/Icons.qml</file>
         <file>qml/theme/Theme.qml</file>
         <file>qml/theme/qmldir</file>
+        <file>qml/windows/PresentationWindow.qml</file>
+        <file>qml/windows/StageOutputWindow.qml</file>
         <file>qml/screens/EditScreen.qml</file>
         <file>qml/screens/LibraryScreen.qml</file>
         <file>qml/screens/PresentScreen.qml</file>

@@ -8,6 +8,7 @@ import "qrc:/qml/components"
 // Settings — Outputs pane (1280x800 in the mockup).
 Item {
     id: root
+    property string pane: "Outputs"
 
     Row {
         anchors.fill: parent
@@ -49,7 +50,7 @@ Item {
                         width: parent.width
                         height: 30
                         radius: 7
-                        color: modelData.name === "Outputs" ? Theme.hover : "transparent"
+                        color: modelData.name === root.pane ? Theme.hover : "transparent"
                         RowLayout {
                             anchors.fill: parent
                             anchors.leftMargin: 8
@@ -62,6 +63,7 @@ Item {
                             }
                             Text { Layout.fillWidth: true; text: modelData.name; color: Theme.text; font.pixelSize: 12 }
                         }
+                        MouseArea { anchors.fill: parent; onClicked: root.pane = modelData.name }
                     }
                 }
             }
@@ -91,6 +93,7 @@ Item {
                 }
 
                 Rectangle {
+                    visible: root.pane === "Outputs"
                     width: parent.width
                     height: parent.height - 42
                     radius: 10
@@ -154,6 +157,67 @@ Item {
                                 onToggled: Mxu.setSetting("gpuAcceleration", value)
                             }
                             SettingRow { width: parent.width; label: "Frame rate"; value: Mxu.setting("frameRate"); fieldWidth: 120 }
+                        }
+                    }
+                }
+
+                Rectangle {
+                    visible: root.pane === "Remote"
+                    width: parent.width
+                    height: parent.height - 42
+                    radius: 10
+                    color: Theme.card
+                    Column {
+                        anchors.fill: parent
+                        anchors.margins: 12
+                        spacing: 6
+
+                        Row {
+                            width: parent.width
+                            height: 36
+                            spacing: 10
+                            Rectangle {
+                                width: 28; height: 28; radius: 6; color: Theme.green
+                                AppIcon { anchors.centerIn: parent; name: "remote"; size: 16; color: "white" }
+                            }
+                            Text { anchors.verticalCenter: parent.verticalCenter; text: "Local API"; color: Theme.text; font.pixelSize: 16; font.weight: Font.DemiBold }
+                        }
+
+                        Text { text: "SERVER"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
+                        SettingRow {
+                            width: parent.width; label: "Enable Local API"; toggle: true
+                            checked: Mxu.localApiEnabled
+                            onToggled: Mxu.setLocalApiEnabled(value)
+                        }
+                        SettingField { width: parent.width; label: "Address"; value: Mxu.localApiEnabled ? "http://127.0.0.1:6980" : "Off" }
+                        SettingField { width: parent.width; label: "WebSocket"; value: "ws://127.0.0.1:6981" }
+
+                        Text { text: "AUTHENTICATION"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
+                        Text {
+                            width: parent.width
+                            text: "Bearer token"
+                            color: Theme.textDim
+                            font.pixelSize: 11
+                        }
+                        Rectangle {
+                            width: parent.width
+                            height: 32
+                            radius: 7
+                            color: Theme.inset
+                            Text {
+                                anchors.fill: parent
+                                anchors.margins: 8
+                                text: Mxu.localApiToken
+                                color: Theme.text
+                                font.pixelSize: 11
+                                elide: Text.ElideMiddle
+                                verticalAlignment: Text.AlignVCenter
+                            }
+                        }
+                        Rectangle {
+                            width: 180; height: 30; radius: 9; color: Theme.accent
+                            Text { anchors.centerIn: parent; text: "Regenerate token"; color: "white"; font.pixelSize: 12; font.weight: Font.DemiBold }
+                            MouseArea { anchors.fill: parent; onClicked: Mxu.regenerateLocalApiToken() }
                         }
                     }
                 }
