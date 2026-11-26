@@ -4,6 +4,7 @@
 #include "AutomationService.h"
 #include "DiagnosticsService.h"
 #include "AudioService.h"
+#include "TimelineService.h"
 #include "MediaService.h"
 #include "Models.h"
 #include "NotesService.h"
@@ -90,6 +91,7 @@ class AppController : public QObject
     Q_PROPERTY(QObject* streaming READ streaming CONSTANT)
     Q_PROPERTY(QObject* automation READ automation CONSTANT)
     Q_PROPERTY(QObject* alerts READ alerts CONSTANT)
+    Q_PROPERTY(QObject* timeline READ timeline CONSTANT)
     Q_PROPERTY(QObject* notes READ notes CONSTANT)
     Q_PROPERTY(QObject* searchIndex READ searchIndex CONSTANT)
     Q_PROPERTY(QObject* syncLedger READ syncLedger CONSTANT)
@@ -163,6 +165,7 @@ public:
     QObject* streaming() { return &m_streaming; }
     QObject* automation() { return &m_automation; }
     QObject* alerts() { return &m_alerts; }
+    QObject* timeline() { return &m_timeline; }
     QObject* notes() { return &m_notes; }
     QObject* searchIndex() { return &m_search; }
     QObject* syncLedger() { return &m_sync; }
@@ -251,6 +254,7 @@ private:
     api::DeckLinkOutput m_decklink;
     api::StreamingService m_streaming;
     AlertsService m_alerts;
+    TimelineService m_timeline;
     AutomationService m_automation;
     NotesService m_notes;
     DiagnosticsService m_diagnostics;

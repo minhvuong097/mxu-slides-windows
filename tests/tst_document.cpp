@@ -12,6 +12,7 @@
 #include "app/AlertsService.h"
 #include "app/AutomationService.h"
 #include "app/NotesService.h"
+#include "app/TimelineService.h"
 #include "app/MediaService.h"
 #include "api/LocalApiServer.h"
 #include <QTcpSocket>
@@ -35,6 +36,7 @@ private slots:
     void localApiRoutes();
     void automationNotesAndImports();
     void searchSyncDiagnostics();
+    void timelineBasic();
 };
 
 void MxuDocumentTest::demoMatchesServiceFlow()
@@ -310,6 +312,23 @@ void MxuDocumentTest::searchSyncDiagnostics()
     QCOMPARE(diagnostics.errorCount(), 0);
     QVERIFY(diagnostics.reportJson().contains(QStringLiteral(u"test event")));
     Q_UNUSED(op)
+}
+
+void MxuDocumentTest::timelineBasic()
+{
+    app::TimelineService timeline;
+    QVERIFY(timeline.cues().size() >= 4);
+    QCOMPARE(timeline.lanes().size(), 3);
+    const QString id = timeline.cues().first().toMap().value(QStringLiteral(u"id")).toString();
+    QVERIFY(timeline.moveCue(id, 1234));
+    QVERIFY(timeline.resizeCue(id, 2500));
+    timeline.seek(1000);
+    QCOMPARE(timeline.playhead(), 1000);
+    timeline.play();
+    QVERIFY(timeline.playing());
+    timeline.pause();
+    QVERIFY(!timeline.playing());
+    QVERIFY(timeline.removeCue(id));
 }
 
 int main(int argc, char** argv)
