@@ -55,6 +55,8 @@ qt_add_library(mxu_core STATIC
     src/core/SearchIndex.cpp
     src/core/SyncLedger.h
     src/core/SyncLedger.cpp
+    src/core/AutomergeCompat.h
+    src/core/AutomergeCompat.cpp
 )
 target_include_directories(mxu_core PUBLIC ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(mxu_core PUBLIC Qt6::Core Qt6::Gui Qt6::Sql)
@@ -68,6 +70,8 @@ qt_add_library(mxu_shell STATIC
     src/ui/ScenePaintedItem.cpp
     src/audio/DspEngine.h
     src/audio/DspEngine.cpp
+    src/audio/WavRecorder.h
+    src/audio/WavRecorder.cpp
     src/api/LocalApiServer.h
     src/api/LocalApiServer.cpp
     src/app/MediaService.h

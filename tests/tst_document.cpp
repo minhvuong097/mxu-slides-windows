@@ -7,6 +7,8 @@
 #include "core/SceneModel.h"
 #include "core/SearchIndex.h"
 #include "core/SceneRasterizer.h"
+#include "core/AutomergeCompat.h"
+#include "audio/WavRecorder.h"
 #include "core/SyncLedger.h"
 #include "app/AppController.h"
 #include "app/AudioService.h"
@@ -69,6 +71,7 @@ private slots:
     void sceneRasterizer();
     void qmlSceneRoundTrip();
     void audioDsp();
+    void automergeAndWav();
 };
 
 void MxuDocumentTest::demoMatchesServiceFlow()
@@ -605,6 +608,30 @@ void MxuDocumentTest::audioDsp()
     audio::AudioClock clock;
     clock.setSampleRate(48000);
     QCOMPARE(clock.framesForMs(1000), 48000u);
+}
+
+void MxuDocumentTest::automergeAndWav()
+{
+    core::AutomergeCompat local;
+    local.setLocalValue(QStringLiteral(u"title"), QStringLiteral(u"Sunday"));
+    const QByteArray envelope = local.exportChanges();
+    QVERIFY(!envelope.isEmpty());
+    core::AutomergeCompat remote;
+    QVERIFY(remote.importChanges(envelope) >= 0);
+    QCOMPARE(remote.localValue(QStringLiteral(u"title")).toString(), QStringLiteral(u"Sunday"));
+
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString path = dir.path() + QStringLiteral(u"/audio.wav");
+    audio::WavRecorder recorder;
+    QVERIFY(recorder.start(path, 48000, 2, 16));
+    recorder.write(QVector<float>{ 0.0f, 0.25f, -0.25f, 0.5f });
+    QVERIFY(recorder.frames() >= 2);
+    recorder.finish();
+    QVERIFY(QFile::exists(path));
+    QFile file(path);
+    QVERIFY(file.open(QIODevice::ReadOnly));
+    QCOMPARE(file.read(4), QByteArray("RIFF"));
 }
 
 int main(int argc, char** argv)

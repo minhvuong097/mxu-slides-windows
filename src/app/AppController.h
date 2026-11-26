@@ -11,6 +11,7 @@
 #include "GroupPaletteService.h"
 #include "ArrangementService.h"
 #include "AudioService.h"
+#include "audio/WavRecorder.h"
 #include "BackupService.h"
 #include "TimelineService.h"
 #include "ServiceLinkService.h"
@@ -31,6 +32,7 @@
 #include "api/StreamingService.h"
 #include "core/Document.h"
 #include "core/SearchIndex.h"
+#include "core/AutomergeCompat.h"
 #include "core/SceneModel.h"
 #include "core/SyncLedger.h"
 #include "core/ShowDocument.h"
@@ -122,6 +124,8 @@ class AppController : public QObject
     Q_PROPERTY(QObject* serviceLinks READ serviceLinks CONSTANT)
     Q_PROPERTY(QObject* importLedger READ importLedger CONSTANT)
     Q_PROPERTY(QObject* groupPalette READ groupPalette CONSTANT)
+    Q_PROPERTY(QObject* automerge READ automerge CONSTANT)
+    Q_PROPERTY(QObject* recorder READ recorder CONSTANT)
     Q_PROPERTY(QObject* alertPresets READ alertPresets CONSTANT)
     Q_PROPERTY(QObject* effectPresets READ effectPresets CONSTANT)
     Q_PROPERTY(QObject* animationPresets READ animationPresets CONSTANT)
@@ -222,6 +226,8 @@ public:
     QObject* serviceLinks() { return &m_serviceLinks; }
     QObject* importLedger() { return &m_importLedger; }
     QObject* groupPalette() { return &m_groupPalette; }
+    QObject* automerge() { return &m_automerge; }
+    QObject* recorder() { return &m_recorder; }
     QObject* alertPresets() { return &m_alertPresets; }
     QObject* effectPresets() { return &m_effectPresets; }
     QObject* animationPresets() { return &m_animationPresets; }
@@ -348,6 +354,8 @@ private:
     ServiceLinkService m_serviceLinks;
     ImportLedgerService m_importLedger;
     GroupPaletteService m_groupPalette;
+    core::AutomergeCompat m_automerge;
+    audio::WavRecorder m_recorder;
     PresetBoardService m_alertPresets{ QStringLiteral(u"alerts") };
     PresetBoardService m_effectPresets{ QStringLiteral(u"effects") };
     PresetBoardService m_animationPresets{ QStringLiteral(u"animations") };
