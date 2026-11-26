@@ -9,6 +9,7 @@
 #include "core/SceneRasterizer.h"
 #include "core/AutomergeCompat.h"
 #include "audio/WavRecorder.h"
+#include "audio/WasapiEngine.h"
 #include "core/SyncLedger.h"
 #include "app/AppController.h"
 #include "app/AudioService.h"
@@ -72,6 +73,7 @@ private slots:
     void qmlSceneRoundTrip();
     void audioDsp();
     void automergeAndWav();
+    void wasapiStub();
 };
 
 void MxuDocumentTest::demoMatchesServiceFlow()
@@ -632,6 +634,20 @@ void MxuDocumentTest::automergeAndWav()
     QFile file(path);
     QVERIFY(file.open(QIODevice::ReadOnly));
     QCOMPARE(file.read(4), QByteArray("RIFF"));
+}
+
+void MxuDocumentTest::wasapiStub()
+{
+    audio::WasapiRenderEngine engine;
+    engine.setFrameCallback([](int frames) { return QVector<float>(frames * 2, 0.25f); });
+    const QVector<float> rendered = engine.renderFrames(4);
+    QCOMPARE(rendered.size(), 8);
+#ifdef Q_OS_WIN
+    QVERIFY(engine.available());
+#else
+    QVERIFY(!engine.available());
+    QVERIFY(!engine.start());
+#endif
 }
 
 int main(int argc, char** argv)

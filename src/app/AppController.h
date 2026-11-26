@@ -11,6 +11,7 @@
 #include "GroupPaletteService.h"
 #include "ArrangementService.h"
 #include "AudioService.h"
+#include "audio/WasapiEngine.h"
 #include "audio/WavRecorder.h"
 #include "BackupService.h"
 #include "TimelineService.h"
@@ -126,6 +127,7 @@ class AppController : public QObject
     Q_PROPERTY(QObject* groupPalette READ groupPalette CONSTANT)
     Q_PROPERTY(QObject* automerge READ automerge CONSTANT)
     Q_PROPERTY(QObject* recorder READ recorder CONSTANT)
+    Q_PROPERTY(QObject* wasapi READ wasapi CONSTANT)
     Q_PROPERTY(QObject* alertPresets READ alertPresets CONSTANT)
     Q_PROPERTY(QObject* effectPresets READ effectPresets CONSTANT)
     Q_PROPERTY(QObject* animationPresets READ animationPresets CONSTANT)
@@ -228,6 +230,7 @@ public:
     QObject* groupPalette() { return &m_groupPalette; }
     QObject* automerge() { return &m_automerge; }
     QObject* recorder() { return &m_recorder; }
+    QObject* wasapi() { return &m_wasapi; }
     QObject* alertPresets() { return &m_alertPresets; }
     QObject* effectPresets() { return &m_effectPresets; }
     QObject* animationPresets() { return &m_animationPresets; }
@@ -356,6 +359,7 @@ private:
     GroupPaletteService m_groupPalette;
     core::AutomergeCompat m_automerge;
     audio::WavRecorder m_recorder;
+    audio::WasapiRenderEngine m_wasapi;
     PresetBoardService m_alertPresets{ QStringLiteral(u"alerts") };
     PresetBoardService m_effectPresets{ QStringLiteral(u"effects") };
     PresetBoardService m_animationPresets{ QStringLiteral(u"animations") };
