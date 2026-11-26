@@ -9,6 +9,7 @@ import "qrc:/qml/components"
 Item {
     id: root
     property string controlTab: "timers"
+    property var collapsedSections: []
 
     Row {
         anchors.fill: parent
@@ -122,14 +123,32 @@ Item {
                                 Repeater {
                                     model: Mxu.serviceModel.sections
                                     delegate: Column {
+                                        id: sectionColumn
+                                        property string sectionName: modelData.name
                                         width: parent.width
                                         spacing: 2
-                                        SectionLabel {
+                                        Item {
                                             width: parent.width
-                                            text: modelData.name
-                                            labelColor: modelData.color
+                                            height: 18
+                                            SectionLabel {
+                                                anchors.fill: parent
+                                                text: modelData.name
+                                                labelColor: modelData.color
+                                            }
+                                            MouseArea {
+                                                anchors.fill: parent
+                                                onClicked: {
+                                                    const idx = sectionColumn.sectionName
+                                                    const list = root.collapsedSections
+                                                    const at = list.indexOf(idx)
+                                                    if (at >= 0) list.splice(at, 1)
+                                                    else list.push(idx)
+                                                    root.collapsedSections = list
+                                                }
+                                            }
                                         }
                                         Repeater {
+                                            visible: root.collapsedSections.indexOf(sectionColumn.sectionName) < 0
                                             model: modelData.items
                                             delegate: Rectangle {
                                                 width: parent.width
