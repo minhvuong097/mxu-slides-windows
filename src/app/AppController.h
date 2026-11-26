@@ -1,8 +1,10 @@
 #pragma once
 
+#include "AutomationService.h"
 #include "AudioService.h"
 #include "MediaService.h"
 #include "Models.h"
+#include "NotesService.h"
 #include "OutputManager.h"
 #include "api/LocalApiServer.h"
 #include "api/OutputBackends.h"
@@ -77,6 +79,8 @@ class AppController : public QObject
     Q_PROPERTY(QObject* outputs READ outputs CONSTANT)
     Q_PROPERTY(QObject* ndiSender READ ndiSender CONSTANT)
     Q_PROPERTY(QObject* deckLinkOutput READ deckLinkOutput CONSTANT)
+    Q_PROPERTY(QObject* automation READ automation CONSTANT)
+    Q_PROPERTY(QObject* notes READ notes CONSTANT)
     Q_PROPERTY(QVariantList audioChannels READ audioChannels NOTIFY audioChanged)
     Q_PROPERTY(QString transitionKind READ transitionKind WRITE setTransitionKind NOTIFY sceneChanged)
     Q_PROPERTY(double transitionDuration READ transitionDuration WRITE setTransitionDuration NOTIFY sceneChanged)
@@ -138,6 +142,8 @@ public:
     QObject* outputs() { return &m_outputs; }
     QObject* ndiSender() { return &m_ndi; }
     QObject* deckLinkOutput() { return &m_decklink; }
+    QObject* automation() { return &m_automation; }
+    QObject* notes() { return &m_notes; }
     QString transitionKind() const;
     double transitionDuration() const { return m_transitionDuration; }
     void setTransitionKind(const QString& value);
@@ -175,6 +181,9 @@ public slots:
     void updateObject(const QVariantMap& patch);
     void addTextObject();
     void playTransition();
+    int importLyrics(const QString& text);
+    bool importProPresenter(const QString& path);
+    bool importPptx(const QString& path);
     bool saveDocument(const QString& path = {});
     bool openDocument(const QString& path);
 
@@ -211,6 +220,8 @@ private:
     OutputManager m_outputs;
     api::NdiSender m_ndi;
     api::DeckLinkOutput m_decklink;
+    AutomationService m_automation;
+    NotesService m_notes;
     QString m_transitionKind = QStringLiteral(u"dissolve");
     double m_transitionDuration = 0.6;
     ServiceModel m_service;

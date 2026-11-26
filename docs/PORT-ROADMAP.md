@@ -19,7 +19,7 @@ theo package và xác định cái nào đã có, cái nào cần làm tiếp.
 | SlideScene / SlideEditorModel | ⚠️ `core::ShowDocument` + SlideObject/undo/redo; renderer đơn giản |
 | MediaEngine / AudioEngine | ⚠️ Media import/thumbnails + Qt Multimedia mixer; video frame grab & multitrack chưa có |
 | OutputEngine / NDI / DeckLink / Syphon | ⚠️ OutputManager + SDK stubs; recorder/Syphon chưa có |
-| StreamEngine / MIDI / Scheduler / Notes | ❌ |
+| StreamEngine / MIDI / Scheduler / Notes | ⚠️ Automation + notes + lyric import; MIDI hardware & streaming chưa có |
 | ProImport / PPTXImport | ❌ |
 | Diagnostics / perf | ❌ |
 
@@ -86,7 +86,14 @@ Kiến trúc gốc của phase này:
 - LocalAPI đầy đủ: ~40 routes, Bonjour/mDNS, follow pairing, scope tokens,
   Keychain → DPAPI/Credential Manager.
 
-## Phase 5 — Tự động hoá & nội dung (P2)
+## Phase 5 — Tự động hoá & nội dung (P2) — ĐÃ LÀM (phần lõi)
+
+- ✅ `AutomationService`: triggers (key/MIDI mapping), scheduler, timecode display.
+- ✅ `NotesService`: NoteBlock JSON in document, add/update/link slide.
+- ✅ Lyric import (stanza → slides); ProPresenter/PPTX stubs rõ ràng.
+- ⚠️ Chưa có: MIDI hardware in/out, MTC/LTC decode, full note rich text, ProPresenter protobuf, PPTX parser.
+
+Kiến trúc gốc của phase này:
 
 - MIDI in/out, MTC/LTC timecode, keyboard shortcut map.
 - Scheduler, combos/control boards, action combos.

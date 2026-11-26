@@ -64,6 +64,10 @@ qt_add_library(mxu_shell STATIC
     src/app/OutputManager.cpp
     src/api/OutputBackends.h
     src/api/OutputBackends.cpp
+    src/app/AutomationService.h
+    src/app/AutomationService.cpp
+    src/app/NotesService.h
+    src/app/NotesService.cpp
 )
 target_include_directories(mxu_shell PUBLIC ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(mxu_shell PUBLIC

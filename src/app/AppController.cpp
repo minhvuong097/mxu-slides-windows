@@ -53,10 +53,13 @@ AppController::AppController(QObject* parent)
     m_cues.setDocument(&m_document);
     m_library.setDocument(&m_document);
     m_media.setDocument(&m_document);
+    m_notes.setDocument(&m_document);
     connect(&m_media, &MediaService::notification, this, &AppController::notification);
     connect(&m_audio, &AudioService::notification, this, &AppController::notification);
     connect(&m_audio, &AudioService::changed, this, &AppController::audioChanged);
     connect(&m_outputs, &OutputManager::notification, this, &AppController::notification);
+    m_automation.attach(this);
+    connect(&m_automation, &AutomationService::notification, this, &AppController::notification);
 
     loadSettings();
 
@@ -416,6 +419,51 @@ void AppController::addTextObject()
         emit editorChanged();
 }
 
+int AppController::importLyrics(const QString& text)
+{
+    const QStringList lines = text.split(QLatin1Char('\n'));
+    int count = 0;
+    QString buffer;
+    for (const QString& line : lines) {
+        const QString trimmed = line.trimmed();
+        if (trimmed.isEmpty()) {
+            if (!buffer.isEmpty()) {
+                m_show.addSlide(QStringLiteral(u"Imported"), buffer);
+                ++count;
+                buffer.clear();
+            }
+            continue;
+        }
+        if (!buffer.isEmpty())
+            buffer += QLatin1Char('\n');
+        buffer += trimmed;
+    }
+    if (!buffer.isEmpty()) {
+        m_show.addSlide(QStringLiteral(u"Imported"), buffer);
+        ++count;
+    }
+    if (count > 0) {
+        emit editorChanged();
+        emit sceneChanged();
+        emit notification(QStringLiteral(u"Imported %1 slides").arg(count));
+    }
+    return count;
+}
+
+bool AppController::importProPresenter(const QString& path)
+{
+    Q_UNUSED(path)
+    emit notification(QStringLiteral(u"ProPresenter import requires the generated protobuf types"));
+    return false;
+}
+
+bool AppController::importPptx(const QString& path)
+{
+    Q_UNUSED(path)
+    emit notification(QStringLiteral(u"PPTX import is not available in this build"));
+    return false;
+}
+
 void AppController::undo()
 {
     if (!m_show.canUndo())
@@ -491,6 +539,7 @@ bool AppController::openDocument(const QString& path)
     m_cues.setDocument(&m_document);
     m_library.setDocument(&m_document);
     m_media.setDocument(&m_document);
+    m_notes.setDocument(&m_document);
     loadSettings();
     m_documentPath = path;
     emit documentChanged();

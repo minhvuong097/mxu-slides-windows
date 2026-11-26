@@ -7,6 +7,8 @@
 #include "core/SceneModel.h"
 #include "app/AppController.h"
 #include "app/AudioService.h"
+#include "app/AutomationService.h"
+#include "app/NotesService.h"
 #include "app/MediaService.h"
 #include "api/LocalApiServer.h"
 #include <QTcpSocket>
@@ -28,6 +30,7 @@ private slots:
     void sceneAndTransitions();
     void mediaAndAudio();
     void localApiRoutes();
+    void automationNotesAndImports();
 };
 
 void MxuDocumentTest::demoMatchesServiceFlow()
@@ -216,6 +219,34 @@ void MxuDocumentTest::localApiRoutes()
 
     server.stop();
     QVERIFY(!server.running());
+}
+
+void MxuDocumentTest::automationNotesAndImports()
+{
+    app::AppController controller;
+    QVERIFY(controller.importLyrics(QStringLiteral(u"Line one\nLine two\n\nLine three")) >= 2);
+
+    app::AutomationService automation;
+    automation.attach(&controller);
+    QVERIFY(automation.addKeyTrigger(QStringLiteral(u"next"), QStringLiteral(u"F5")));
+    QVERIFY(automation.triggers().size() >= 1);
+    QVERIFY(automation.triggers().at(0).toMap().value(QStringLiteral(u"action")).toString()
+                == QStringLiteral(u"next"));
+    QVERIFY(automation.fire(QStringLiteral(u"next")));
+    QVERIFY(automation.addSchedule(QStringLiteral(u"Service"), QStringLiteral(u"09:00"),
+                                   QStringLiteral(u"present")));
+    QVERIFY(automation.schedules().size() >= 1);
+    QVERIFY(!automation.timecode().isEmpty());
+    QVERIFY(!automation.midiAvailable());
+
+    app::NotesService notes;
+    core::Document doc = core::Document::demo();
+    notes.setDocument(&doc);
+    const QString id = notes.addBlock(QStringLiteral(u"Prayer before sermon"));
+    QVERIFY(notes.blocks().size() >= 1);
+    QVERIFY(notes.updateBlock(id, QStringLiteral(u"Prayer after sermon")));
+    QVERIFY(notes.text().contains(QStringLiteral(u"after sermon")));
+    QVERIFY(doc.notes.contains(QStringLiteral(u"blocks")));
 }
 
 int main(int argc, char** argv)
