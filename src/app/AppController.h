@@ -29,6 +29,7 @@
 #include "PlaylistService.h"
 #include "PptxImporter.h"
 #include "api/LocalApiServer.h"
+#include "api/NdiDynamicSender.h"
 #include "api/OutputBackends.h"
 #include "api/StreamingService.h"
 #include "core/Document.h"
@@ -128,6 +129,7 @@ class AppController : public QObject
     Q_PROPERTY(QObject* automerge READ automerge CONSTANT)
     Q_PROPERTY(QObject* recorder READ recorder CONSTANT)
     Q_PROPERTY(QObject* wasapi READ wasapi CONSTANT)
+    Q_PROPERTY(QObject* ndiDynamic READ ndiDynamic CONSTANT)
     Q_PROPERTY(QObject* alertPresets READ alertPresets CONSTANT)
     Q_PROPERTY(QObject* effectPresets READ effectPresets CONSTANT)
     Q_PROPERTY(QObject* animationPresets READ animationPresets CONSTANT)
@@ -231,6 +233,7 @@ public:
     QObject* automerge() { return &m_automerge; }
     QObject* recorder() { return &m_recorder; }
     QObject* wasapi() { return &m_wasapi; }
+    QObject* ndiDynamic() { return &m_ndiDynamic; }
     QObject* alertPresets() { return &m_alertPresets; }
     QObject* effectPresets() { return &m_effectPresets; }
     QObject* animationPresets() { return &m_animationPresets; }
@@ -360,6 +363,7 @@ private:
     core::AutomergeCompat m_automerge;
     audio::WavRecorder m_recorder;
     audio::WasapiRenderEngine m_wasapi;
+    api::NdiDynamicSender m_ndiDynamic;
     PresetBoardService m_alertPresets{ QStringLiteral(u"alerts") };
     PresetBoardService m_effectPresets{ QStringLiteral(u"effects") };
     PresetBoardService m_animationPresets{ QStringLiteral(u"animations") };

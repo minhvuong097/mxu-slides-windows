@@ -84,6 +84,8 @@ qt_add_library(mxu_shell STATIC
     src/app/OutputManager.cpp
     src/api/OutputBackends.h
     src/api/OutputBackends.cpp
+    src/api/NdiDynamicSender.h
+    src/api/NdiDynamicSender.cpp
     src/app/AutomationService.h
     src/app/AutomationService.cpp
     src/app/NotesService.h

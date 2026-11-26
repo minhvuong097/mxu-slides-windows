@@ -40,10 +40,11 @@ Window {
             background: "black"
         }
 
-        Rectangle {
+        TransitionCurtain {
             anchors.fill: parent
-            color: Mxu.transition.curtainColor
-            opacity: Mxu.transition.curtainOpacity
+            curtainColor: Mxu.transition.curtainColor
+            strength: Mxu.transition.curtainOpacity
+            burn: Mxu.transition.kind === "filmBurn" || Mxu.transition.kind === "blurDissolve"
         }
 
         Text {

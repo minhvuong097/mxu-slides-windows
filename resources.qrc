@@ -21,6 +21,7 @@
         <file>qml/components/NotesPanel.qml</file>
         <file>qml/components/OutputProfilePopup.qml</file>
         <file>qml/components/SceneView.qml</file>
+        <file>qml/components/TransitionCurtain.qml</file>
         <file>qml/components/ToggleSwitch.qml</file>
         <file>qml/components/ToolButton.qml</file>
         <file>qml/components/TrafficLights.qml</file>
