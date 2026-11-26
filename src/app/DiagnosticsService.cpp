@@ -9,6 +9,9 @@ DiagnosticsService::DiagnosticsService(QObject* parent)
     : QObject(parent)
 {
     m_started.start();
+    m_frameTimer.setInterval(16);
+    connect(&m_frameTimer, &QTimer::timeout, this, &DiagnosticsService::frameTick);
+    m_frameTimer.start();
 }
 
 QVariantList DiagnosticsService::events() const { return m_events; }
@@ -20,6 +23,23 @@ QString DiagnosticsService::uptime() const
         .arg(seconds / 3600, 2, 10, QChar(u'0'))
         .arg((seconds / 60) % 60, 2, 10, QChar(u'0'))
         .arg(seconds % 60, 2, 10, QChar(u'0'));
+}
+
+void DiagnosticsService::frameTick()
+{
+    const qint64 now = QDateTime::currentMSecsSinceEpoch();
+    if (m_lastFrame > 0) {
+        const double elapsed = static_cast<double>(now - m_lastFrame);
+        m_maxFrameMs = qMax(m_maxFrameMs, elapsed);
+        if (elapsed > 33.0)
+            ++m_hitches;
+        m_frames++;
+        if (m_frames >= 60) {
+            m_fps = 1000.0 / (elapsed > 0 ? elapsed : 16.0);
+            m_frames = 0;
+        }
+    }
+    m_lastFrame = now;
 }
 
 void DiagnosticsService::log(const QString& message, bool isError)
@@ -49,6 +69,9 @@ QString DiagnosticsService::reportJson() const
         { QStringLiteral(u"uptime"), uptime() },
         { QStringLiteral(u"ticks"), m_ticks },
         { QStringLiteral(u"errors"), m_errors },
+        { QStringLiteral(u"fps"), m_fps },
+        { QStringLiteral(u"hitches"), m_hitches },
+        { QStringLiteral(u"maxFrameMs"), m_maxFrameMs },
         { QStringLiteral(u"events"), m_events },
     }).toJson(QJsonDocument::Compact));
 }

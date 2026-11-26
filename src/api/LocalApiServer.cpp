@@ -44,7 +44,10 @@ void LocalApiServer::setPort(quint16 value)
 
 void LocalApiServer::loadTokens()
 {
-    const QVariantList stored = m_store.value(QStringLiteral(u"mxu/api/tokens")).toList();
+    const QByteArray vaultData = m_vault.load(QStringLiteral(u"api-tokens")).toUtf8();
+    const QVariantList stored = vaultData.isEmpty()
+                                    ? m_store.value(QStringLiteral(u"mxu/api/tokens")).toList()
+                                    : QJsonDocument::fromJson(vaultData).toVariant().toList();
     for (const QVariant& entry : stored) {
         const QVariantMap map = entry.toMap();
         const QString value = map.value(QStringLiteral(u"value")).toString();
@@ -66,6 +69,7 @@ void LocalApiServer::saveTokens()
     for (const Token& token : m_tokens)
         stored.append(QVariantMap{ { QStringLiteral(u"value"), token.value },
                                    { QStringLiteral(u"scopes"), token.scopes } });
+    m_vault.save(QStringLiteral(u"api-tokens"), QJsonDocument::fromVariant(stored).toJson(QJsonDocument::Compact));
     m_store.setValue(QStringLiteral(u"mxu/api/tokens"), stored);
     m_store.sync();
 }

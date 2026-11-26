@@ -1,5 +1,7 @@
 #pragma once
 
+#include "WindowsMidiInput.h"
+
 #include <QObject>
 #include <QSettings>
 #include <QString>
@@ -20,6 +22,7 @@ class AutomationService : public QObject
     Q_PROPERTY(QString timecode READ timecode NOTIFY changed)
     Q_PROPERTY(QString timecodeSource READ timecodeSource NOTIFY changed)
     Q_PROPERTY(bool midiAvailable READ midiAvailable CONSTANT)
+    Q_PROPERTY(QObject* midiInput READ midiInput CONSTANT)
     Q_PROPERTY(QVariantList triggers READ triggers NOTIFY changed)
     Q_PROPERTY(QVariantList schedules READ schedules NOTIFY changed)
 
@@ -30,6 +33,7 @@ public:
     QString timecode() const;
     QString timecodeSource() const;
     bool midiAvailable() const;
+    QObject* midiInput() { return &m_midi; }
     QVariantList triggers() const;
     QVariantList schedules() const;
 
@@ -53,6 +57,7 @@ private:
     void save();
 
     QSettings m_store;
+    WindowsMidiInput m_midi;
     AppController* m_controller = nullptr;
     QVariantList m_triggers;
     QVariantList m_schedules;

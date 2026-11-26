@@ -10,6 +10,16 @@ AutomationService::AutomationService(QObject* parent)
     : QObject(parent)
 {
     load();
+    connect(&m_midi, &WindowsMidiInput::noteReceived, this, [this](int note, bool on) {
+        if (!on)
+            return;
+        for (const QVariant& trigger : m_triggers) {
+            const QVariantMap map = trigger.toMap();
+            if (map.value(QStringLiteral(u"kind")).toString() == QStringLiteral(u"midi")
+                && map.value(QStringLiteral(u"value")).toInt() == note)
+                fire(map.value(QStringLiteral(u"action")).toString());
+        }
+    });
     m_timer.setInterval(100);
     connect(&m_timer, &QTimer::timeout, this, &AutomationService::tick);
     m_timer.start();
@@ -33,7 +43,7 @@ QString AutomationService::timecodeSource() const
 
 bool AutomationService::midiAvailable() const
 {
-    return false;
+    return m_midi.available();
 }
 
 QVariantList AutomationService::triggers() const { return m_triggers; }

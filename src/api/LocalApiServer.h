@@ -1,5 +1,7 @@
 #pragma once
 
+#include "app/TokenVault.h"
+
 #include <QObject>
 #include <QSet>
 #include <QSettings>
@@ -71,6 +73,7 @@ private:
     QSet<QTcpSocket*> m_sockets;
     QSet<QWebSocket*> m_clients;
     QSettings m_store;
+    app::TokenVault m_vault;
     QVector<Token> m_tokens;
     QString m_token;
     quint16 m_port = 6980;

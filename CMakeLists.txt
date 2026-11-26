@@ -88,6 +88,10 @@ qt_add_library(mxu_shell STATIC
     src/app/PlaylistService.cpp
     src/app/ArrangementService.h
     src/app/ArrangementService.cpp
+    src/app/WindowsMidiInput.h
+    src/app/WindowsMidiInput.cpp
+    src/app/TokenVault.h
+    src/app/TokenVault.cpp
     src/app/BackupService.h
     src/app/BackupService.cpp
     src/app/FontService.h
@@ -119,6 +123,7 @@ set_target_properties(mxu-slides PROPERTIES
 )
 
 if(WIN32)
+    target_link_libraries(mxu_shell PUBLIC winmm advapi32)
     find_program(WINDEPLOYQT windeployqt HINTS "${Qt6_DIR}/../../../bin")
     if(WINDEPLOYQT)
         add_custom_command(TARGET mxu-slides POST_BUILD
