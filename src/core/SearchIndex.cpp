@@ -26,7 +26,13 @@ SearchIndex::SearchIndex(QObject* parent)
 SearchIndex::~SearchIndex()
 {
     const QString name = m_connection;
+    {
+        QSqlQuery query(m_database);
+        query.finish();
+        query.clear();
+    }
     m_database.close();
+    m_database = QSqlDatabase();
     QSqlDatabase::removeDatabase(name);
 }
 

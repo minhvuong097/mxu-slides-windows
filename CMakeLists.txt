@@ -102,6 +102,17 @@ set_target_properties(mxu-slides PROPERTIES
     WIN32_EXECUTABLE ON
 )
 
+if(WIN32)
+    find_program(WINDEPLOYQT windeployqt HINTS "${Qt6_DIR}/../../../bin")
+    if(WINDEPLOYQT)
+        add_custom_command(TARGET mxu-slides POST_BUILD
+            COMMAND "${WINDEPLOYQT}" --no-translations --no-system-d3d-compiler
+                    --compiler-runtime "$<TARGET_FILE:mxu-slides>"
+            COMMENT "Deploying Qt runtime..."
+        )
+    endif()
+endif()
+
 if(MXU_BUILD_TESTS)
     enable_testing()
     find_package(Qt6 REQUIRED COMPONENTS Test)

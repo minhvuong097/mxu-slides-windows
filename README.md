@@ -56,6 +56,16 @@ Token mặc định được tạo lần đầu chạy và lưu trong `QSettings
 
 `Space` / `→` slide tiếp · `←` slide trước · `Ctrl+S` lưu · `Ctrl+1…5` chuyển màn hình.
 
+
+## Trạng thái port
+
+Các module macOS đã có mặt tương ứng: schema codegen, service/cue/slide/media,
+scene + transition, media import + audio mixer, output manager, automation,
+notes, FTS5 search, sync ledger, diagnostics và Local API. Xem
+[docs/PORT-ROADMAP.md](docs/PORT-ROADMAP.md) và [docs/REMAINING.md](docs/REMAINING.md).
+
+CI: `.github/workflows/build-windows.yml` build & test với Qt 6.12 trên Windows Server 2022.
+
 ## Ghi chú bản quyền
 
 Mã nguồn macOS MxU Slides dùng PolyForm Shield License 1.0.0. Hãy xác nhận
