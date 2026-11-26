@@ -92,10 +92,12 @@ target_link_libraries(mxu_shell PUBLIC
 )
 
 qt_add_resources(MXU_RESOURCES resources.qrc)
-qt_add_executable(mxu-slides WIN32
-    src/main.cpp
-    ${MXU_RESOURCES}
-)
+set(MXU_APP_SOURCES src/main.cpp ${MXU_RESOURCES})
+if(WIN32)
+    list(APPEND MXU_APP_SOURCES ${CMAKE_SOURCE_DIR}/appicon.rc)
+endif()
+
+qt_add_executable(mxu-slides WIN32 ${MXU_APP_SOURCES})
 target_include_directories(mxu-slides PRIVATE ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(mxu-slides PRIVATE
     mxu_shell

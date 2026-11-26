@@ -32,5 +32,6 @@
         <file>qml/screens/SettingsScreen.qml</file>
         <file>qml/screens/StageScreen.qml</file>
         <file>resources/icons/checker.png</file>
+        <file>resources/icons/appicon.ico</file>
     </qresource>
 </RCC>

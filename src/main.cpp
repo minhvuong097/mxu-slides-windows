@@ -14,6 +14,7 @@ int main(int argc, char* argv[])
     app.setOrganizationName(QStringLiteral(u"MxU"));
     app.setOrganizationDomain(QStringLiteral(u"mxu.app"));
     app.setApplicationVersion(QStringLiteral(u"0.1.0"));
+    QGuiApplication::setWindowIcon(QIcon(QStringLiteral(u":/resources/icons/appicon.ico")));
 
     QCommandLineParser parser;
     parser.setApplicationDescription(QStringLiteral(u"MxU Slides for Windows"));
