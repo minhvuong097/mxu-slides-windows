@@ -46,6 +46,8 @@ class AppController : public QObject
     Q_PROPERTY(QString timerState READ timerState NOTIFY timersChanged)
     Q_PROPERTY(QString advanceHeld READ advanceHeld NOTIFY tick)
     Q_PROPERTY(QVariantList timerRows READ timerRows NOTIFY timersChanged)
+    Q_PROPERTY(QString currentServiceItem READ currentServiceItem NOTIFY previewChanged)
+    Q_PROPERTY(QString nextServiceItem READ nextServiceItem NOTIFY previewChanged)
     Q_PROPERTY(bool timerRunning READ timerRunning NOTIFY timersChanged)
 
     Q_PROPERTY(QString stageLayout READ stageLayout WRITE setStageLayout NOTIFY stageChanged)
@@ -117,6 +119,8 @@ public:
     QString timerState() const;
     QString advanceHeld() const;
     QVariantList timerRows() const;
+    QString currentServiceItem() const;
+    QString nextServiceItem() const;
     bool timerRunning() const { return m_timerRunning; }
 
     QString stageLayout() const { return m_stageLayout; }

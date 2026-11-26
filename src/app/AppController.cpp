@@ -610,6 +610,29 @@ bool AppController::openDocument(const QString& path)
     return true;
 }
 
+QString AppController::currentServiceItem() const
+{
+    const QVariantMap item = m_service.currentItem();
+    return item.value(QStringLiteral(u"name")).toString();
+}
+
+QString AppController::nextServiceItem() const
+{
+    const int count = m_service.itemCount();
+    const int index = m_service.currentItemIndex() + 1;
+    if (count <= 0 || index >= count)
+        return QString();
+    const QVariantList sections = m_service.property("sections").toList();
+    for (const QVariant& section : sections) {
+        const QVariantList items = section.toMap().value(QStringLiteral(u"items")).toList();
+        for (const QVariant& entry : items) {
+            if (entry.toMap().value(QStringLiteral(u"index")).toInt() == index)
+                return entry.toMap().value(QStringLiteral(u"name")).toString();
+        }
+    }
+    return QString();
+}
+
 QVariantList AppController::audioChannels() const
 {
     return m_audio.channels();

@@ -779,6 +779,9 @@ Item {
                             }
                         }
 
+                        SettingField { width: parent.width; label: "Now"; value: Mxu.currentServiceItem }
+                        SettingField { width: parent.width; label: "Next"; value: Mxu.nextServiceItem }
+
                         Rectangle { width: parent.width - 20; height: 1; color: "#3a3a3d"; anchors.left: parent.left; anchors.leftMargin: 10 }
 
                         RowLayout {
