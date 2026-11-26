@@ -5,6 +5,7 @@
 #include <QTime>
 #include <QStandardPaths>
 #include <QJsonValue>
+#include <QUuid>
 
 namespace mxu::app {
 
@@ -13,12 +14,41 @@ QString clockText()
 {
     return QTime::currentTime().toString(QStringLiteral(u"h:mm AP"));
 }
+
+void seedSlides(core::ShowDocument& show, const core::Document& document)
+{
+    core::Document seeded = document;
+    for (const auto& cue : document.cues) {
+        mxu::model::Slide slide;
+        slide.id = QUuid::createUuid().toString(QUuid::WithoutBraces);
+        slide.name = cue.title;
+        for (const auto& line : cue.slides) {
+            mxu::model::SlideObject object;
+            object.id = QUuid::createUuid().toString(QUuid::WithoutBraces);
+            object.objectKind = mxu::model::SlideObjectKind::Text;
+            object.name = line.tag;
+            object.text = line.text.isEmpty() ? cue.title : line.text;
+            object.x = 70.0;
+            object.y = 130.0;
+            object.width = 500.0;
+            object.height = 100.0;
+            object.textStyle = mxu::model::TextStyle{};
+            object.textStyle->fontName = QStringLiteral(u"Segoe UI");
+            object.textStyle->fontSize = 22.0;
+            object.textStyle->colorHex = QStringLiteral(u"#FFFFFF");
+            slide.objects.append(object);
+        }
+        seeded.slides.append(slide);
+    }
+    show.setDocument(seeded);
+}
 }
 
 AppController::AppController(QObject* parent)
     : QObject(parent)
 {
     m_document = core::Document::demo();
+    seedSlides(m_show, m_document);
     m_service.setDocument(&m_document);
     m_cues.setDocument(&m_document);
     m_library.setDocument(&m_document);
@@ -301,13 +331,80 @@ void AppController::toggleStageOutput()
     setStageOutputVisible(!m_stageOutputVisible);
 }
 
+QVariantList AppController::slides() const
+{
+    return m_show.slidesForQml();
+}
+
+QVariantList AppController::slideObjects() const
+{
+    return m_show.objectsForQml(m_show.selectedSlide());
+}
+
+QVariantMap AppController::selectedObject() const
+{
+    return m_show.objectForQml(m_show.selectedObject());
+}
+
+int AppController::selectedSlideIndex() const
+{
+    const QVariantList list = slides();
+    const QString id = m_show.selectedSlide();
+    for (qsizetype i = 0; i < list.size(); ++i) {
+        if (list.at(i).toMap().value(QStringLiteral(u"id")).toString() == id)
+            return static_cast<int>(i);
+    }
+    return 0;
+}
+
+bool AppController::canUndo() const { return m_show.canUndo(); }
+bool AppController::canRedo() const { return m_show.canRedo(); }
+
+void AppController::selectSlide(int index)
+{
+    const QVariantList list = slides();
+    if (index < 0 || index >= list.size())
+        return;
+    m_show.selectSlide(list.at(index).toMap().value(QStringLiteral(u"id")).toString());
+    emit editorChanged();
+}
+
+void AppController::selectObject(const QString& id)
+{
+    m_show.selectObject(id);
+    emit editorChanged();
+}
+
+void AppController::updateObject(const QVariantMap& patch)
+{
+    if (!m_show.updateObject(m_show.selectedSlide(), m_show.selectedObject(), patch))
+        return;
+    emit editorChanged();
+}
+
+void AppController::addTextObject()
+{
+    const QString id = m_show.addTextObject(m_show.selectedSlide(),
+                                            QStringLiteral(u"New text"), 70, 300, 500, 80);
+    if (!id.isEmpty())
+        emit editorChanged();
+}
+
 void AppController::undo()
 {
+    if (!m_show.canUndo())
+        return;
+    m_show.undo();
+    emit editorChanged();
     emit notification(QStringLiteral(u"Undo"));
 }
 
 void AppController::redo()
 {
+    if (!m_show.canRedo())
+        return;
+    m_show.redo();
+    emit editorChanged();
     emit notification(QStringLiteral(u"Redo"));
 }
 
@@ -352,7 +449,7 @@ bool AppController::saveDocument(const QString& path)
     if (target.isEmpty())
         return false;
     QString error;
-    if (!m_document.save(target, &error)) {
+    if (!m_show.document().save(target, &error)) {
         emit notification(error);
         return false;
     }
@@ -371,12 +468,14 @@ bool AppController::openDocument(const QString& path)
         return false;
     }
     m_document = loaded;
+    seedSlides(m_show, m_document);
     m_service.setDocument(&m_document);
     m_cues.setDocument(&m_document);
     m_library.setDocument(&m_document);
     loadSettings();
     m_documentPath = path;
     emit documentChanged();
+    emit editorChanged();
     return true;
 }
 

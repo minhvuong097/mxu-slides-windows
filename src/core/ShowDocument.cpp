@@ -1,0 +1,309 @@
+#include "ShowDocument.h"
+
+#include <QJsonDocument>
+#include <QUuid>
+
+namespace mxu::core {
+
+namespace {
+QString makeId()
+{
+    return QUuid::createUuid().toString(QUuid::WithoutBraces);
+}
+
+QJsonObject snapshot(const Document& document)
+{
+    return QJsonDocument::fromJson(document.toJson()).object();
+}
+} // namespace
+
+void ShowDocument::setDocument(Document document)
+{
+    m_document = std::move(document);
+    m_undo.clear();
+    m_redo.clear();
+    m_selectedSlide.clear();
+    m_selectedObject.clear();
+    if (!m_document.slides.isEmpty())
+        m_selectedSlide = m_document.slides.first().id;
+}
+
+void ShowDocument::pushUndo()
+{
+    m_undo.append(snapshot(m_document));
+    if (m_undo.size() > kMaxHistory)
+        m_undo.removeFirst();
+    m_redo.clear();
+}
+
+void ShowDocument::undo()
+{
+    if (m_undo.isEmpty())
+        return;
+    m_redo.append(snapshot(m_document));
+    const QJsonObject previous = m_undo.takeLast();
+    m_document = Document::fromJson(QJsonDocument(previous).toJson());
+}
+
+void ShowDocument::redo()
+{
+    if (m_redo.isEmpty())
+        return;
+    m_undo.append(snapshot(m_document));
+    const QJsonObject next = m_redo.takeLast();
+    m_document = Document::fromJson(QJsonDocument(next).toJson());
+}
+
+model::Slide* ShowDocument::findSlide(const QString& id)
+{
+    for (auto& slide : m_document.slides) {
+        if (slide.id == id)
+            return &slide;
+    }
+    return nullptr;
+}
+
+const model::Slide* ShowDocument::findSlide(const QString& id) const
+{
+    for (const auto& slide : m_document.slides) {
+        if (slide.id == id)
+            return &slide;
+    }
+    return nullptr;
+}
+
+model::SlideObject* ShowDocument::findObject(const QString& slideId, const QString& objectId)
+{
+    model::Slide* slide = findSlide(slideId);
+    if (!slide)
+        return nullptr;
+    for (auto& object : slide->objects) {
+        if (object.id == objectId)
+            return &object;
+    }
+    return nullptr;
+}
+
+QString ShowDocument::addSlide(const QString& name, const QString& text)
+{
+    pushUndo();
+    model::Slide slide;
+    slide.id = makeId();
+    slide.name = name.isEmpty() ? QStringLiteral(u"Untitled") : name;
+    model::SlideObject object;
+    object.id = makeId();
+    object.objectKind = model::SlideObjectKind::Text;
+    object.name = QStringLiteral(u"Lyrics");
+    object.text = text;
+    object.x = 70.0;
+    object.y = 130.0;
+    object.width = 500.0;
+    object.height = 100.0;
+    object.textStyle = model::TextStyle{};
+    object.textStyle->fontName = QStringLiteral(u"Segoe UI");
+    object.textStyle->fontSize = 22.0;
+    object.textStyle->colorHex = QStringLiteral(u"#FFFFFF");
+    object.textStyle->horizontalAlignment = model::TextHorizontalAlignment::Center;
+    slide.objects.append(object);
+
+    m_document.slides.append(slide);
+    m_selectedSlide = slide.id;
+    m_selectedObject = object.id;
+    return slide.id;
+}
+
+bool ShowDocument::removeSlide(const QString& id)
+{
+    for (qsizetype i = 0; i < m_document.slides.size(); ++i) {
+        if (m_document.slides[i].id != id)
+            continue;
+        pushUndo();
+        m_document.slides.removeAt(i);
+        if (m_selectedSlide == id)
+            m_selectedSlide = m_document.slides.isEmpty() ? QString()
+                                                          : m_document.slides.first().id;
+        return true;
+    }
+    return false;
+}
+
+bool ShowDocument::duplicateSlide(const QString& id)
+{
+    const model::Slide* source = findSlide(id);
+    if (!source)
+        return false;
+    pushUndo();
+    model::Slide copy = *source;
+    copy.id = makeId();
+    copy.name = source->name + QStringLiteral(u" copy");
+    for (auto& object : copy.objects)
+        object.id = makeId();
+    m_document.slides.append(copy);
+    m_selectedSlide = copy.id;
+    return true;
+}
+
+bool ShowDocument::moveSlide(const QString& id, int delta)
+{
+    for (qsizetype i = 0; i < m_document.slides.size(); ++i) {
+        if (m_document.slides[i].id != id)
+            continue;
+        const qsizetype target = i + delta;
+        if (target < 0 || target >= m_document.slides.size())
+            return false;
+        pushUndo();
+        m_document.slides.move(i, target);
+        return true;
+    }
+    return false;
+}
+
+QString ShowDocument::addTextObject(const QString& slideId, const QString& text,
+                                    double x, double y, double width, double height)
+{
+    model::Slide* slide = findSlide(slideId);
+    if (!slide)
+        return {};
+    pushUndo();
+    model::SlideObject object;
+    object.id = makeId();
+    object.objectKind = model::SlideObjectKind::Text;
+    object.name = QStringLiteral(u"Text");
+    object.text = text;
+    object.x = x;
+    object.y = y;
+    object.width = width;
+    object.height = height;
+    object.textStyle = model::TextStyle{};
+    object.textStyle->fontName = QStringLiteral(u"Segoe UI");
+    object.textStyle->fontSize = 22.0;
+    object.textStyle->colorHex = QStringLiteral(u"#FFFFFF");
+    object.textStyle->horizontalAlignment = model::TextHorizontalAlignment::Center;
+    slide->objects.append(object);
+    m_selectedObject = object.id;
+    return object.id;
+}
+
+bool ShowDocument::updateObject(const QString& slideId, const QString& objectId,
+                                const QVariantMap& patch)
+{
+    model::SlideObject* object = findObject(slideId, objectId);
+    if (!object)
+        return false;
+    pushUndo();
+
+    auto number = [&patch](const QString& key, double& target) {
+        if (patch.contains(key))
+            target = patch.value(key).toDouble();
+    };
+    number(QStringLiteral(u"x"), *object->x);
+    number(QStringLiteral(u"y"), *object->y);
+    number(QStringLiteral(u"width"), *object->width);
+    number(QStringLiteral(u"height"), *object->height);
+    if (patch.contains(QStringLiteral(u"text")))
+        object->text = patch.value(QStringLiteral(u"text")).toString();
+
+    if (!object->textStyle)
+        object->textStyle = model::TextStyle{};
+    if (patch.contains(QStringLiteral(u"fontSize")))
+        object->textStyle->fontSize = patch.value(QStringLiteral(u"fontSize")).toDouble();
+    if (patch.contains(QStringLiteral(u"colorHex")))
+        object->textStyle->colorHex = patch.value(QStringLiteral(u"colorHex")).toString();
+    if (patch.contains(QStringLiteral(u"fontName")))
+        object->textStyle->fontName = patch.value(QStringLiteral(u"fontName")).toString();
+    if (patch.contains(QStringLiteral(u"animationSeconds"))) {
+        model::AnimationStep step;
+        step.id = makeId();
+        step.kind = model::AnimationKind::In;
+        step.animation = model::StepAnimation::Fade;
+        step.trigger = model::AnimationTrigger::OnClick;
+        step.durationSeconds = patch.value(QStringLiteral(u"animationSeconds")).toDouble();
+        object->animationSteps = QVector<model::AnimationStep>{ step };
+    }
+    return true;
+}
+
+bool ShowDocument::removeObject(const QString& slideId, const QString& objectId)
+{
+    model::Slide* slide = findSlide(slideId);
+    if (!slide)
+        return false;
+    for (qsizetype i = 0; i < slide->objects.size(); ++i) {
+        if (slide->objects[i].id != objectId)
+            continue;
+        pushUndo();
+        slide->objects.removeAt(i);
+        if (m_selectedObject == objectId)
+            m_selectedObject.clear();
+        return true;
+    }
+    return false;
+}
+
+QVariantList ShowDocument::slidesForQml() const
+{
+    QVariantList result;
+    for (const auto& slide : m_document.slides) {
+        QString text;
+        if (!slide.objects.isEmpty())
+            text = slide.objects.first().text;
+        result.append(QVariantMap{
+            { QStringLiteral(u"id"), slide.id },
+            { QStringLiteral(u"name"), slide.name },
+            { QStringLiteral(u"text"), text },
+            { QStringLiteral(u"objectCount"), slide.objects.size() },
+        });
+    }
+    return result;
+}
+
+QVariantList ShowDocument::objectsForQml(const QString& slideId) const
+{
+    QVariantList result;
+    const model::Slide* slide = findSlide(slideId);
+    if (!slide)
+        return result;
+    for (const auto& object : slide->objects) {
+        result.append(QVariantMap{
+            { QStringLiteral(u"id"), object.id },
+            { QStringLiteral(u"text"), object.text },
+            { QStringLiteral(u"x"), object.x.value_or(0) },
+            { QStringLiteral(u"y"), object.y.value_or(0) },
+            { QStringLiteral(u"width"), object.width.value_or(0) },
+            { QStringLiteral(u"height"), object.height.value_or(0) },
+            { QStringLiteral(u"fontSize"), object.textStyle ? object.textStyle->fontSize.value_or(22) : 22 },
+            { QStringLiteral(u"colorHex"), object.textStyle && object.textStyle->colorHex
+                                               ? *object.textStyle->colorHex : QStringLiteral(u"#FFFFFF") },
+            { QStringLiteral(u"fontName"), object.textStyle && object.textStyle->fontName
+                                               ? *object.textStyle->fontName : QStringLiteral(u"Segoe UI") },
+            { QStringLiteral(u"selected"), object.id == m_selectedObject },
+        });
+    }
+    return result;
+}
+
+QVariantMap ShowDocument::objectForQml(const QString& objectId) const
+{
+    for (const auto& slide : m_document.slides) {
+        for (const auto& object : slide.objects) {
+            if (object.id != objectId)
+                continue;
+            return QVariantMap{
+                { QStringLiteral(u"id"), object.id },
+                { QStringLiteral(u"text"), object.text },
+                { QStringLiteral(u"x"), object.x.value_or(0) },
+                { QStringLiteral(u"y"), object.y.value_or(0) },
+                { QStringLiteral(u"width"), object.width.value_or(0) },
+                { QStringLiteral(u"height"), object.height.value_or(0) },
+                { QStringLiteral(u"fontSize"), object.textStyle ? object.textStyle->fontSize.value_or(22) : 22 },
+                { QStringLiteral(u"colorHex"), object.textStyle && object.textStyle->colorHex
+                                                   ? *object.textStyle->colorHex : QStringLiteral(u"#FFFFFF") },
+                { QStringLiteral(u"fontName"), object.textStyle && object.textStyle->fontName
+                                                   ? *object.textStyle->fontName : QStringLiteral(u"Segoe UI") },
+            };
+        }
+    }
+    return {};
+}
+
+} // namespace mxu::core

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "generated/Models.h"
+
 #include <QJsonObject>
 #include <QString>
 #include <QVector>
@@ -90,6 +92,7 @@ public:
     QVector<ServiceItem> items;
     QVector<Cue> cues;
     QVector<MediaItem> media;
+    QVector<model::Slide> slides;
     QJsonObject settings;
     int schemaVersion = 161;
     QString name = QStringLiteral(u"Renew Worship");

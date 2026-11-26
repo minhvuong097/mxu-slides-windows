@@ -28,8 +28,12 @@ find_package(Qt6 6.5 REQUIRED COMPONENTS
 qt_standard_project_setup(REQUIRES 6.5)
 
 qt_add_library(mxu_core STATIC
+    src/core/generated/Models.h
+    src/core/generated/Models.cpp
     src/core/Document.h
     src/core/Document.cpp
+    src/core/ShowDocument.h
+    src/core/ShowDocument.cpp
 )
 target_include_directories(mxu_core PUBLIC ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(mxu_core PUBLIC Qt6::Core)

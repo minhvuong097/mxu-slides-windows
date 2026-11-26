@@ -13,19 +13,25 @@ theo package và xác định cái nào đã có, cái nào cần làm tiếp.
 | UI shell / AppShell / ModeSwitcher | ✅ `qml/main.qml` + 5 screens |
 | Service outline + cue cards | ✅ demo data, `ServiceModel` / `CueModel` |
 | LocalAPI (tối giản) | ✅ REST + WS + scoped token |
-| Document schema | ⚠️ JSON projection (`schemaVersion 161`), chưa có codegen |
+| Document schema | ✅ `scripts/generate_models.py` → 103 record / 62 enum từ `schema/documents.json` |
 | PresenterCore (Automerge, SQLite/FTS5) | ❌ |
 | RenderEngine (Metal) | ❌ |
-| SlideScene / SlideEditorModel | ❌ |
+| SlideScene / SlideEditorModel | ⚠️ `core::ShowDocument` + SlideObject/undo/redo; renderer đơn giản |
 | MediaEngine / AudioEngine | ❌ |
 | OutputEngine / NDI / DeckLink / Syphon | ❌ |
 | StreamEngine / MIDI / Scheduler / Notes | ❌ |
 | ProImport / PPTXImport | ❌ |
 | Diagnostics / perf | ❌ |
 
-## Phase 1 — Nền tảng dữ liệu và editor (P0)
+## Phase 1 — Nền tảng dữ liệu và editor (P0) — ĐÃ LÀM
 
-Mục tiêu: sửa được slide thật, lưu được show thật.
+- ✅ Codegen C++20 từ `schema/documents.json` (103 record, 62 enum, ~7.200 dòng).
+- ✅ `SlideObject` với geometry, textStyle, chords, animationSteps, visibility.
+- ✅ `ShowDocument`: thêm/xoá/sửa/duplicate/move slide & object, undo/redo snapshot JSON.
+- ✅ Edit screen binds `Mxu.slides`, `Mxu.slideObjects`, `Mxu.selectedObject`; kéo object, sửa X/Y/W/H, text, font, màu, animation.
+- ✅ Save/load `.mxuslides` chứa slides + objects.
+
+Còn lại của Phase 1: transition/layer rendering và scene rules đầy đủ (đẩy sang Phase 2).
 
 - Đổi `packages/schema/documents.json` → codegen C++20 structs + JSON codec
   (hiện đang viết tay trong `src/core/Document.*`).

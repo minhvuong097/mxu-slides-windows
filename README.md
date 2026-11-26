@@ -17,6 +17,7 @@ Repo này là một codebase mới, xây dựng từ các khái niệm và cấu
 
 ```powershell
 $env:CMAKE_PREFIX_PATH = "C:\Qt\6.12.0\msvc2019_64"
+python3 scripts/generate_models.py   # chỉ cần khi đổi schema/documents.json
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DMXU_BUILD_TESTS=ON
 cmake --build build --config Release
 .\build\Release\MxuSlides.exe
@@ -25,7 +26,10 @@ cmake --build build --config Release
 ## Kiến trúc
 
 ```
-src/core/Document.{h,cpp}     Mô hình service/cue/slide/media + JSON (.mxuslides, schemaVersion 161)
+src/core/generated/Models.*   103 record + 62 enum sinh từ schema/documents.json
+scripts/generate_models.py    Bộ sinh model C++20 (chạy lại khi schema đổi)
+src/core/Document.*           Service/cue/media + JSON (.mxuslides, schemaVersion 161)
+src/core/ShowDocument.*       SlideObject CRUD + undo/redo snapshot
 src/app/Models.{h,cpp}        ServiceModel, CueModel, LibraryModel cho QML
 src/app/AppController.*       Điều hướng 5 màn hình, timer, settings, stage
 src/api/LocalApiServer.*      REST + WebSocket, token scopes (port 6980/6981)

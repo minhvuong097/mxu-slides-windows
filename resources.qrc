@@ -8,6 +8,7 @@
         <file>qml/components/GradientThumb.qml</file>
         <file>qml/components/IconButton.qml</file>
         <file>qml/components/MiniSlider.qml</file>
+        <file>qml/components/NumberField.qml</file>
         <file>qml/components/PillButton.qml</file>
         <file>qml/components/SectionLabel.qml</file>
         <file>qml/components/Segmented.qml</file>

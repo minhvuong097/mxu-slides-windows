@@ -3,6 +3,7 @@
 #include <QTemporaryDir>
 
 #include "core/Document.h"
+#include "core/ShowDocument.h"
 #include "app/AppController.h"
 
 using namespace mxu;
@@ -15,6 +16,7 @@ private slots:
     void demoMatchesServiceFlow();
     void jsonRoundTrip();
     void controllerNavigation();
+    void slideObjectUndoRedo();
 };
 
 void MxuDocumentTest::demoMatchesServiceFlow()
@@ -64,6 +66,40 @@ void MxuDocumentTest::controllerNavigation()
     controller.setSetting(QStringLiteral(u"ndiOutput"), false);
     QVERIFY(!controller.setting(QStringLiteral(u"ndiOutput")).toBool());
     QCOMPARE(controller.serviceTimerText(), QStringLiteral(u"2:35"));
+}
+
+void MxuDocumentTest::slideObjectUndoRedo()
+{
+    core::ShowDocument show;
+    show.setDocument(core::Document::demo());
+    QCOMPARE(show.slidesForQml().size(), 0);
+
+    const QString slideId = show.addSlide(QStringLiteral(u"Test"), QStringLiteral(u"Hello"));
+    QCOMPARE(show.slidesForQml().size(), 1);
+    QVERIFY(show.canUndo());
+    QVERIFY(!show.canRedo());
+
+    const QString objectId = show.addTextObject(slideId, QStringLiteral(u"Lyric"), 10, 20, 300, 80);
+    QCOMPARE(show.objectsForQml(slideId).size(), 2);
+
+    QVERIFY(show.updateObject(slideId, objectId,
+                              { { QStringLiteral(u"x"), 123.0 },
+                                { QStringLiteral(u"fontSize"), 30.0 },
+                                { QStringLiteral(u"colorHex"), QStringLiteral(u"#ff0000") } }));
+    const QVariantMap object = show.objectForQml(objectId);
+    QCOMPARE(object.value(QStringLiteral(u"x")).toDouble(), 123.0);
+    QCOMPARE(object.value(QStringLiteral(u"fontSize")).toDouble(), 30.0);
+
+    show.undo();
+    QCOMPARE(show.objectForQml(objectId).value(QStringLiteral(u"x")).toDouble(), 10.0);
+    QVERIFY(show.canRedo());
+    show.redo();
+    QCOMPARE(show.objectForQml(objectId).value(QStringLiteral(u"x")).toDouble(), 123.0);
+
+    QVERIFY(show.removeObject(slideId, objectId));
+    QCOMPARE(show.objectsForQml(slideId).size(), 1);
+    QVERIFY(show.duplicateSlide(slideId));
+    QCOMPARE(show.slidesForQml().size(), 2);
 }
 
 int main(int argc, char** argv)

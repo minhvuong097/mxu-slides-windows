@@ -3,6 +3,7 @@
 #include "Models.h"
 #include "api/LocalApiServer.h"
 #include "core/Document.h"
+#include "core/ShowDocument.h"
 
 #include <QObject>
 #include <QSettings>
@@ -55,6 +56,13 @@ class AppController : public QObject
     Q_PROPERTY(bool stageOutputVisible READ stageOutputVisible WRITE setStageOutputVisible NOTIFY outputChanged)
     Q_PROPERTY(bool outputCleared READ outputCleared WRITE setOutputCleared NOTIFY outputChanged)
 
+    Q_PROPERTY(QVariantList slides READ slides NOTIFY editorChanged)
+    Q_PROPERTY(QVariantList slideObjects READ slideObjects NOTIFY editorChanged)
+    Q_PROPERTY(QVariantMap selectedObject READ selectedObject NOTIFY editorChanged)
+    Q_PROPERTY(int selectedSlideIndex READ selectedSlideIndex NOTIFY editorChanged)
+    Q_PROPERTY(bool canUndo READ canUndo NOTIFY editorChanged)
+    Q_PROPERTY(bool canRedo READ canRedo NOTIFY editorChanged)
+
 public:
     explicit AppController(QObject* parent = nullptr);
     ~AppController() override;
@@ -95,6 +103,13 @@ public:
     bool stageOutputVisible() const { return m_stageOutputVisible; }
     bool outputCleared() const { return m_outputCleared; }
 
+    QVariantList slides() const;
+    QVariantList slideObjects() const;
+    QVariantMap selectedObject() const;
+    int selectedSlideIndex() const;
+    bool canUndo() const;
+    bool canRedo() const;
+
     Q_INVOKABLE QVariant setting(const QString& key) const;
     Q_INVOKABLE void setSetting(const QString& key, const QVariant& value);
 
@@ -122,6 +137,10 @@ public slots:
     void setOutputCleared(bool value);
     void togglePresenting();
     void toggleStageOutput();
+    void selectSlide(int index);
+    void selectObject(const QString& id);
+    void updateObject(const QVariantMap& patch);
+    void addTextObject();
     bool saveDocument(const QString& path = {});
     bool openDocument(const QString& path);
 
@@ -134,6 +153,7 @@ signals:
     void apiChanged();
     void documentChanged();
     void outputChanged();
+    void editorChanged();
     void notification(const QString& message);
 
 private slots:
@@ -146,6 +166,7 @@ private:
     static QString duration(int seconds);
 
     core::Document m_document;
+    core::ShowDocument m_show;
     ServiceModel m_service;
     CueModel m_cues;
     LibraryModel m_library;

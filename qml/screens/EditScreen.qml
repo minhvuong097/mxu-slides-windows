@@ -5,11 +5,11 @@ import QtQuick.Window
 import "qrc:/qml/theme"
 import "qrc:/qml/components"
 
-// Visual slide editor (1280x800 in the mockup).
+// Visual slide editor — bound to the generated SlideObject model.
 Item {
     id: root
-    property int selectedSlide: 1
     property real zoom: 1.0
+    property real scale: 0.3333  // 1920x1080 document -> 640x360 canvas
 
     Row {
         anchors.fill: parent
@@ -27,7 +27,7 @@ Item {
             Column {
                 anchors.fill: parent
                 anchors.margins: 4
-                spacing: 14
+                spacing: 8
 
                 Row {
                     width: parent.width
@@ -50,21 +50,16 @@ Item {
                     width: parent.width
                     height: parent.height - 48
                     clip: true
-                    contentHeight: railColumn.implicitHeight
+                    contentHeight: rail.implicitHeight
                     Column {
-                        id: railColumn
+                        id: rail
                         width: parent.width
-                        spacing: 8
+                        spacing: 14
                         Repeater {
-                            model: [
-                                { text: "", n: 1 },
-                                { text: "AMAZING GRACE, HOW SWEET THE SOUND", n: 2 },
-                                { text: "I ONCE WAS LOST, BUT NOW AM FOUND", n: 3 },
-                                { text: "TWAS GRACE THAT TAUGHT MY HEART", n: 4 },
-                                { text: "MY CHAINS ARE GONE", n: 5 },
-                            ]
+                            model: Mxu.slides
                             delegate: Item {
-                                width: railColumn.width
+                                property int slideIndex: modelData.index !== undefined ? modelData.index : index
+                                width: rail.width
                                 height: thumb.height + 16
                                 Rectangle {
                                     id: thumb
@@ -73,7 +68,7 @@ Item {
                                     radius: 8
                                     color: Theme.checkerBase
                                     border.width: 2
-                                    border.color: modelData.n === root.selectedSlide + 1 ? Mxu.accent : "#333"
+                                    border.color: slideIndex === Mxu.selectedSlideIndex ? Mxu.accent : "#333"
                                     Checkerboard { anchors.fill: parent; anchors.margins: 2 }
                                     Text {
                                         anchors.centerIn: parent
@@ -84,16 +79,18 @@ Item {
                                         font.weight: Font.Bold
                                         horizontalAlignment: Text.AlignHCenter
                                         wrapMode: Text.WordWrap
+                                        maximumLineCount: 3
+                                        elide: Text.ElideRight
                                     }
                                     MouseArea {
                                         anchors.fill: parent
-                                        onClicked: root.selectedSlide = modelData.n - 1
+                                        onClicked: Mxu.selectSlide(index)
                                     }
                                 }
                                 Text {
                                     anchors.left: parent.left
                                     anchors.bottom: parent.bottom
-                                    text: modelData.n
+                                    text: index + 1
                                     color: Theme.textDim
                                     font.pixelSize: 10
                                 }
@@ -137,25 +134,25 @@ Item {
                         anchors.leftMargin: 12
                         anchors.rightMargin: 12
                         spacing: 6
-                        ToolButton { anchors.verticalCenter: parent.verticalCenter; text: "T"; onClicked: {} }
+                        ToolButton { anchors.verticalCenter: parent.verticalCenter; text: "T"; onClicked: Mxu.addTextObject() }
                         ToolButton { anchors.verticalCenter: parent.verticalCenter; icon: "shape"; onClicked: {} }
                         ToolButton { anchors.verticalCenter: parent.verticalCenter; icon: "image"; onClicked: {} }
                         ToolButton { anchors.verticalCenter: parent.verticalCenter; icon: "video"; onClicked: {} }
                         Item { width: Math.max(0, editorMode.width - 220); height: 1 }
                         Rectangle {
                             anchors.verticalCenter: parent.verticalCenter
-                            radius: 7
-                            color: Theme.surface
-                            implicitWidth: undoText.implicitWidth + 20; implicitHeight: 26
-                            Text { id: undoText; anchors.centerIn: parent; text: "Undo"; color: Theme.text; font.pixelSize: 11 }
+                            opacity: Mxu.canUndo ? 1 : 0.4
+                            radius: 7; color: Theme.surface
+                            implicitWidth: 54; implicitHeight: 26
+                            Text { anchors.centerIn: parent; text: "Undo"; color: Theme.text; font.pixelSize: 11 }
                             MouseArea { anchors.fill: parent; onClicked: Mxu.undo() }
                         }
                         Rectangle {
                             anchors.verticalCenter: parent.verticalCenter
-                            radius: 7
-                            color: Theme.surface
-                            implicitWidth: redoText.implicitWidth + 20; implicitHeight: 26
-                            Text { id: redoText; anchors.centerIn: parent; text: "Redo"; color: Theme.text; font.pixelSize: 11 }
+                            opacity: Mxu.canRedo ? 1 : 0.4
+                            radius: 7; color: Theme.surface
+                            implicitWidth: 54; implicitHeight: 26
+                            Text { anchors.centerIn: parent; text: "Redo"; color: Theme.text; font.pixelSize: 11 }
                             MouseArea { anchors.fill: parent; onClicked: Mxu.redo() }
                         }
                         Text { anchors.verticalCenter: parent.verticalCenter; text: "Zoom 100%"; color: Theme.textDim; font.pixelSize: 11 }
@@ -180,43 +177,66 @@ Item {
                             clip: true
                             Checkerboard { anchors.fill: parent; anchors.margins: 1 }
 
-                            Rectangle {
-                                x: 70 * root.zoom
-                                y: 130 * root.zoom
-                                width: 500 * root.zoom
-                                height: 100 * root.zoom
-                                border.color: Mxu.accent
-                                border.width: 2
-                                color: "transparent"
-                                Text {
-                                    anchors.centerIn: parent
-                                    width: parent.width - 10
-                                    text: "AMAZING GRACE, HOW SWEET THE SOUND\nTHAT SAVED A WRETCH LIKE ME"
-                                    color: Theme.text
-                                    font.pixelSize: 22 * root.zoom
-                                    font.weight: Font.Bold
-                                    lineHeight: 1.4
-                                    horizontalAlignment: Text.AlignHCenter
-                                    wrapMode: Text.WordWrap
-                                }
-                                Repeater {
-                                    model: [
-                                        { x: -5, y: -5 }, { x: 1, y: -5 },
-                                        { x: -5, y: 1 }, { x: 1, y: 1 },
-                                    ]
-                                    delegate: Rectangle {
-                                        x: modelData.x === -5 ? -5 : parent.width - 4
-                                        y: modelData.y === -5 ? -5 : parent.height - 4
-                                        width: 9; height: 9
-                                        color: "white"
-                                        border.color: Mxu.accent
-                                        border.width: 1.5
+                            Repeater {
+                                model: Mxu.slideObjects
+                                delegate: Rectangle {
+                                    property var obj: modelData
+                                    x: obj.x * root.scale * root.zoom
+                                    y: obj.y * root.scale * root.zoom
+                                    width: obj.width * root.scale * root.zoom
+                                    height: obj.height * root.scale * root.zoom
+                                    color: "transparent"
+                                    border.width: obj.selected ? 2 : 1
+                                    border.color: obj.selected ? Mxu.accent : "#555"
+                                    Text {
+                                        anchors.centerIn: parent
+                                        width: parent.width - 8
+                                        text: obj.text
+                                        color: obj.colorHex
+                                        font.pixelSize: obj.fontSize * root.scale * root.zoom
+                                        font.family: obj.fontName
+                                        font.weight: Font.Bold
+                                        lineHeight: 1.35
+                                        horizontalAlignment: Text.AlignHCenter
+                                        wrapMode: Text.WordWrap
                                     }
-                                }
-                                MouseArea {
-                                    anchors.fill: parent
-                                    drag.target: parent
-                                    drag.axis: Drag.XAndYAxis
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        drag.target: parent
+                                        onPressed: Mxu.selectObject(obj.id)
+                                        onReleased: Mxu.updateObject({
+                                            "x": parent.x / (root.scale * root.zoom),
+                                            "y": parent.y / (root.scale * root.zoom),
+                                        })
+                                    }
+                                    Rectangle {
+                                        visible: obj.selected
+                                        width: 9; height: 9; color: "white"
+                                        border.color: Mxu.accent; border.width: 1.5
+                                        anchors.left: parent.left; anchors.leftMargin: -5
+                                        anchors.top: parent.top; anchors.topMargin: -5
+                                    }
+                                    Rectangle {
+                                        visible: obj.selected
+                                        width: 9; height: 9; color: "white"
+                                        border.color: Mxu.accent; border.width: 1.5
+                                        anchors.right: parent.right; anchors.rightMargin: -5
+                                        anchors.top: parent.top; anchors.topMargin: -5
+                                    }
+                                    Rectangle {
+                                        visible: obj.selected
+                                        width: 9; height: 9; color: "white"
+                                        border.color: Mxu.accent; border.width: 1.5
+                                        anchors.left: parent.left; anchors.leftMargin: -5
+                                        anchors.bottom: parent.bottom; anchors.bottomMargin: -5
+                                    }
+                                    Rectangle {
+                                        visible: obj.selected
+                                        width: 9; height: 9; color: "white"
+                                        border.color: Mxu.accent; border.width: 1.5
+                                        anchors.right: parent.right; anchors.rightMargin: -5
+                                        anchors.bottom: parent.bottom; anchors.bottomMargin: -5
+                                    }
                                 }
                             }
                         }
@@ -241,19 +261,39 @@ Item {
                     id: inspector
                     width: parent.width
                     spacing: 6
+
                     Text { text: "Inspector"; color: Theme.text; font.pixelSize: 13; font.weight: Font.DemiBold }
 
                     Text { text: "POSITION"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
-                    Row { width: parent.width; spacing: 6
-                        SettingField { width: (parent.width - 6) / 2; label: "X"; value: "70" }
-                        SettingField { width: (parent.width - 6) / 2; label: "Y"; value: "130" }
+                    Row {
+                        width: parent.width; spacing: 6
+                        NumberField { width: (parent.width - 6) / 2; label: "X"; value: Mxu.selectedObject.x; onCommitted: Mxu.updateObject({ "x": value }) }
+                        NumberField { width: (parent.width - 6) / 2; label: "Y"; value: Mxu.selectedObject.y; onCommitted: Mxu.updateObject({ "y": value }) }
+                    }
+                    Row {
+                        width: parent.width; spacing: 6
+                        NumberField { width: (parent.width - 6) / 2; label: "W"; value: Mxu.selectedObject.width; onCommitted: Mxu.updateObject({ "width": value }) }
+                        NumberField { width: (parent.width - 6) / 2; label: "H"; value: Mxu.selectedObject.height; onCommitted: Mxu.updateObject({ "height": value }) }
                     }
 
                     Text { text: "TEXT"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
-                    SettingField { width: parent.width; label: "Segoe UI Variable"; value: "Bold"; icon: "text" }
-                    Row { width: parent.width; spacing: 6
-                        SettingField { width: (parent.width - 6) / 2; label: "Size"; value: "22" }
-                        SettingField { width: (parent.width - 6) / 2; label: "Color"; value: "FFFFFF" }
+                    TextField {
+                        width: parent.width
+                        text: Mxu.selectedObject.text || ""
+                        color: Theme.text
+                        font.pixelSize: 11
+                        background: Rectangle { radius: 7; color: Theme.inset }
+                        onAccepted: Mxu.updateObject({ "text": text })
+                        onEditingFinished: Mxu.updateObject({ "text": text })
+                    }
+                    NumberField { width: parent.width; label: "Size"; value: Mxu.selectedObject.fontSize; onCommitted: Mxu.updateObject({ "fontSize": value }) }
+                    TextField {
+                        width: parent.width
+                        text: Mxu.selectedObject.colorHex || "#FFFFFF"
+                        color: Theme.text
+                        font.pixelSize: 11
+                        background: Rectangle { radius: 7; color: Theme.inset }
+                        onEditingFinished: Mxu.updateObject({ "colorHex": text })
                     }
 
                     Text { text: "FILL AND STROKE"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
@@ -261,13 +301,14 @@ Item {
                     SettingField { width: parent.width; label: "Stroke"; value: "0 px" }
 
                     Text { text: "ANIMATION"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
-                    SettingField { width: parent.width; label: "Fade in"; value: "0.4 s" }
+                    NumberField { width: parent.width; label: "Fade in"; value: 0.4; onCommitted: Mxu.updateObject({ "animationSeconds": value }) }
 
                     Text { text: "TRANSITION"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
                     SettingField { width: parent.width; label: "Dissolve"; value: "0.6 s" }
 
                     Text { text: "LAYER"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
-                    Row { width: parent.width; spacing: 6
+                    Row {
+                        width: parent.width; spacing: 6
                         Rectangle { width: (parent.width - 6) / 2; height: 28; radius: 7; color: Theme.surface
                             Text { anchors.centerIn: parent; text: "Group"; color: Theme.text; font.pixelSize: 11 } }
                         Rectangle { width: (parent.width - 6) / 2; height: 28; radius: 7; color: Theme.surface
