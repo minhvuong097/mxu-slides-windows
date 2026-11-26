@@ -8,6 +8,7 @@ import "qrc:/qml/components"
 // Main "Service Flow — Present" screen (1280x840 in the Claude mockup).
 Item {
     id: root
+    property string controlTab: "timers"
 
     Row {
         anchors.fill: parent
@@ -746,19 +747,20 @@ Item {
                             spacing: 2
                             Rectangle {
                                 radius: 10
-                                color: Theme.segmentedBg
+                                color: root.controlTab === "combos" ? "#1b1b1d" : Theme.segmentedBg
                                 width: (parent.width - 44) / 2
                                 height: 28
                                 Row {
                                     anchors.centerIn: parent
                                     spacing: 6
-                                    AppIcon { anchors.verticalCenter: parent.verticalCenter; name: "bolt"; size: 12; color: Theme.textDim }
-                                    Text { anchors.verticalCenter: parent.verticalCenter; text: "Combos"; color: Theme.textDim; font.pixelSize: 11 }
+                                    AppIcon { anchors.verticalCenter: parent.verticalCenter; name: "bolt"; size: 12; color: root.controlTab === "combos" ? Theme.green : Theme.textDim }
+                                    Text { anchors.verticalCenter: parent.verticalCenter; text: "Combos"; color: root.controlTab === "combos" ? Theme.green : Theme.textDim; font.pixelSize: 11 }
                                 }
+                                MouseArea { anchors.fill: parent; onClicked: root.controlTab = "combos" }
                             }
                             Rectangle {
                                 radius: 10
-                                color: Theme.segmentedBg
+                                color: root.controlTab === "timers" ? "#1b1b1d" : Theme.segmentedBg
                                 width: (parent.width - 44) / 2
                                 height: 28
                                 Row {
@@ -767,6 +769,7 @@ Item {
                                     AppIcon { anchors.verticalCenter: parent.verticalCenter; name: "timer"; size: 12; color: Theme.green }
                                     Text { anchors.verticalCenter: parent.verticalCenter; text: "Timers"; color: Theme.green; font.pixelSize: 11 }
                                 }
+                                MouseArea { anchors.fill: parent; onClicked: root.controlTab = "timers" }
                             }
                             Rectangle {
                                 width: 44; height: 28
@@ -779,6 +782,7 @@ Item {
                         Rectangle { width: parent.width - 20; height: 1; color: "#3a3a3d"; anchors.left: parent.left; anchors.leftMargin: 10 }
 
                         RowLayout {
+                            visible: root.controlTab === "timers"
                             width: parent.width
                             height: 36
                             Item { Layout.fillWidth: true; height: 1 }
@@ -801,8 +805,9 @@ Item {
                             }
                         }
 
-                        Text { text: "Pre-Service Preroll"; color: Theme.text; font.pixelSize: 11; font.weight: Font.DemiBold }
+                        Text { visible: root.controlTab === "timers"; text: "Pre-Service Preroll"; color: Theme.text; font.pixelSize: 11; font.weight: Font.DemiBold }
                         Row {
+                            visible: root.controlTab === "timers"
                             spacing: 8
                             Text { text: Mxu.serviceTimerText; color: Theme.text; font.pixelSize: 30; font.weight: Font.DemiBold }
                             Text { anchors.verticalCenter: parent.verticalCenter; text: Mxu.serviceTimerDelta; color: Theme.textDim; font.pixelSize: 11 }
@@ -811,6 +816,7 @@ Item {
                         Repeater {
                             model: Mxu.timerRows
                             delegate: Row {
+                                visible: root.controlTab === "timers"
                                 width: parent.width
                                 height: 22
                                 Text { width: parent.width * 0.5; anchors.verticalCenter: parent.verticalCenter; text: modelData.label; color: Theme.textDim; font.pixelSize: 11; elide: Text.ElideRight }
@@ -820,12 +826,52 @@ Item {
                         }
 
                         Text {
+                            visible: root.controlTab === "timers"
                             width: parent.width
                             text: "Preview only: a run of this plan from now. Nothing is saved, and the real service starts fresh."
                             color: Theme.textDim
                             font.pixelSize: 10
                             wrapMode: Text.WordWrap
                             lineHeight: 1.35
+                        }
+
+                        Rectangle {
+                            visible: root.controlTab === "combos"
+                            width: parent.width
+                            height: Math.max(120, parent.height - 90)
+                            color: "transparent"
+                            Column {
+                                anchors.fill: parent
+                                spacing: 4
+                                Repeater {
+                                    model: Mxu.automation.triggers
+                                    delegate: Rectangle {
+                                        width: parent.width
+                                        height: 32
+                                        radius: 7
+                                        color: Theme.inset
+                                        RowLayout {
+                                            anchors.fill: parent
+                                            anchors.leftMargin: 8
+                                            anchors.rightMargin: 8
+                                            Text { Layout.fillWidth: true; text: modelData.action; color: Theme.text; font.pixelSize: 11 }
+                                            Text { text: modelData.kind === "key" ? modelData.value : "MIDI " + modelData.value; color: Theme.textDim; font.pixelSize: 10 }
+                                            Rectangle {
+                                                radius: 6; color: Theme.accent
+                                                implicitWidth: 36; implicitHeight: 22
+                                                Text { anchors.centerIn: parent; text: "Fire"; color: "white"; font.pixelSize: 10 }
+                                                MouseArea { anchors.fill: parent; onClicked: Mxu.automation.fire(modelData.action) }
+                                            }
+                                        }
+                                    }
+                                }
+                                Text {
+                                    visible: Mxu.automation.triggers.length === 0
+                                    text: "No combos yet. Add them in Settings › Shortcuts."
+                                    color: Theme.textDim
+                                    font.pixelSize: 11
+                                }
+                            }
                         }
                     }
                 }
