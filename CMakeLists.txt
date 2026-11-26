@@ -66,6 +66,8 @@ qt_add_library(mxu_shell STATIC
     src/app/AppController.cpp
     src/ui/ScenePaintedItem.h
     src/ui/ScenePaintedItem.cpp
+    src/audio/DspEngine.h
+    src/audio/DspEngine.cpp
     src/api/LocalApiServer.h
     src/api/LocalApiServer.cpp
     src/app/MediaService.h

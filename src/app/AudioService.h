@@ -3,6 +3,8 @@
 #include <QPropertyAnimation>
 #include <QAudioOutput>
 #include <QMediaPlayer>
+#include "audio/DspEngine.h"
+
 #include <QObject>
 #include <QVector>
 
@@ -15,6 +17,7 @@ class AudioService : public QObject
     Q_OBJECT
     Q_PROPERTY(QVariantList channels READ channels NOTIFY changed)
     Q_PROPERTY(bool playing READ playing NOTIFY changed)
+    Q_PROPERTY(QString fadeCurve READ fadeCurve WRITE setFadeCurve NOTIFY changed)
 
 public:
     explicit AudioService(QObject* parent = nullptr);
@@ -22,6 +25,9 @@ public:
 
     QVariantList channels() const;
     bool playing() const;
+    QString fadeCurve() const;
+    void setFadeCurve(const QString& value);
+    Q_INVOKABLE double crossfadeGain(int deck, double progress) const;
 
 public slots:
     QString addChannel(const QString& name, const QString& path);
@@ -56,6 +62,7 @@ private:
     void applyRouting();
 
     QVector<Channel> m_channels;
+    audio::FadeCurve m_fadeCurve = audio::FadeCurve::EqualPower;
 };
 
 } // namespace mxu::app

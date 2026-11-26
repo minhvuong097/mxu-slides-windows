@@ -42,6 +42,30 @@ void AudioService::applyRouting()
     }
 }
 
+QString AudioService::fadeCurve() const
+{
+    switch (m_fadeCurve) {
+    case audio::FadeCurve::Linear: return QStringLiteral(u"linear");
+    case audio::FadeCurve::SCurve: return QStringLiteral(u"sCurve");
+    default: return QStringLiteral(u"equalPower");
+    }
+}
+
+void AudioService::setFadeCurve(const QString& value)
+{
+    if (value == QStringLiteral(u"linear")) m_fadeCurve = audio::FadeCurve::Linear;
+    else if (value == QStringLiteral(u"sCurve")) m_fadeCurve = audio::FadeCurve::SCurve;
+    else m_fadeCurve = audio::FadeCurve::EqualPower;
+    emit changed();
+}
+
+double AudioService::crossfadeGain(int deck, double progress) const
+{
+    if (deck == 1)
+        return 1.0 - audio::FadeCurveEvaluator::gain(m_fadeCurve, progress);
+    return audio::FadeCurveEvaluator::gain(m_fadeCurve, progress);
+}
+
 QVariantList AudioService::channels() const
 {
     QVariantList result;

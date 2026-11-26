@@ -269,6 +269,17 @@ Item {
                         }
                         SettingField { width: parent.width; label: "Audio inputs"; value: Mxu.audioDevices.inputs.length }
                         SettingField { width: parent.width; label: "Audio outputs"; value: Mxu.audioDevices.outputs.length }
+                        Row { spacing: 6
+                            Rectangle { width: 90; height: 26; radius: 7; color: Mxu.audioService.fadeCurve === "equalPower" ? Theme.accent : Theme.surface
+                                Text { anchors.centerIn: parent; text: "Equal power"; color: "white"; font.pixelSize: 10 }
+                                MouseArea { anchors.fill: parent; onClicked: Mxu.audioService.fadeCurve = "equalPower" } }
+                            Rectangle { width: 70; height: 26; radius: 7; color: Mxu.audioService.fadeCurve === "linear" ? Theme.accent : Theme.surface
+                                Text { anchors.centerIn: parent; text: "Linear"; color: "white"; font.pixelSize: 10 }
+                                MouseArea { anchors.fill: parent; onClicked: Mxu.audioService.fadeCurve = "linear" } }
+                            Rectangle { width: 70; height: 26; radius: 7; color: Mxu.audioService.fadeCurve === "sCurve" ? Theme.accent : Theme.surface
+                                Text { anchors.centerIn: parent; text: "S-curve"; color: "white"; font.pixelSize: 10 }
+                                MouseArea { anchors.fill: parent; onClicked: Mxu.audioService.fadeCurve = "sCurve" } }
+                        }
                         Text { text: "CHANNELS"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
                         Repeater {
                             model: Mxu.audioChannels

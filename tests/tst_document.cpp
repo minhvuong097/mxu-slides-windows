@@ -23,6 +23,7 @@
 #include "app/PptxImporter.h"
 #include "app/FontService.h"
 #include "app/AlertsService.h"
+#include "audio/DspEngine.h"
 #include "app/AutomationService.h"
 #include "app/NotesService.h"
 #include "app/TimelineService.h"
@@ -67,6 +68,7 @@ private slots:
     void midiTimecode();
     void sceneRasterizer();
     void qmlSceneRoundTrip();
+    void audioDsp();
 };
 
 void MxuDocumentTest::demoMatchesServiceFlow()
@@ -567,6 +569,42 @@ void MxuDocumentTest::qmlSceneRoundTrip()
                                                     QStringLiteral(u"dissolve"));
     QVERIFY(!blended.isNull());
     QCOMPARE(blended.size(), QSize(160, 90));
+}
+
+void MxuDocumentTest::audioDsp()
+{
+    audio::RingBuffer<double> ring(8);
+    for (int i = 0; i < 7; ++i)
+        QVERIFY(ring.push(i * 0.1));
+    QVERIFY(!ring.push(9.0));
+    double value = 0.0;
+    QVERIFY(ring.pop(value));
+    QCOMPARE(ring.available(), 6u);
+
+    QVERIFY(audio::FadeCurveEvaluator::gain(audio::FadeCurve::Linear, 0.0) > 0.9);
+    QVERIFY(audio::FadeCurveEvaluator::gain(audio::FadeCurve::EqualPower, 1.0) < 0.01);
+
+    audio::AudioMeter meter;
+    for (int i = 0; i < 100; ++i)
+        meter.feed(0.5);
+    QVERIFY(meter.peak() > 0.0);
+    QVERIFY(meter.rms() > 0.0);
+
+    audio::DspMixer mixer;
+    QVector<audio::DeckState> decks(2);
+    decks[0].playing = true;
+    decks[0].gain = 1.0;
+    decks[1].playing = true;
+    decks[1].gain = 1.0;
+    mixer.setChannels(decks);
+    QVERIFY(mixer.gainFor(0, 0.0) > 0.9);
+    QVERIFY(mixer.gainFor(1, 0.0) < 0.01);
+    mixer.advanceFrames(48000);
+    QCOMPARE(decks[0].positionFrames, 0u);
+
+    audio::AudioClock clock;
+    clock.setSampleRate(48000);
+    QCOMPARE(clock.framesForMs(1000), 48000u);
 }
 
 int main(int argc, char** argv)
