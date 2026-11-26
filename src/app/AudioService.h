@@ -29,6 +29,7 @@ public slots:
     bool play(const QString& id);
     bool stop(const QString& id);
     void stopAll();
+    void playAll();
     bool setVolume(const QString& id, double volume);
     bool toggleMute(const QString& id);
     bool toggleSolo(const QString& id);

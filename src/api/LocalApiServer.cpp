@@ -284,6 +284,17 @@ QByteArray LocalApiServer::dispatch(const QString& method, const QString& path,
         addRoute(QStringLiteral(u"/v1/discovery"), QStringLiteral(u"get"), QStringLiteral(u"Discovered peers"), QStringLiteral(u"status"));
         addRoute(QStringLiteral(u"/v1/audio"), QStringLiteral(u"get"), QStringLiteral(u"Audio channels"), QStringLiteral(u"status"));
         addRoute(QStringLiteral(u"/v1/overlays"), QStringLiteral(u"get"), QStringLiteral(u"Active alerts"), QStringLiteral(u"status"));
+        addRoute(QStringLiteral(u"/v1/status/live"), QStringLiteral(u"get"), QStringLiteral(u"Live state only"), QStringLiteral(u"status"));
+        addRoute(QStringLiteral(u"/v1/slides/current"), QStringLiteral(u"get"), QStringLiteral(u"Current slide"), QStringLiteral(u"status"));
+        addRoute(QStringLiteral(u"/v1/slides/next"), QStringLiteral(u"get"), QStringLiteral(u"Next slide"), QStringLiteral(u"status"));
+        addRoute(QStringLiteral(u"/v1/notes/blocks"), QStringLiteral(u"get"), QStringLiteral(u"Sermon notes"), QStringLiteral(u"status"));
+        addRoute(QStringLiteral(u"/v1/timers/reset"), QStringLiteral(u"post"), QStringLiteral(u"Reset timers"), QStringLiteral(u"control"));
+        addRoute(QStringLiteral(u"/v1/audio/play"), QStringLiteral(u"post"), QStringLiteral(u"Play audio"), QStringLiteral(u"control"));
+        addRoute(QStringLiteral(u"/v1/audio/stop"), QStringLiteral(u"post"), QStringLiteral(u"Stop audio"), QStringLiteral(u"control"));
+        addRoute(QStringLiteral(u"/v1/recording/start"), QStringLiteral(u"post"), QStringLiteral(u"Start recording"), QStringLiteral(u"control"));
+        addRoute(QStringLiteral(u"/v1/recording/stop"), QStringLiteral(u"post"), QStringLiteral(u"Stop recording"), QStringLiteral(u"control"));
+        addRoute(QStringLiteral(u"/v1/notes/add"), QStringLiteral(u"post"), QStringLiteral(u"Add note"), QStringLiteral(u"control"));
+        addRoute(QStringLiteral(u"/v1/backup/create"), QStringLiteral(u"post"), QStringLiteral(u"Create backup"), QStringLiteral(u"control"));
         response.insert(QStringLiteral(u"paths"), paths);
     } else if (route == QStringLiteral(u"/v1/status") && method == QStringLiteral(u"GET")) {
         if (!authorized(auth, url, QStringLiteral(u"status")))
@@ -464,6 +475,47 @@ QByteArray LocalApiServer::dispatch(const QString& method, const QString& path,
             else
                 QMetaObject::invokeMethod(m_controller, action.constData(), Qt::QueuedConnection);
             response.insert(QStringLiteral(u"ok"), true);
+        }
+    } else if (method == QStringLiteral(u"GET") && (
+                   route == QStringLiteral(u"/v1/status/live") || route == QStringLiteral(u"/v1/slides/current")
+                   || route == QStringLiteral(u"/v1/slides/next") || route == QStringLiteral(u"/v1/notes/blocks"))) {
+        if (!authorized(auth, url, QStringLiteral(u"status"))) {
+            response.insert(QStringLiteral(u"error"), QStringLiteral(u"Unauthorized"));
+        } else if (m_controller) {
+            if (route == QStringLiteral(u"/v1/status/live"))
+                response.insert(QStringLiteral(u"live"), statusDocument().value(QStringLiteral(u"live")));
+            else if (route == QStringLiteral(u"/v1/slides/current"))
+                response.insert(QStringLiteral(u"slide"), m_controller->property("currentSlideText"));
+            else if (route == QStringLiteral(u"/v1/slides/next"))
+                response.insert(QStringLiteral(u"slide"), m_controller->property("nextSlideText"));
+            else
+                response.insert(QStringLiteral(u"blocks"), m_controller->notes()->property("blocks"));
+        }
+    } else if (method == QStringLiteral(u"POST") && (
+                   route == QStringLiteral(u"/v1/timers/reset") || route == QStringLiteral(u"/v1/audio/play")
+                   || route == QStringLiteral(u"/v1/audio/stop") || route == QStringLiteral(u"/v1/recording/start")
+                   || route == QStringLiteral(u"/v1/recording/stop") || route == QStringLiteral(u"/v1/notes/add")
+                   || route == QStringLiteral(u"/v1/backup/create"))) {
+        if (!authorized(auth, url, QStringLiteral(u"control"))) {
+            response.insert(QStringLiteral(u"error"), QStringLiteral(u"Control scope required"));
+        } else if (m_controller) {
+            QObject* target = nullptr;
+            QByteArray action;
+            if (route == QStringLiteral(u"/v1/timers/reset")) { target = m_controller->timerBoard(); action = "reset"; }
+            else if (route == QStringLiteral(u"/v1/audio/play")) { target = m_controller->audioService(); action = "playAll"; }
+            else if (route == QStringLiteral(u"/v1/audio/stop")) { target = m_controller->audioService(); action = "stopAll"; }
+            else if (route == QStringLiteral(u"/v1/recording/start")) { target = m_controller->streaming(); action = "startRecording"; }
+            else if (route == QStringLiteral(u"/v1/recording/stop")) { target = m_controller->streaming(); action = "stopRecording"; }
+            else if (route == QStringLiteral(u"/v1/notes/add")) { target = m_controller->notes(); action = "addBlock"; }
+            else { target = m_controller->backupService(); action = "createBackup"; }
+            const QString text = payload.value(QStringLiteral(u"text")).toString();
+            bool ok = false;
+            if (action == "addBlock" || action == "createBackup" || action == "startRecording")
+                ok = QMetaObject::invokeMethod(target, action.constData(), Qt::QueuedConnection,
+                                               Q_ARG(QString, text.isEmpty() ? QStringLiteral(u"API") : text));
+            else
+                ok = QMetaObject::invokeMethod(target, action.constData(), Qt::QueuedConnection);
+            response.insert(QStringLiteral(u"ok"), ok);
         }
     } else if (method == QStringLiteral(u"GET") && (
                    route == QStringLiteral(u"/v1/presets") || route == QStringLiteral(u"/v1/discovery")

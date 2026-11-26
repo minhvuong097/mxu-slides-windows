@@ -124,6 +124,15 @@ bool AudioService::stop(const QString& id)
     return true;
 }
 
+void AudioService::playAll()
+{
+    for (auto& channel : m_channels) {
+        if (channel.player)
+            channel.player->play();
+    }
+    emit changed();
+}
+
 void AudioService::stopAll()
 {
     for (auto& channel : m_channels) {
