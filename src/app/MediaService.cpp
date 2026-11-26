@@ -20,6 +20,12 @@ MediaService::MediaService(QObject* parent)
 {
 }
 
+QString MediaService::backgroundUrl() const
+{
+    const QString path = m_paths.value(m_background);
+    return path.isEmpty() ? QString() : QUrl::fromLocalFile(path).toString();
+}
+
 QVariantList MediaService::items() const
 {
     return m_items;
@@ -116,6 +122,7 @@ QString MediaService::importFile(const QString& path)
     const QString id = QUuid::createUuid().toString(QUuid::WithoutBraces);
     const QString thumb = thumbnailFor(id, path, isVideo);
     m_thumbnails.insert(id, thumb);
+    m_paths.insert(id, path);
 
     core::MediaItem item;
     item.name = info.completeBaseName();
@@ -153,8 +160,10 @@ bool MediaService::setBackground(const QString& id)
     if (!m_document || id.isEmpty())
         return false;
     for (qsizetype i = 0; i < m_document->media.size(); ++i) {
-        if (m_document->media[i].name != id)
+        if (m_document->media[i].name != id && QString::number(i) != id)
             continue;
+        m_background = QString::number(i);
+        emit changed();
         emit notification(QStringLiteral(u"Background set to %1").arg(id));
         return true;
     }

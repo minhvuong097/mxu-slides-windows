@@ -19,6 +19,7 @@ class MediaService : public QObject
     Q_OBJECT
     Q_PROPERTY(QVariantList items READ items NOTIFY changed)
     Q_PROPERTY(QString status READ status NOTIFY changed)
+    Q_PROPERTY(QString backgroundUrl READ backgroundUrl NOTIFY changed)
 
 public:
     explicit MediaService(QObject* parent = nullptr);
@@ -26,6 +27,7 @@ public:
 
     QVariantList items() const;
     QString status() const { return m_status; }
+    QString backgroundUrl() const;
 
 public slots:
     QString importFile(const QString& path);
@@ -47,6 +49,8 @@ private:
     core::Document* m_document = nullptr;
     QVariantList m_items;
     QHash<QString, QString> m_thumbnails;
+    QHash<QString, QString> m_paths;
+    QString m_background;
     QString m_status = QStringLiteral(u"Ready");
 };
 

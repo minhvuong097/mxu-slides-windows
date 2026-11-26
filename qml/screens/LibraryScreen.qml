@@ -90,7 +90,8 @@ Item {
                     anchors.leftMargin: 8
                     spacing: 16
                     Text { text: "+ New"; color: Theme.textDim; font.pixelSize: 12 }
-                    Text { text: "+ New Folder"; color: Theme.textDim; font.pixelSize: 12 }
+                    Text { text: "+ New Folder"; color: Theme.textDim; font.pixelSize: 12
+                        MouseArea { anchors.fill: parent; onClicked: folderDialog.open() } }
                 }
             }
         }
@@ -253,10 +254,16 @@ Item {
                 Rectangle {
                     width: parent.width; height: 30; radius: 9; color: Theme.surface
                     Text { anchors.centerIn: parent; text: "Set as background"; color: Theme.text; font.pixelSize: 12 }
-                    MouseArea { anchors.fill: parent; onClicked: Mxu.libraryModel.setAsBackground(Mxu.libraryModel.selectedIndex) }
+                    MouseArea { anchors.fill: parent; onClicked: Mxu.mediaService.setBackground(Mxu.libraryModel.selectedItem.name) }
                 }
             }
         }
+    }
+
+    FolderDialog {
+        id: folderDialog
+        title: "Import folder"
+        onAccepted: Mxu.mediaService.importFolder(selectedFolder)
     }
 
     FileDialog {

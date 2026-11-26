@@ -21,6 +21,14 @@ Window {
         anchors.fill: parent
         color: "black"
 
+        Image {
+            anchors.fill: parent
+            source: Mxu.mediaService.backgroundUrl
+            fillMode: Image.PreserveAspectCrop
+            opacity: 0.35
+            asynchronous: true
+        }
+
         SceneView {
             anchors.fill: parent
             cleared: Mxu.showState.isCleared("slide")
