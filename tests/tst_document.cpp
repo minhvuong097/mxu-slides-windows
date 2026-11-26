@@ -6,6 +6,7 @@
 #include "core/ShowDocument.h"
 #include "core/SceneModel.h"
 #include "core/SearchIndex.h"
+#include "core/SceneRasterizer.h"
 #include "core/SyncLedger.h"
 #include "app/AppController.h"
 #include "app/AudioService.h"
@@ -64,6 +65,7 @@ private slots:
     void presetBoards();
     void slideHistory();
     void midiTimecode();
+    void sceneRasterizer();
 };
 
 void MxuDocumentTest::demoMatchesServiceFlow()
@@ -532,6 +534,19 @@ void MxuDocumentTest::midiTimecode()
     QVERIFY(timecode.timecode().contains(QStringLiteral(u"01:02:03")));
     timecode.reset();
     QVERIFY(!timecode.locked());
+}
+
+void MxuDocumentTest::sceneRasterizer()
+{
+    core::ShowDocument show;
+    show.setDocument(core::Document::demo());
+    show.addSlide(QStringLiteral(u"Raster"), QStringLiteral(u"Hello world"));
+    const core::SceneBuilder builder;
+    const core::RenderScene scene = builder.build(show, true, true, QStringLiteral(u"9:00 AM"));
+    core::SceneRasterizer rasterizer;
+    const QImage image = rasterizer.render(scene, QSize(320, 180));
+    QVERIFY(!image.isNull());
+    QCOMPARE(image.size(), QSize(320, 180));
 }
 
 int main(int argc, char** argv)

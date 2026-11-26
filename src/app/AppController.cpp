@@ -1,4 +1,5 @@
 #include "AppController.h"
+#include "core/SceneRasterizer.h"
 
 #include <QGuiApplication>
 #include <QImage>
@@ -602,67 +603,11 @@ bool AppController::exportSlideImage(const QString& path)
 {
     if (path.isEmpty())
         return false;
-    QImage image(1920, 1080, QImage::Format_ARGB32);
-    image.fill(QColor(QStringLiteral(u"#0b0b0c")));
-    QPainter painter(&image);
-    const core::RenderScene scene = m_sceneBuilder.build(m_show, chordsVisible(), clockVisible(), serviceClock(),
-                                                          outputScaleMode(), outputMaskMode(), outputMaskShape());
-    for (const auto& layer : scene.layers) {
-        if (!layer.visible)
-            continue;
-        painter.setOpacity(layer.opacity);
-        for (const auto& item : layer.items) {
-            painter.setCompositionMode(itemBlendMode(item.blendMode));
-            QFont font(QStringLiteral(u"Segoe UI"));
-            font.setPixelSize(static_cast<int>(item.fontSize));
-            font.setBold(true);
-            painter.setFont(font);
-            painter.setPen(QColor(item.colorHex));
-            QRectF rect(item.x, item.y, item.width, item.height);
-            if (!item.renderedHtml.isEmpty()) {
-                QTextDocument document;
-                document.setHtml(QStringLiteral(u"<div style='color:%1;'>%2</div>")
-                                     .arg(item.colorHex, item.renderedHtml));
-                document.setTextWidth(rect.width());
-                painter.save();
-                painter.translate(rect.x(), rect.y() + (rect.height() - document.size().height()) / 2);
-                document.drawContents(&painter);
-                painter.restore();
-            } else {
-                painter.drawText(rect, Qt::AlignCenter | Qt::TextWordWrap, item.text);
-            }
-            if (!item.chord.isEmpty()) {
-                QFont chordFont = font;
-                chordFont.setPixelSize(static_cast<int>(item.fontSize * 0.7));
-                painter.setFont(chordFont);
-                painter.setPen(QColor(QStringLiteral(u"#ffd60a")));
-                painter.drawText(QRectF(item.x, item.y - item.fontSize, item.width, item.fontSize),
-                                 Qt::AlignLeft, item.chord);
-            }
-        }
-    }
-    if (outputMaskMode() == QStringLiteral(u"out") || outputMaskMode() == QStringLiteral(u"in")) {
-        QPainter maskPainter(&image);
-        const QRect rect(static_cast<int>(image.width() * 0.08), static_cast<int>(image.height() * 0.08),
-                         static_cast<int>(image.width() * 0.84), static_cast<int>(image.height() * 0.84));
-        QPainterPath path;
-        if (outputMaskShape() == QStringLiteral(u"ellipse"))
-            path.addEllipse(QRectF(rect));
-        else
-            path.addRect(rect);
-        QPainterPath outside;
-        outside.addRect(image.rect());
-        outside = outside.subtracted(path);
-        maskPainter.setPen(Qt::NoPen);
-        maskPainter.setBrush(QColor(outputMaskMode() == QStringLiteral(u"out") ? Qt::black : Qt::white));
-        if (outputMaskMode() == QStringLiteral(u"out"))
-            maskPainter.drawPath(outside);
-        else
-            maskPainter.drawPath(path);
-        maskPainter.end();
-    }
-    painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
-    painter.end();
+    const core::RenderScene scene = m_sceneBuilder.build(m_show, chordsVisible(), clockVisible(),
+                                                          serviceClock(), outputScaleMode(),
+                                                          outputMaskMode(), outputMaskShape());
+    core::SceneRasterizer rasterizer;
+    const QImage image = rasterizer.render(scene, QSize(1920, 1080));
     if (!image.save(path))
         return false;
     emit notification(QStringLiteral(u"Exported %1").arg(path));

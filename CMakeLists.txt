@@ -49,6 +49,8 @@ qt_add_library(mxu_core STATIC
     src/core/ShowDocument.cpp
     src/core/SceneModel.h
     src/core/SceneModel.cpp
+    src/core/SceneRasterizer.h
+    src/core/SceneRasterizer.cpp
     src/core/SearchIndex.h
     src/core/SearchIndex.cpp
     src/core/SyncLedger.h
