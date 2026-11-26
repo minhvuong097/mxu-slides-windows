@@ -136,6 +136,12 @@ ApplicationWindow {
     StageOutputWindow { id: stageOutput }
     ConfidenceWindow { id: confidenceMonitor }
 
+    NotesPanel {
+        id: notesPanel
+        anchors.centerIn: parent
+        onCloseRequested: hide()
+    }
+
     TimelinePanel {
         id: timelinePanel
         anchors.centerIn: parent
@@ -151,6 +157,7 @@ ApplicationWindow {
 
     Shortcut { sequence: "Ctrl+K"; onActivated: quickSearch.open() }
     Shortcut { sequence: "Ctrl+T"; onActivated: timelinePanel.open() }
+    Shortcut { sequence: "F8"; onActivated: notesPanel.open() }
     Shortcut { sequence: "F5"; onActivated: Mxu.togglePresenting() }
     Shortcut { sequence: "F6"; onActivated: Mxu.toggleStageOutput() }
     Shortcut { sequence: "F7"; onActivated: Mxu.toggleConfidence() }
