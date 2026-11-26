@@ -197,6 +197,27 @@ Item {
                         }
                         SettingField { width: parent.width; label: "Address"; value: Mxu.localApiEnabled ? "http://127.0.0.1:6980" : "Off" }
                         SettingField { width: parent.width; label: "WebSocket"; value: "ws://127.0.0.1:6981" }
+                        Text { text: "FOLLOW LINKS"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
+                        Repeater {
+                            model: Mxu.serviceLinks.rules
+                            delegate: Rectangle {
+                                width: parent.width; height: 28; radius: 6; color: Theme.inset
+                                RowLayout {
+                                    anchors.fill: parent; anchors.leftMargin: 8; anchors.rightMargin: 8
+                                    Text { Layout.fillWidth: true; text: modelData.peer + " (" + modelData.mode + ")"; color: Theme.text; font.pixelSize: 11 }
+                                    Rectangle {
+                                        width: 44; height: 20; radius: 6; color: modelData.enabled ? Theme.green : Theme.surface
+                                        Text { anchors.centerIn: parent; text: modelData.enabled ? "On" : "Off"; color: "white"; font.pixelSize: 9 }
+                                        MouseArea { anchors.fill: parent; onClicked: Mxu.serviceLinks.toggle(modelData.id) }
+                                    }
+                                }
+                            }
+                        }
+                        Rectangle {
+                            width: 120; height: 26; radius: 8; color: Theme.accent
+                            Text { anchors.centerIn: parent; text: "+ Follow peer"; color: "white"; font.pixelSize: 10 }
+                            MouseArea { anchors.fill: parent; onClicked: Mxu.serviceLinks.add("peer-" + (Mxu.serviceLinks.rules.length + 1), "follow") }
+                        }
 
                         Text { text: "AUTHENTICATION"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
                         Text {

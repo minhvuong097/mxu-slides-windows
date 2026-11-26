@@ -100,6 +100,8 @@ qt_add_library(mxu_shell STATIC
     src/app/ConfidenceLayoutService.cpp
     src/app/ServiceVersionService.h
     src/app/ServiceVersionService.cpp
+    src/app/ServiceLinkService.h
+    src/app/ServiceLinkService.cpp
     src/app/DocumentRegistry.h
     src/app/DocumentRegistry.cpp
     src/app/AudioDeviceService.h

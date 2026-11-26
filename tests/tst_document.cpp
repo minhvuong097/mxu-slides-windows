@@ -12,6 +12,7 @@
 #include "app/BackupService.h"
 #include "app/ConfidenceLayoutService.h"
 #include "app/DocumentRegistry.h"
+#include "app/ServiceLinkService.h"
 #include "app/ServiceVersionService.h"
 #include "app/DiscoveryService.h"
 #include "app/PptxImporter.h"
@@ -54,6 +55,7 @@ private slots:
     void confidenceLayout();
     void serviceVersions();
     void documentRegistry();
+    void serviceLinks();
 };
 
 void MxuDocumentTest::demoMatchesServiceFlow()
@@ -455,6 +457,15 @@ void MxuDocumentTest::documentRegistry()
     QVERIFY(!id.isEmpty());
     QCOMPARE(registry.inKind(QStringLiteral(u"presentation")).size(), 1);
     QVERIFY(registry.remove(id));
+}
+
+void MxuDocumentTest::serviceLinks()
+{
+    app::ServiceLinkService links;
+    const QString id = links.add(QStringLiteral(u"station-2"), QStringLiteral(u"follow"));
+    QVERIFY(!id.isEmpty());
+    QVERIFY(links.toggle(id));
+    QVERIFY(links.remove(id));
 }
 
 int main(int argc, char** argv)

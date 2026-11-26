@@ -12,6 +12,7 @@
 #include "AudioService.h"
 #include "BackupService.h"
 #include "TimelineService.h"
+#include "ServiceLinkService.h"
 #include "ServiceVersionService.h"
 #include "SlideActionRouter.h"
 #include "TimerBoardService.h"
@@ -114,6 +115,7 @@ class AppController : public QObject
     Q_PROPERTY(QObject* serviceVersions READ serviceVersions CONSTANT)
     Q_PROPERTY(QObject* documents READ documents CONSTANT)
     Q_PROPERTY(QObject* audioDevices READ audioDevices CONSTANT)
+    Q_PROPERTY(QObject* serviceLinks READ serviceLinks CONSTANT)
     Q_PROPERTY(QVariantList currentSlideActions READ currentSlideActions NOTIFY editorChanged)
     Q_PROPERTY(QString outputScaleMode READ outputScaleMode WRITE setOutputScaleMode NOTIFY settingsChanged)
     Q_PROPERTY(QString outputMaskMode READ outputMaskMode WRITE setOutputMaskMode NOTIFY settingsChanged)
@@ -206,6 +208,7 @@ public:
     QObject* serviceVersions() { return &m_serviceVersions; }
     QObject* documents() { return &m_documents; }
     QObject* audioDevices() { return &m_audioDevices; }
+    QObject* serviceLinks() { return &m_serviceLinks; }
     QVariantList currentSlideActions() const;
     QString outputScaleMode() const;
     QString outputMaskMode() const;
@@ -323,6 +326,7 @@ private:
     ServiceVersionService m_serviceVersions;
     DocumentRegistry m_documents;
     AudioDeviceService m_audioDevices;
+    ServiceLinkService m_serviceLinks;
     FontService m_fonts;
     api::NdiSender m_ndi;
     api::DeckLinkOutput m_decklink;
