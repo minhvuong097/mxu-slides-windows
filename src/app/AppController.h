@@ -21,6 +21,7 @@
 #include "Models.h"
 #include "ImportLedgerService.h"
 #include "NotesService.h"
+#include "PresetBoardService.h"
 #include "OutputManager.h"
 #include "OutputPresetService.h"
 #include "PlaylistService.h"
@@ -120,6 +121,9 @@ class AppController : public QObject
     Q_PROPERTY(QObject* serviceLinks READ serviceLinks CONSTANT)
     Q_PROPERTY(QObject* importLedger READ importLedger CONSTANT)
     Q_PROPERTY(QObject* groupPalette READ groupPalette CONSTANT)
+    Q_PROPERTY(QObject* alertPresets READ alertPresets CONSTANT)
+    Q_PROPERTY(QObject* effectPresets READ effectPresets CONSTANT)
+    Q_PROPERTY(QObject* animationPresets READ animationPresets CONSTANT)
     Q_PROPERTY(QVariantList currentSlideActions READ currentSlideActions NOTIFY editorChanged)
     Q_PROPERTY(QString outputScaleMode READ outputScaleMode WRITE setOutputScaleMode NOTIFY settingsChanged)
     Q_PROPERTY(QString outputMaskMode READ outputMaskMode WRITE setOutputMaskMode NOTIFY settingsChanged)
@@ -215,6 +219,9 @@ public:
     QObject* serviceLinks() { return &m_serviceLinks; }
     QObject* importLedger() { return &m_importLedger; }
     QObject* groupPalette() { return &m_groupPalette; }
+    QObject* alertPresets() { return &m_alertPresets; }
+    QObject* effectPresets() { return &m_effectPresets; }
+    QObject* animationPresets() { return &m_animationPresets; }
     QVariantList currentSlideActions() const;
     QString outputScaleMode() const;
     QString outputMaskMode() const;
@@ -335,6 +342,9 @@ private:
     ServiceLinkService m_serviceLinks;
     ImportLedgerService m_importLedger;
     GroupPaletteService m_groupPalette;
+    PresetBoardService m_alertPresets{ QStringLiteral(u"alerts") };
+    PresetBoardService m_effectPresets{ QStringLiteral(u"effects") };
+    PresetBoardService m_animationPresets{ QStringLiteral(u"animations") };
     FontService m_fonts;
     api::NdiSender m_ndi;
     api::DeckLinkOutput m_decklink;

@@ -106,6 +106,8 @@ qt_add_library(mxu_shell STATIC
     src/app/ImportLedgerService.cpp
     src/app/GroupPaletteService.h
     src/app/GroupPaletteService.cpp
+    src/app/PresetBoardService.h
+    src/app/PresetBoardService.cpp
     src/app/DocumentRegistry.h
     src/app/DocumentRegistry.cpp
     src/app/AudioDeviceService.h

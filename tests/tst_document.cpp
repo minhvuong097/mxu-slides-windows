@@ -15,6 +15,7 @@
 #include "app/ServiceLinkService.h"
 #include "app/GroupPaletteService.h"
 #include "app/ImportLedgerService.h"
+#include "app/PresetBoardService.h"
 #include "app/ServiceVersionService.h"
 #include "app/DiscoveryService.h"
 #include "app/PptxImporter.h"
@@ -59,6 +60,7 @@ private slots:
     void documentRegistry();
     void serviceLinks();
     void ledgerAndGroups();
+    void presetBoards();
 };
 
 void MxuDocumentTest::demoMatchesServiceFlow()
@@ -493,6 +495,16 @@ void MxuDocumentTest::ledgerAndGroups()
     const QString gid = groups.add(QStringLiteral(u"Tag"), QStringLiteral(u"#d9472b"));
     QVERIFY(groups.rename(gid, QStringLiteral(u"Tag 2")));
     QVERIFY(groups.remove(gid));
+}
+
+void MxuDocumentTest::presetBoards()
+{
+    app::PresetBoardService board(QStringLiteral(u"effects"));
+    QVERIFY(board.presets().size() >= 1);
+    const QString id = board.add(QStringLiteral(u"Blur"), QStringLiteral(u"blur"));
+    QVERIFY(!id.isEmpty());
+    QVERIFY(!board.preset(id).isNull());
+    QVERIFY(board.remove(id));
 }
 
 int main(int argc, char** argv)

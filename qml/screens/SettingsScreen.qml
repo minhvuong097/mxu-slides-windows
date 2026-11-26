@@ -303,6 +303,9 @@ Item {
                         Text { text: "No channels yet. Add audio from the media library."; color: Theme.textDim; font.pixelSize: 11 }
 
                         Rectangle { width: parent.width; height: 1; color: "#333" }
+                        SettingField { width: parent.width; label: "Alert presets"; value: Mxu.alertPresets.presets.length }
+                        SettingField { width: parent.width; label: "Effect presets"; value: Mxu.effectPresets.presets.length }
+                        SettingField { width: parent.width; label: "Animation presets"; value: Mxu.animationPresets.presets.length }
                         Text { text: "GROUPS & IMPORTS"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
                         Repeater {
                             model: Mxu.groupPalette.groups
