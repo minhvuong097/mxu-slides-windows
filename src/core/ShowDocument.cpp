@@ -2,6 +2,7 @@
 
 #include <QJsonDocument>
 #include <QUuid>
+#include <QJsonObject>
 
 namespace mxu::core {
 
@@ -235,6 +236,47 @@ bool ShowDocument::removeObject(const QString& slideId, const QString& objectId)
         slide->objects.removeAt(i);
         if (m_selectedObject == objectId)
             m_selectedObject.clear();
+        return true;
+    }
+    return false;
+}
+
+QString ShowDocument::addAction(const QString& slideId, const QVariantMap& action)
+{
+    model::Slide* slide = findSlide(slideId);
+    if (!slide)
+        return {};
+    pushUndo();
+    model::SlideAction value = model::SlideActionFromJson(QJsonObject::fromVariantMap(action));
+    if (value.id.isEmpty())
+        value.id = makeId();
+    if (!slide->actions)
+        slide->actions = QVector<model::SlideAction>();
+    slide->actions->append(value);
+    return value.id;
+}
+
+QVariantList ShowDocument::actionsForQml(const QString& slideId) const
+{
+    QVariantList result;
+    const model::Slide* slide = findSlide(slideId);
+    if (!slide || !slide->actions)
+        return result;
+    for (const auto& action : *slide->actions)
+        result.append(model::toJson(action).toVariantMap());
+    return result;
+}
+
+bool ShowDocument::removeAction(const QString& slideId, const QString& actionId)
+{
+    model::Slide* slide = findSlide(slideId);
+    if (!slide || !slide->actions)
+        return false;
+    for (qsizetype i = 0; i < slide->actions->size(); ++i) {
+        if (slide->actions->at(i).id != actionId)
+            continue;
+        pushUndo();
+        slide->actions->removeAt(i);
         return true;
     }
     return false;

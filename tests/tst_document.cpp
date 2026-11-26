@@ -47,6 +47,7 @@ private slots:
     void backupsAndFonts();
     void pptxAndDiscovery();
     void timerBoard();
+    void slideActions();
 };
 
 void MxuDocumentTest::demoMatchesServiceFlow()
@@ -405,6 +406,15 @@ void MxuDocumentTest::timerBoard()
     QVERIFY(board.runningCount() == 0);
     QVERIFY(board.reset(id));
     QVERIFY(board.remove(id));
+}
+
+void MxuDocumentTest::slideActions()
+{
+    app::AppController controller;
+    const QString id = controller.addSlideAction(QStringLiteral(u"advance"), QString());
+    QVERIFY(!id.isEmpty());
+    QVERIFY(controller.currentSlideActions().size() >= 1);
+    QVERIFY(controller.fireSlideAction(id));
 }
 
 int main(int argc, char** argv)

@@ -9,6 +9,7 @@
 #include "AudioService.h"
 #include "BackupService.h"
 #include "TimelineService.h"
+#include "SlideActionRouter.h"
 #include "TimerBoardService.h"
 #include "MediaService.h"
 #include "Models.h"
@@ -104,6 +105,8 @@ class AppController : public QObject
     Q_PROPERTY(QObject* fontService READ fontService CONSTANT)
     Q_PROPERTY(QObject* discovery READ discovery CONSTANT)
     Q_PROPERTY(QObject* timerBoard READ timerBoard CONSTANT)
+    Q_PROPERTY(QObject* slideActions READ slideActions CONSTANT)
+    Q_PROPERTY(QVariantList currentSlideActions READ currentSlideActions NOTIFY editorChanged)
     Q_PROPERTY(QObject* ndiSender READ ndiSender CONSTANT)
     Q_PROPERTY(QObject* deckLinkOutput READ deckLinkOutput CONSTANT)
     Q_PROPERTY(QObject* streaming READ streaming CONSTANT)
@@ -187,6 +190,10 @@ public:
     QObject* fontService() { return &m_fonts; }
     QObject* discovery() { return &m_discovery; }
     QObject* timerBoard() { return &m_timerBoard; }
+    QObject* slideActions() { return &m_actionRouter; }
+    QVariantList currentSlideActions() const;
+    Q_INVOKABLE QString addSlideAction(const QString& kind, const QString& target);
+    Q_INVOKABLE bool fireSlideAction(const QString& id);
     QObject* ndiSender() { return &m_ndi; }
     QObject* deckLinkOutput() { return &m_decklink; }
     QObject* streaming() { return &m_streaming; }
@@ -289,6 +296,7 @@ private:
     PptxImporter m_pptx;
     DiscoveryService m_discovery;
     TimerBoardService m_timerBoard;
+    SlideActionRouter m_actionRouter;
     FontService m_fonts;
     api::NdiSender m_ndi;
     api::DeckLinkOutput m_decklink;

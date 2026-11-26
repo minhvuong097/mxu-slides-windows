@@ -38,6 +38,10 @@ public:
                       const QVariantMap& patch);
     bool removeObject(const QString& slideId, const QString& objectId);
 
+    QString addAction(const QString& slideId, const QVariantMap& action);
+    QVariantList actionsForQml(const QString& slideId) const;
+    bool removeAction(const QString& slideId, const QString& actionId);
+
     void selectSlide(const QString& id) { m_selectedSlide = id; }
     void selectObject(const QString& id) { m_selectedObject = id; }
     QString selectedSlide() const { return m_selectedSlide; }

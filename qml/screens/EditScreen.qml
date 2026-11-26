@@ -339,6 +339,36 @@ Item {
                     Text { text: "TRANSITION"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
                     SettingField { width: parent.width; label: "Dissolve"; value: "0.6 s" }
 
+                    Text { text: "ACTIONS"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
+                    Repeater {
+                        model: Mxu.currentSlideActions
+                        delegate: Rectangle {
+                            width: parent.width; height: 26; radius: 6; color: Theme.inset
+                            RowLayout {
+                                anchors.fill: parent; anchors.leftMargin: 8; anchors.rightMargin: 8
+                                Text { Layout.fillWidth: true; text: modelData.kind; color: Theme.text; font.pixelSize: 11 }
+                                Rectangle {
+                                    radius: 6; color: Theme.accent
+                                    implicitWidth: 36; implicitHeight: 20
+                                    Text { anchors.centerIn: parent; text: "Fire"; color: "white"; font.pixelSize: 10 }
+                                    MouseArea { anchors.fill: parent; onClicked: Mxu.fireSlideAction(modelData.id) }
+                                }
+                            }
+                        }
+                    }
+                    Row { spacing: 6
+                        Rectangle {
+                            width: 120; height: 26; radius: 7; color: Theme.surface
+                            Text { anchors.centerIn: parent; text: "+ Advance"; color: Theme.text; font.pixelSize: 10 }
+                            MouseArea { anchors.fill: parent; onClicked: Mxu.addSlideAction("advance", "") }
+                        }
+                        Rectangle {
+                            width: 120; height: 26; radius: 7; color: Theme.surface
+                            Text { anchors.centerIn: parent; text: "+ Fire alert"; color: Theme.text; font.pixelSize: 10 }
+                            MouseArea { anchors.fill: parent; onClicked: Mxu.addSlideAction("fireAlert", "Please wrap up") }
+                        }
+                    }
+
                     Text { text: "LAYER"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
                     Row {
                         width: parent.width; spacing: 6

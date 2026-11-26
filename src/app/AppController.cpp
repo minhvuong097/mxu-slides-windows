@@ -60,6 +60,8 @@ AppController::AppController(QObject* parent)
     connect(&m_arrangements, &ArrangementService::slideRequested, this, &AppController::selectSlide);
     connect(&m_arrangements, &ArrangementService::notification, this, &AppController::notification);
     connect(&m_backups, &BackupService::notification, this, &AppController::notification);
+    m_actionRouter.attach(this);
+    connect(&m_actionRouter, &SlideActionRouter::notification, this, &AppController::notification);
     connect(&m_timerBoard, &TimerBoardService::warning, this, [this](const QString& name) {
         emit notification(QStringLiteral(u"Warning: %1").arg(name));
     });
@@ -765,6 +767,38 @@ QString AppController::nextServiceItem() const
         }
     }
     return QString();
+}
+
+QVariantList AppController::currentSlideActions() const
+{
+    return m_show.actionsForQml(m_show.selectedSlide());
+}
+
+QString AppController::addSlideAction(const QString& kind, const QString& target)
+{
+    QVariantMap action{
+        { QStringLiteral(u"kind"), kind },
+        { QStringLiteral(u"layer"), target },
+    };
+    if (kind == QStringLiteral(u"fireAlert"))
+        action.insert(QStringLiteral(u"alertId"), target);
+    if (kind.startsWith(QStringLiteral(u"timer")))
+        action.insert(QStringLiteral(u"timerId"), target);
+    const QString id = m_show.addAction(m_show.selectedSlide(), action);
+    if (!id.isEmpty())
+        emit editorChanged();
+    return id;
+}
+
+bool AppController::fireSlideAction(const QString& id)
+{
+    for (const QVariant& action : currentSlideActions()) {
+        const QVariantMap map = action.toMap();
+        if (map.value(QStringLiteral(u"id")).toString() != id)
+            continue;
+        return m_actionRouter.execute(map);
+    }
+    return false;
 }
 
 QVariantList AppController::audioChannels() const
