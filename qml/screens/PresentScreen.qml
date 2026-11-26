@@ -439,7 +439,7 @@ Item {
                         PillButton {
                             anchors.verticalCenter: parent.verticalCenter
                             icon: "monitor"; text: "Default — All…"
-                            onClicked: Mxu.identifyDisplays()
+                            onClicked: profilePopup.open()
                         }
                         PillButton {
                             anchors.verticalCenter: parent.verticalCenter
@@ -975,5 +975,11 @@ Item {
                 }
             }
         }
+    }
+
+    OutputProfilePopup {
+        id: profilePopup
+        anchors.centerIn: parent
+        onCloseRequested: hide()
     }
 }

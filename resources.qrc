@@ -17,6 +17,7 @@
         <file>qml/components/QuickSearch.qml</file>
         <file>qml/components/TimelinePanel.qml</file>
         <file>qml/components/NotesPanel.qml</file>
+        <file>qml/components/OutputProfilePopup.qml</file>
         <file>qml/components/SceneView.qml</file>
         <file>qml/components/ToggleSwitch.qml</file>
         <file>qml/components/ToolButton.qml</file>
