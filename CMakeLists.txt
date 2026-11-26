@@ -16,6 +16,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 option(MXU_BUILD_TESTS "Build unit tests" OFF)
 option(MXU_ENABLE_NDI "Enable NDI sender (requires NDI SDK)" OFF)
 option(MXU_ENABLE_DECKLINK "Enable DeckLink output (requires Blackmagic SDK)" OFF)
+option(MXU_ENABLE_FFMPEG "Enable FFmpeg streaming/recording backends" OFF)
 
 if(MSVC)
     add_compile_options(/W4 /permissive- /utf-8 /EHsc /Zc:__cplusplus)
@@ -29,6 +30,9 @@ if(MXU_ENABLE_NDI)
 endif()
 if(MXU_ENABLE_DECKLINK)
     add_compile_definitions(MXU_HAS_DECKLINK_SDK=1)
+endif()
+if(MXU_ENABLE_FFMPEG)
+    add_compile_definitions(MXU_HAS_FFMPEG=1)
 endif()
 
 find_package(Qt6 6.5 REQUIRED COMPONENTS
@@ -74,6 +78,8 @@ qt_add_library(mxu_shell STATIC
     src/app/NotesService.cpp
     src/app/DiagnosticsService.h
     src/app/DiagnosticsService.cpp
+    src/api/StreamingService.h
+    src/api/StreamingService.cpp
 )
 target_include_directories(mxu_shell PUBLIC ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(mxu_shell PUBLIC

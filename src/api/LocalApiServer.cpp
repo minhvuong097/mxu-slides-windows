@@ -306,6 +306,27 @@ QByteArray LocalApiServer::dispatch(const QString& method, const QString& path,
                                       Q_ARG(QString, payload.value(QStringLiteral(u"kind")).toString()));
             response.insert(QStringLiteral(u"ok"), true);
         }
+    } else if ((route == QStringLiteral(u"/v1/stream") || route == QStringLiteral(u"/v1/record"))
+               && method == QStringLiteral(u"POST")) {
+        if (!authorized(auth, url, QStringLiteral(u"control"))) {
+            response.insert(QStringLiteral(u"error"), QStringLiteral(u"Control scope required"));
+        } else if (m_controller) {
+            QObject* backend = m_controller->streaming();
+            const bool result =
+                QMetaObject::invokeMethod(backend,
+                                          route == QStringLiteral(u"/v1/stream") ? "start" : "startRecording",
+                                          Q_ARG(QString, payload.value(QStringLiteral(u"url")).toString()));
+            response.insert(QStringLiteral(u"ok"), result);
+        }
+    } else if ((route == QStringLiteral(u"/v1/stream") || route == QStringLiteral(u"/v1/record"))
+               && method == QStringLiteral(u"DELETE")) {
+        if (!authorized(auth, url, QStringLiteral(u"control"))) {
+            response.insert(QStringLiteral(u"error"), QStringLiteral(u"Control scope required"));
+        } else if (m_controller) {
+            QMetaObject::invokeMethod(m_controller->streaming(),
+                                      route == QStringLiteral(u"/v1/stream") ? "stop" : "stopRecording");
+            response.insert(QStringLiteral(u"ok"), true);
+        }
     } else if (route == QStringLiteral(u"/v1/search") && method == QStringLiteral(u"GET")) {
         if (!authorized(auth, url, QStringLiteral(u"status"))) {
             response.insert(QStringLiteral(u"error"), QStringLiteral(u"Unauthorized"));

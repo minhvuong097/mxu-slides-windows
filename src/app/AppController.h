@@ -9,6 +9,7 @@
 #include "OutputManager.h"
 #include "api/LocalApiServer.h"
 #include "api/OutputBackends.h"
+#include "api/StreamingService.h"
 #include "core/Document.h"
 #include "core/SearchIndex.h"
 #include "core/SceneModel.h"
@@ -82,6 +83,7 @@ class AppController : public QObject
     Q_PROPERTY(QObject* outputs READ outputs CONSTANT)
     Q_PROPERTY(QObject* ndiSender READ ndiSender CONSTANT)
     Q_PROPERTY(QObject* deckLinkOutput READ deckLinkOutput CONSTANT)
+    Q_PROPERTY(QObject* streaming READ streaming CONSTANT)
     Q_PROPERTY(QObject* automation READ automation CONSTANT)
     Q_PROPERTY(QObject* notes READ notes CONSTANT)
     Q_PROPERTY(QObject* searchIndex READ searchIndex CONSTANT)
@@ -148,6 +150,7 @@ public:
     QObject* outputs() { return &m_outputs; }
     QObject* ndiSender() { return &m_ndi; }
     QObject* deckLinkOutput() { return &m_decklink; }
+    QObject* streaming() { return &m_streaming; }
     QObject* automation() { return &m_automation; }
     QObject* notes() { return &m_notes; }
     QObject* searchIndex() { return &m_search; }
@@ -230,6 +233,7 @@ private:
     OutputManager m_outputs;
     api::NdiSender m_ndi;
     api::DeckLinkOutput m_decklink;
+    api::StreamingService m_streaming;
     AutomationService m_automation;
     NotesService m_notes;
     DiagnosticsService m_diagnostics;

@@ -12,14 +12,14 @@ theo package và xác định cái nào đã có, cái nào cần làm tiếp.
 |---|---|
 | UI shell / AppShell / ModeSwitcher | ✅ `qml/main.qml` + 5 screens |
 | Service outline + cue cards | ✅ demo data, `ServiceModel` / `CueModel` |
-| LocalAPI | ✅ 12 routes + WS + scoped tokens; Bonjour/follow chưa có |
+| LocalAPI | ✅ 18 routes + WS + scoped tokens; Bonjour/follow chưa có |
 | Document schema | ✅ `scripts/generate_models.py` → 103 record / 62 enum từ `schema/documents.json` |
 | PresenterCore (Automerge, SQLite/FTS5) | ⚠️ FTS5 search + LWW/SyncLedger; Automerge interoperability chưa có |
 | RenderEngine (Metal) | ⚠️ Scene model + transitions; RHI blend/mask chưa có |
 | SlideScene / SlideEditorModel | ⚠️ `core::ShowDocument` + SlideObject/undo/redo; renderer đơn giản |
 | MediaEngine / AudioEngine | ⚠️ Media import/thumbnails + Qt Multimedia mixer; video frame grab & multitrack chưa có |
 | OutputEngine / NDI / DeckLink / Syphon | ⚠️ OutputManager + SDK stubs; recorder/Syphon chưa có |
-| StreamEngine / MIDI / Scheduler / Notes | ⚠️ Automation + notes + lyric import; MIDI hardware & streaming chưa có |
+| StreamEngine / MIDI / Scheduler / Notes | ⚠️ Automation + notes + import + streaming/recorder stubs; encoder thật & MIDI hardware chưa có |
 | ProImport / PPTXImport | ❌ |
 | Diagnostics / perf | ❌ |
 
@@ -107,7 +107,15 @@ Kiến trúc gốc của phase này:
 - ✅ `SyncLedger`: Lamport clock + LWW op log + JSON merge.
 - ✅ `DiagnosticsService`: event ring buffer, counters, JSON report; API `/v1/diagnostics`.
 - ✅ Local API thêm `/v1/search`, `/v1/sync`, `/v1/diagnostics`.
-- ⚠️ Chưa có: Automerge wire compatibility, hitch/perf meter, streaming/recorder thật.
+- ⚠️ Chưa có: Automerge wire compatibility, hitch/perf meter, encoder RTMP/HLS/SRT thật.
+
+## Các backend có build flag
+
+| Flag | Module | Ghi chú |
+|---|---|---|
+| `MXU_ENABLE_NDI` | NDI sender | stub, cần NDI SDK |
+| `MXU_ENABLE_DECKLINK` | DeckLink output | stub, cần Blackmagic SDK |
+| `MXU_ENABLE_FFMPEG` | Streaming/recorder | stub, cần FFmpeg |
 
 Kiến trúc gốc của phase này:
 
