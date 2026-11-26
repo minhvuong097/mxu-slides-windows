@@ -50,6 +50,11 @@ bool TimerBoardService::start(const QString& id)
         }
         timer.insert(QStringLiteral(u"running"), true);
         m_timers[i] = timer;
+        m_running = 0;
+        for (const QVariant& t : m_timers) {
+            if (t.toMap().value(QStringLiteral(u"running")).toBool())
+                m_running = 1;
+        }
         emit changed();
         return true;
     }
@@ -58,12 +63,19 @@ bool TimerBoardService::start(const QString& id)
 
 bool TimerBoardService::pause(const QString& id)
 {
+    auto recount = [this]() {
+        m_running = 0;
+        for (const QVariant& t : m_timers) {
+            if (t.toMap().value(QStringLiteral(u"running")).toBool()) m_running = 1;
+        }
+    };
     for (qsizetype i = 0; i < m_timers.size(); ++i) {
         QVariantMap timer = m_timers.at(i).toMap();
         if (timer.value(QStringLiteral(u"id")).toString() != id)
             continue;
         timer.insert(QStringLiteral(u"running"), false);
         m_timers[i] = timer;
+        recount();
         emit changed();
         return true;
     }
