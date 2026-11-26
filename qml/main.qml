@@ -134,6 +134,7 @@ ApplicationWindow {
 
     PresentationWindow { id: presentationOutput }
     StageOutputWindow { id: stageOutput }
+    ConfidenceWindow { id: confidenceMonitor }
 
     QuickSearch {
         id: quickSearch
@@ -145,6 +146,7 @@ ApplicationWindow {
     Shortcut { sequence: "Ctrl+K"; onActivated: quickSearch.open() }
     Shortcut { sequence: "F5"; onActivated: Mxu.togglePresenting() }
     Shortcut { sequence: "F6"; onActivated: Mxu.toggleStageOutput() }
+    Shortcut { sequence: "F7"; onActivated: Mxu.toggleConfidence() }
     Shortcut { sequence: "Right"; onActivated: Mxu.next() }
     Shortcut { sequence: "Space"; onActivated: Mxu.next() }
     Shortcut { sequence: "Left"; onActivated: Mxu.previous() }

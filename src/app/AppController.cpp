@@ -348,6 +348,21 @@ void AppController::setOutputCleared(bool value)
     m_api.broadcastState();
 }
 
+void AppController::setConfidenceVisible(bool value)
+{
+    if (m_confidenceVisible == value)
+        return;
+    m_confidenceVisible = value;
+    emit outputChanged();
+    emit notification(m_confidenceVisible ? QStringLiteral(u"Confidence monitor opened")
+                                          : QStringLiteral(u"Confidence monitor closed"));
+}
+
+void AppController::toggleConfidence()
+{
+    setConfidenceVisible(!m_confidenceVisible);
+}
+
 void AppController::togglePresenting()
 {
     setPresenting(!m_presenting);

@@ -66,6 +66,7 @@ class AppController : public QObject
     Q_PROPERTY(bool presenting READ presenting WRITE setPresenting NOTIFY outputChanged)
     Q_PROPERTY(bool stageOutputVisible READ stageOutputVisible WRITE setStageOutputVisible NOTIFY outputChanged)
     Q_PROPERTY(bool outputCleared READ outputCleared WRITE setOutputCleared NOTIFY outputChanged)
+    Q_PROPERTY(bool confidenceVisible READ confidenceVisible WRITE setConfidenceVisible NOTIFY outputChanged)
 
     Q_PROPERTY(QVariantList slides READ slides NOTIFY editorChanged)
     Q_PROPERTY(QVariantList slideObjects READ slideObjects NOTIFY editorChanged)
@@ -132,6 +133,7 @@ public:
     bool presenting() const { return m_presenting; }
     bool stageOutputVisible() const { return m_stageOutputVisible; }
     bool outputCleared() const { return m_outputCleared; }
+    bool confidenceVisible() const { return m_confidenceVisible; }
 
     QVariantList slides() const;
     QVariantList slideObjects() const;
@@ -188,6 +190,8 @@ public slots:
     void setPresenting(bool value);
     void setStageOutputVisible(bool value);
     void setOutputCleared(bool value);
+    void setConfidenceVisible(bool value);
+    void toggleConfidence();
     void togglePresenting();
     void toggleStageOutput();
     void selectSlide(int index);
@@ -260,6 +264,7 @@ private:
     bool m_presenting = false;
     bool m_stageOutputVisible = false;
     bool m_outputCleared = false;
+    bool m_confidenceVisible = false;
 };
 
 } // namespace mxu::app

@@ -130,8 +130,8 @@ Item {
                             }
                             SettingRow {
                                 width: parent.width; label: "Confidence monitor"; toggle: true
-                                checked: Mxu.outputs.confidenceMonitor
-                                onToggled: Mxu.outputs.confidenceMonitor = value
+                                checked: Mxu.confidenceVisible
+                                onToggled: { Mxu.outputs.confidenceMonitor = value; Mxu.setConfidenceVisible(value) }
                             }
                             SettingRow {
                                 width: parent.width; label: "Always on top of taskbar"; toggle: true
