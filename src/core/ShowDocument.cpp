@@ -3,6 +3,7 @@
 #include <QJsonDocument>
 #include <QUuid>
 #include <QJsonObject>
+#include <QDateTime>
 
 namespace mxu::core {
 
@@ -277,6 +278,55 @@ bool ShowDocument::removeAction(const QString& slideId, const QString& actionId)
             continue;
         pushUndo();
         slide->actions->removeAt(i);
+        return true;
+    }
+    return false;
+}
+
+QString ShowDocument::saveVersion(const QString& slideId, const QString& reason)
+{
+    model::Slide* slide = findSlide(slideId);
+    if (!slide)
+        return {};
+    pushUndo();
+    model::SlideVersion version;
+    version.at = QDateTime::currentDateTimeUtc().toString(Qt::ISODate);
+    version.reason = reason.isEmpty() ? QStringLiteral(u"Manual") : reason;
+    version.slide = std::make_shared<model::Slide>(*slide);
+    if (!slide->history)
+        slide->history = QVector<model::SlideVersion>();
+    slide->history->append(version);
+    return version.at;
+}
+
+QVariantList ShowDocument::versionsForQml(const QString& slideId) const
+{
+    QVariantList result;
+    const model::Slide* slide = findSlide(slideId);
+    if (!slide || !slide->history)
+        return result;
+    for (const auto& version : *slide->history) {
+        result.append(QVariantMap{
+            { QStringLiteral(u"id"), version.at },
+            { QStringLiteral(u"at"), version.at },
+            { QStringLiteral(u"reason"), version.reason },
+        });
+    }
+    return result;
+}
+
+bool ShowDocument::restoreVersion(const QString& slideId, const QString& versionId)
+{
+    model::Slide* slide = findSlide(slideId);
+    if (!slide || !slide->history)
+        return false;
+    for (const auto& version : *slide->history) {
+        if (version.at != versionId || !version.slide)
+            continue;
+        pushUndo();
+        const QString id = slide->id;
+        *slide = *version.slide;
+        slide->id = id;
         return true;
     }
     return false;

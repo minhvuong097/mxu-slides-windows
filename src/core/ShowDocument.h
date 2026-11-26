@@ -42,6 +42,10 @@ public:
     QVariantList actionsForQml(const QString& slideId) const;
     bool removeAction(const QString& slideId, const QString& actionId);
 
+    QString saveVersion(const QString& slideId, const QString& reason);
+    QVariantList versionsForQml(const QString& slideId) const;
+    bool restoreVersion(const QString& slideId, const QString& versionId);
+
     void selectSlide(const QString& id) { m_selectedSlide = id; }
     void selectObject(const QString& id) { m_selectedObject = id; }
     QString selectedSlide() const { return m_selectedSlide; }

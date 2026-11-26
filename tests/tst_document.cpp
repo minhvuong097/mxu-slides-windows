@@ -61,6 +61,7 @@ private slots:
     void serviceLinks();
     void ledgerAndGroups();
     void presetBoards();
+    void slideHistory();
 };
 
 void MxuDocumentTest::demoMatchesServiceFlow()
@@ -505,6 +506,16 @@ void MxuDocumentTest::presetBoards()
     QVERIFY(!id.isEmpty());
     QVERIFY(!board.preset(id).isNull());
     QVERIFY(board.remove(id));
+}
+
+void MxuDocumentTest::slideHistory()
+{
+    app::AppController controller;
+    controller.saveSlideVersion(QStringLiteral(u"Before edit"));
+    const QVariantList versions = controller.property("slideVersions").toList();
+    QVERIFY(versions.size() >= 1);
+    QVERIFY(controller.restoreSlideVersion(versions.first().toMap()
+                                           .value(QStringLiteral(u"id")).toString()));
 }
 
 int main(int argc, char** argv)

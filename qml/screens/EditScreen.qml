@@ -339,6 +339,29 @@ Item {
                     Text { text: "TRANSITION"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
                     SettingField { width: parent.width; label: "Dissolve"; value: "0.6 s" }
 
+                    Text { text: "VERSIONS"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
+                    Repeater {
+                        model: Mxu.slideVersions
+                        delegate: Rectangle {
+                            width: parent.width; height: 24; radius: 6; color: "transparent"
+                            RowLayout {
+                                anchors.fill: parent; anchors.leftMargin: 6; anchors.rightMargin: 6
+                                Text { Layout.fillWidth: true; text: modelData.reason; color: Theme.text; font.pixelSize: 10 }
+                                Text { text: modelData.at.slice(0, 10); color: Theme.textDim; font.pixelSize: 9 }
+                                Rectangle {
+                                    width: 44; height: 18; radius: 5; color: Theme.surface
+                                    Text { anchors.centerIn: parent; text: "Restore"; color: Theme.text; font.pixelSize: 9 }
+                                    MouseArea { anchors.fill: parent; onClicked: Mxu.restoreSlideVersion(modelData.id) }
+                                }
+                            }
+                        }
+                    }
+                    Rectangle {
+                        width: 110; height: 24; radius: 7; color: Theme.surface
+                        Text { anchors.centerIn: parent; text: "+ Save version"; color: Theme.text; font.pixelSize: 10 }
+                        MouseArea { anchors.fill: parent; onClicked: Mxu.saveSlideVersion("Manual") }
+                    }
+
                     Text { text: "ACTIONS"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
                     Repeater {
                         model: Mxu.currentSlideActions

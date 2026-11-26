@@ -815,6 +815,29 @@ void AppController::setOutputScaleMode(const QString& value) { setSetting(QStrin
 void AppController::setOutputMaskMode(const QString& value) { setSetting(QStringLiteral(u"outputMaskMode"), value); }
 void AppController::setOutputMaskShape(const QString& value) { setSetting(QStringLiteral(u"outputMaskShape"), value); }
 
+QVariantList AppController::slideVersions() const
+{
+    return m_show.versionsForQml(m_show.selectedSlide());
+}
+
+void AppController::saveSlideVersion(const QString& reason)
+{
+    if (!m_show.saveVersion(m_show.selectedSlide(), reason).isEmpty()) {
+        emit editorChanged();
+        emit notification(QStringLiteral(u"Slide version saved"));
+    }
+}
+
+bool AppController::restoreSlideVersion(const QString& id)
+{
+    if (!m_show.restoreVersion(m_show.selectedSlide(), id))
+        return false;
+    emit editorChanged();
+    emit sceneChanged();
+    emit notification(QStringLiteral(u"Slide version restored"));
+    return true;
+}
+
 QVariantList AppController::currentSlideActions() const
 {
     return m_show.actionsForQml(m_show.selectedSlide());

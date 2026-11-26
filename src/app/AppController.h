@@ -125,6 +125,7 @@ class AppController : public QObject
     Q_PROPERTY(QObject* effectPresets READ effectPresets CONSTANT)
     Q_PROPERTY(QObject* animationPresets READ animationPresets CONSTANT)
     Q_PROPERTY(QVariantList currentSlideActions READ currentSlideActions NOTIFY editorChanged)
+    Q_PROPERTY(QVariantList slideVersions READ slideVersions NOTIFY editorChanged)
     Q_PROPERTY(QString outputScaleMode READ outputScaleMode WRITE setOutputScaleMode NOTIFY settingsChanged)
     Q_PROPERTY(QString outputMaskMode READ outputMaskMode WRITE setOutputMaskMode NOTIFY settingsChanged)
     Q_PROPERTY(QString outputMaskShape READ outputMaskShape WRITE setOutputMaskShape NOTIFY settingsChanged)
@@ -223,6 +224,9 @@ public:
     QObject* effectPresets() { return &m_effectPresets; }
     QObject* animationPresets() { return &m_animationPresets; }
     QVariantList currentSlideActions() const;
+    QVariantList slideVersions() const;
+    Q_INVOKABLE void saveSlideVersion(const QString& reason);
+    Q_INVOKABLE bool restoreSlideVersion(const QString& id);
     QString outputScaleMode() const;
     QString outputMaskMode() const;
     QString outputMaskShape() const;

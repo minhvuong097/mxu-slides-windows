@@ -296,6 +296,7 @@ QByteArray LocalApiServer::dispatch(const QString& method, const QString& path,
         addRoute(QStringLiteral(u"/v1/notes/add"), QStringLiteral(u"post"), QStringLiteral(u"Add note"), QStringLiteral(u"control"));
         addRoute(QStringLiteral(u"/v1/documents"), QStringLiteral(u"get"), QStringLiteral(u"Document registry"), QStringLiteral(u"status"));
         addRoute(QStringLiteral(u"/v1/links"), QStringLiteral(u"get"), QStringLiteral(u"Follow links"), QStringLiteral(u"status"));
+        addRoute(QStringLiteral(u"/v1/slides/history"), QStringLiteral(u"get"), QStringLiteral(u"Slide versions"), QStringLiteral(u"status"));
         addRoute(QStringLiteral(u"/v1/service/versions"), QStringLiteral(u"get"), QStringLiteral(u"Service station versions"), QStringLiteral(u"status"));
         addRoute(QStringLiteral(u"/v1/backup/create"), QStringLiteral(u"post"), QStringLiteral(u"Create backup"), QStringLiteral(u"control"));
         response.insert(QStringLiteral(u"paths"), paths);
@@ -497,6 +498,8 @@ QByteArray LocalApiServer::dispatch(const QString& method, const QString& path,
                 response.insert(QStringLiteral(u"documents"), m_controller->documents()->property("documents"));
             else if (route == QStringLiteral(u"/v1/links"))
                 response.insert(QStringLiteral(u"links"), m_controller->serviceLinks()->property("rules"));
+            else if (route == QStringLiteral(u"/v1/slides/history"))
+                response.insert(QStringLiteral(u"versions"), m_controller->property("slideVersions"));
             else
                 response.insert(QStringLiteral(u"blocks"), m_controller->notes()->property("blocks"));
         }
