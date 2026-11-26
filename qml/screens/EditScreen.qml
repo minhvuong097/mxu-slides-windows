@@ -311,6 +311,14 @@ Item {
                         onAccepted: Mxu.updateObject({ "text": text })
                         onEditingFinished: Mxu.updateObject({ "text": text })
                     }
+                    ComboBox {
+                        width: parent.width
+                        model: Mxu.fontService.families
+                        currentIndex: Math.max(0, model.indexOf(Mxu.selectedObject.fontName || "Segoe UI"))
+                        onActivated: Mxu.updateObject({ "fontName": currentText })
+                        background: Rectangle { radius: 7; color: Theme.inset }
+                        contentItem: Text { text: parent.currentText; color: Theme.text; font.pixelSize: 11; verticalAlignment: Text.AlignVCenter }
+                    }
                     NumberField { width: parent.width; label: "Size"; value: Mxu.selectedObject.fontSize; onCommitted: Mxu.updateObject({ "fontSize": value }) }
                     TextField {
                         width: parent.width
