@@ -9,7 +9,7 @@ phần cứng hoặc thời gian triển khai riêng:
 | NDI sender thật | Cần NDI SDK for Windows | `MXU_ENABLE_NDI` → thay body `api::NdiSender::start` bằng `NDIlib_send_create` |
 | DeckLink output/keying | Cần Blackmagic SDK | `MXU_ENABLE_DECKLINK` → `IDeckLinkOutput` |
 | Encoder RTMP/HLS/SRT + recorder | Cần FFmpeg/Media Foundation/MF transforms | `MXU_ENABLE_FFMPEG` → `api::StreamingService` |
-| MTC/LTC timecode decode | WinMM MIDI input đã có; timecode vẫn dùng system clock | mở rộng `AutomationService` |
+| LTC audio decode | MTC quarter-frame đã có trong `TimecodeService`; LTC chưa | thêm decoder xung audio |
 | Keystone/tilt + mask | `SceneView` đã render shape/path/blend (PNG export) | viết ShaderEffect/HLSL cho mask/keystone |
 | ProPresenter protobuf | Cần generated protobuf types | mở rộng `AppController::importProPresenter`; PPTX text import đã có `PptxImporter` |
 | Audio 2-deck crossfade, multitrack stems | Cần DSP ring buffer/WASAPI low-latency | mở rộng `AudioService` |

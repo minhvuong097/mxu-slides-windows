@@ -53,15 +53,13 @@ void TimecodeService::setManual(const QString& text)
     const QStringList parts = text.split(QLatin1Char(':'));
     if (parts.size() != 4)
         return;
+    const int targets[4][2] = { { 4, 5 }, { 6, 7 }, { 0, 1 }, { 2, 3 } };
     for (int i = 0; i < 4; ++i) {
         const QString part = parts.at(i);
         if (part.size() < 2)
             return;
-        const int offset = 4 + i;
-        m_digits[offset] = part.at(0).digitValue();
-        m_digits[(i * 2) % 4] = part.at(1).digitValue();
-        if (i == 3 && part.size() >= 3)
-            m_digits[3] = part.at(2).digitValue();
+        m_digits[targets[i][0]] = part.at(0).digitValue();
+        m_digits[targets[i][1]] = part.at(1).digitValue();
     }
     m_locked = true;
     updateText();

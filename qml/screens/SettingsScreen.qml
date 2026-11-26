@@ -387,6 +387,7 @@ Item {
                         }
                         Text { text: "TIMECODE"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
                         Text { text: Mxu.automation.timecode; color: Theme.text; font.pixelSize: 32; font.weight: Font.DemiBold }
+                        Text { text: "MTC: " + Mxu.automation.timecodeDecoder.timecode + (Mxu.automation.timecodeDecoder.locked ? " (locked)" : ""); color: Theme.textDim; font.pixelSize: 12 }
                         SettingField { width: parent.width; label: "Source"; value: Mxu.automation.timecodeSource }
                         Text { text: "MIDI"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
                         SettingField { width: parent.width; label: "Input device"; value: Mxu.automation.midiAvailable ? "Connected" : "Not available" }
