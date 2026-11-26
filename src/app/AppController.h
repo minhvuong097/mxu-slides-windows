@@ -8,6 +8,7 @@
 #include "DocumentRegistry.h"
 #include "DiscoveryService.h"
 #include "FontService.h"
+#include "GroupPaletteService.h"
 #include "ArrangementService.h"
 #include "AudioService.h"
 #include "BackupService.h"
@@ -18,6 +19,7 @@
 #include "TimerBoardService.h"
 #include "MediaService.h"
 #include "Models.h"
+#include "ImportLedgerService.h"
 #include "NotesService.h"
 #include "OutputManager.h"
 #include "OutputPresetService.h"
@@ -116,6 +118,8 @@ class AppController : public QObject
     Q_PROPERTY(QObject* documents READ documents CONSTANT)
     Q_PROPERTY(QObject* audioDevices READ audioDevices CONSTANT)
     Q_PROPERTY(QObject* serviceLinks READ serviceLinks CONSTANT)
+    Q_PROPERTY(QObject* importLedger READ importLedger CONSTANT)
+    Q_PROPERTY(QObject* groupPalette READ groupPalette CONSTANT)
     Q_PROPERTY(QVariantList currentSlideActions READ currentSlideActions NOTIFY editorChanged)
     Q_PROPERTY(QString outputScaleMode READ outputScaleMode WRITE setOutputScaleMode NOTIFY settingsChanged)
     Q_PROPERTY(QString outputMaskMode READ outputMaskMode WRITE setOutputMaskMode NOTIFY settingsChanged)
@@ -209,6 +213,8 @@ public:
     QObject* documents() { return &m_documents; }
     QObject* audioDevices() { return &m_audioDevices; }
     QObject* serviceLinks() { return &m_serviceLinks; }
+    QObject* importLedger() { return &m_importLedger; }
+    QObject* groupPalette() { return &m_groupPalette; }
     QVariantList currentSlideActions() const;
     QString outputScaleMode() const;
     QString outputMaskMode() const;
@@ -327,6 +333,8 @@ private:
     DocumentRegistry m_documents;
     AudioDeviceService m_audioDevices;
     ServiceLinkService m_serviceLinks;
+    ImportLedgerService m_importLedger;
+    GroupPaletteService m_groupPalette;
     FontService m_fonts;
     api::NdiSender m_ndi;
     api::DeckLinkOutput m_decklink;

@@ -303,6 +303,17 @@ Item {
                         Text { text: "No channels yet. Add audio from the media library."; color: Theme.textDim; font.pixelSize: 11 }
 
                         Rectangle { width: parent.width; height: 1; color: "#333" }
+                        Text { text: "GROUPS & IMPORTS"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
+                        Repeater {
+                            model: Mxu.groupPalette.groups
+                            delegate: Row {
+                                width: parent.width
+                                height: 22
+                                Rectangle { width: 12; height: 12; radius: 3; color: modelData.color; anchors.verticalCenter: parent.verticalCenter }
+                                Text { text: modelData.name; color: Theme.text; font.pixelSize: 11 }
+                            }
+                        }
+                        Text { text: "Imported files: " + Mxu.importLedger.entries.length; color: Theme.textDim; font.pixelSize: 11 }
                         Text { text: "PLAYLIST"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
                         Repeater {
                             model: Mxu.playlist.entries

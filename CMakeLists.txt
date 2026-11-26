@@ -102,6 +102,10 @@ qt_add_library(mxu_shell STATIC
     src/app/ServiceVersionService.cpp
     src/app/ServiceLinkService.h
     src/app/ServiceLinkService.cpp
+    src/app/ImportLedgerService.h
+    src/app/ImportLedgerService.cpp
+    src/app/GroupPaletteService.h
+    src/app/GroupPaletteService.cpp
     src/app/DocumentRegistry.h
     src/app/DocumentRegistry.cpp
     src/app/AudioDeviceService.h

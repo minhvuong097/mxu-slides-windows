@@ -13,6 +13,8 @@
 #include "app/ConfidenceLayoutService.h"
 #include "app/DocumentRegistry.h"
 #include "app/ServiceLinkService.h"
+#include "app/GroupPaletteService.h"
+#include "app/ImportLedgerService.h"
 #include "app/ServiceVersionService.h"
 #include "app/DiscoveryService.h"
 #include "app/PptxImporter.h"
@@ -56,6 +58,7 @@ private slots:
     void serviceVersions();
     void documentRegistry();
     void serviceLinks();
+    void ledgerAndGroups();
 };
 
 void MxuDocumentTest::demoMatchesServiceFlow()
@@ -466,6 +469,30 @@ void MxuDocumentTest::serviceLinks()
     QVERIFY(!id.isEmpty());
     QVERIFY(links.toggle(id));
     QVERIFY(links.remove(id));
+}
+
+void MxuDocumentTest::ledgerAndGroups()
+{
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString file = dir.path() + QStringLiteral(u"/sample.bin");
+    QFile out(file);
+    QVERIFY(out.open(QIODevice::WriteOnly));
+    out.write("sample");
+    out.close();
+
+    app::ImportLedgerService ledger;
+    const QString id = ledger.record(file);
+    QVERIFY(!id.isEmpty());
+    QCOMPARE(ledger.record(file), id);
+    QVERIFY(ledger.mark(id, QStringLiteral(u"needsTranscode")));
+    QVERIFY(ledger.remove(id));
+
+    app::GroupPaletteService groups;
+    QVERIFY(groups.groups().size() >= 5);
+    const QString gid = groups.add(QStringLiteral(u"Tag"), QStringLiteral(u"#d9472b"));
+    QVERIFY(groups.rename(gid, QStringLiteral(u"Tag 2")));
+    QVERIFY(groups.remove(gid));
 }
 
 int main(int argc, char** argv)

@@ -57,6 +57,7 @@ AppController::AppController(QObject* parent)
     m_cues.setDocument(&m_document);
     m_library.setDocument(&m_document);
     m_media.setDocument(&m_document);
+    m_media.setLedger(&m_importLedger);
     m_notes.setDocument(&m_document);
     m_arrangements.setDocument(&m_document);
     connect(&m_arrangements, &ArrangementService::slideRequested, this, &AppController::selectSlide);
@@ -67,6 +68,7 @@ AppController::AppController(QObject* parent)
     connect(&m_serviceVersions, &ServiceVersionService::notification, this, &AppController::notification);
     connect(&m_documents, &DocumentRegistry::notification, this, &AppController::notification);
     connect(&m_serviceLinks, &ServiceLinkService::notification, this, &AppController::notification);
+    connect(&m_importLedger, &ImportLedgerService::notification, this, &AppController::notification);
     connect(&m_timerBoard, &TimerBoardService::warning, this, [this](const QString& name) {
         emit notification(QStringLiteral(u"Warning: %1").arg(name));
     });

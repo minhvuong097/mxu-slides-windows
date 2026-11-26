@@ -1,4 +1,5 @@
 #include "MediaService.h"
+#include "ImportLedgerService.h"
 
 #include <QDir>
 #include <QFileInfo>
@@ -134,6 +135,8 @@ QString MediaService::importFile(const QString& path)
     item.to = QStringLiteral(u"#111111");
     m_document->media.append(item);
 
+    if (m_ledger)
+        m_ledger->record(path);
     m_status = QStringLiteral(u"Imported %1").arg(item.name);
     emit statusChanged();
     emit notification(m_status);

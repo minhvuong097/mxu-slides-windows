@@ -11,6 +11,8 @@
 
 namespace mxu::app {
 
+class ImportLedgerService;
+
 // Imports media files into the document, generates thumbnails and exposes
 // the result to the Library screen. Video thumbnails fall back to a painted
 // placeholder until an FFmpeg frame grabber is wired in.
@@ -24,6 +26,7 @@ class MediaService : public QObject
 public:
     explicit MediaService(QObject* parent = nullptr);
     void setDocument(core::Document* document);
+    void setLedger(ImportLedgerService* ledger) { m_ledger = ledger; }
 
     QVariantList items() const;
     QString status() const { return m_status; }
@@ -51,6 +54,7 @@ private:
     QVariantList m_items;
     QHash<QString, QString> m_thumbnails;
     QHash<QString, QString> m_paths;
+    ImportLedgerService* m_ledger = nullptr;
     QString m_background;
     QString m_status = QStringLiteral(u"Ready");
 };
