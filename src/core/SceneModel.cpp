@@ -42,11 +42,16 @@ model::TransitionKind transitionFromName(const QString& name)
 }
 
 RenderScene SceneBuilder::build(const ShowDocument& show, bool showChords,
-                                bool showClock, const QString& clockText) const
+                                bool showClock, const QString& clockText,
+                                const QString& scaleMode, const QString& maskMode,
+                                const QString& maskShape) const
 {
     Q_UNUSED(showClock)
     Q_UNUSED(clockText)
     RenderScene scene;
+    scene.scaleMode = scaleMode;
+    scene.maskMode = maskMode;
+    scene.maskShape = maskShape;
     const QString slideId = show.selectedSlide().isEmpty()
                                 ? (show.document().slides.isEmpty() ? QString()
                                                                     : show.document().slides.first().id)
@@ -134,6 +139,9 @@ QVariantList SceneBuilder::sceneToQml(const RenderScene& scene)
             });
         }
         layers.append(QVariantMap{
+            { QStringLiteral(u"scaleMode"), scene.scaleMode },
+            { QStringLiteral(u"maskMode"), scene.maskMode },
+            { QStringLiteral(u"maskShape"), scene.maskShape },
             { QStringLiteral(u"kind"), layerKindName(layer.kind) },
             { QStringLiteral(u"z"), layer.z },
             { QStringLiteral(u"opacity"), layer.opacity },

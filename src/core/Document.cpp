@@ -251,6 +251,9 @@ Document::Document()
         { QStringLiteral(u"showChords"), true },
         { QStringLiteral(u"showClock"), true },
         { QStringLiteral(u"showSectionTimer"), true },
+        { QStringLiteral(u"outputScaleMode"), QStringLiteral(u"fit") },
+        { QStringLiteral(u"outputMaskMode"), QStringLiteral(u"out") },
+        { QStringLiteral(u"outputMaskShape"), QStringLiteral(u"rectangle") },
     };
 }
 

@@ -6,7 +6,22 @@ import "qrc:/qml/theme"
 // text styling, chord overlays and clear state.
 Item {
     id: view
-    property real scaleFactor: width / 1920
+    property real scaleX: {
+        const sx = width / 1920
+        const sy = height / 1080
+        if (Mxu.outputScaleMode === "stretch") return sx
+        if (Mxu.outputScaleMode === "fill") return Math.max(sx, sy)
+        return Math.min(sx, sy)
+    }
+    property real scaleY: {
+        const sx = width / 1920
+        const sy = height / 1080
+        if (Mxu.outputScaleMode === "stretch") return sy
+        if (Mxu.outputScaleMode === "fill") return Math.max(sx, sy)
+        return Math.min(sx, sy)
+    }
+    property real offsetX: (width - 1920 * scaleX) / 2
+    property real offsetY: (height - 1080 * scaleY) / 2
     property bool cleared: false
 
     Repeater {
@@ -21,10 +36,10 @@ Item {
                 model: layerData.items
                 delegate: Item {
                     property var item: modelData
-                    x: item.x * view.scaleFactor
-                    y: item.y * view.scaleFactor
-                    width: item.width * view.scaleFactor
-                    height: item.height * view.scaleFactor
+                    x: view.offsetX + item.x * view.scaleX
+                    y: view.offsetY + item.y * view.scaleY
+                    width: item.width * view.scaleX
+                    height: item.height * view.scaleY
                     opacity: item.opacity
                     z: item.z
 
@@ -34,7 +49,7 @@ Item {
                         width: parent.width
                         text: item.text
                         color: item.colorHex
-                        font.pixelSize: item.fontSize * view.scaleFactor
+                        font.pixelSize: item.fontSize * view.scaleY
                         font.family: Theme.fontFamily
                         font.weight: Font.Bold
                         lineHeight: 1.35
@@ -48,7 +63,7 @@ Item {
                         anchors.fill: parent
                         antialiasing: true
                         ShapePath {
-                            strokeWidth: item.strokeWidth * view.scaleFactor
+                            strokeWidth: item.strokeWidth * view.scaleX
                             strokeColor: item.strokeColor || "transparent"
                             fillColor: item.fillColor || "transparent"
                             capStyle: ShapePath.RoundCap
@@ -57,12 +72,12 @@ Item {
                                 path: item.pathData !== ""
                                       ? item.pathData
                                       : (item.shapeKind === "ellipse"
-                                         ? "M " + (item.width * view.scaleFactor / 2) + " 0 a "
-                                           + (item.width * view.scaleFactor / 2) + " "
-                                           + (item.height * view.scaleFactor / 2)
+                                         ? "M " + (item.width * view.scaleX / 2) + " 0 a "
+                                           + (item.width * view.scaleX / 2) + " "
+                                           + (item.height * view.scaleX / 2)
                                            + " 0 1 0 0.01 0 z"
-                                         : "M0 0 H" + (item.width * view.scaleFactor)
-                                           + " V" + (item.height * view.scaleFactor)
+                                         : "M0 0 H" + (item.width * view.scaleX)
+                                           + " V" + (item.height * view.scaleX)
                                            + " H0 Z")
                             }
                         }
@@ -73,12 +88,51 @@ Item {
                         visible: item.chord && Mxu.chordsVisible
                         text: item.chord
                         color: Theme.yellow
-                        font.pixelSize: Math.max(14, item.fontSize * 0.6 * view.scaleFactor)
+                        font.pixelSize: Math.max(14, item.fontSize * 0.6 * view.scaleX)
                         font.weight: Font.Bold
                     }
                 }
             }
         }
+    }
+
+    Canvas {
+        anchors.fill: parent
+        visible: Mxu.outputMaskMode === "out" || Mxu.outputMaskMode === "in"
+        onWidthChanged: requestPaint()
+        onHeightChanged: requestPaint()
+        onPaint: {
+            const ctx = getContext("2d")
+            ctx.clearRect(0, 0, width, height)
+            ctx.globalCompositeOperation = "source-over"
+            ctx.fillStyle = "black"
+            const inset = Math.min(width, height) * 0.08
+            const x = inset, y = inset
+            const w = width - inset * 2, h = height - inset * 2
+            if (Mxu.outputMaskMode === "out") {
+                ctx.fillRect(0, 0, width, height)
+                ctx.globalCompositeOperation = "destination-out"
+                if (Mxu.outputMaskShape === "ellipse") {
+                    ctx.beginPath()
+                    ctx.ellipse(x + w / 2, y + h / 2, w / 2, h / 2, 0, 0, Math.PI * 2)
+                    ctx.fill()
+                } else {
+                    ctx.fillRect(x, y, w, h)
+                }
+            } else {
+                ctx.fillRect(x, y, w, h)
+                ctx.globalCompositeOperation = "destination-out"
+                if (Mxu.outputMaskShape === "ellipse") {
+                    ctx.beginPath()
+                    ctx.ellipse(x + w / 2, y + h / 2, w / 2 - 6, h / 2 - 6, 0, 0, Math.PI * 2)
+                    ctx.fill()
+                } else {
+                    ctx.fillRect(x + 6, y + 6, w - 12, h - 12)
+                }
+            }
+            ctx.globalCompositeOperation = "source-over"
+        }
+        z: 10
     }
 
     Rectangle {

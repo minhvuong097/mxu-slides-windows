@@ -64,6 +64,9 @@ struct RenderScene
     QVector<RenderLayer> layers;
     QString backgroundHex = QStringLiteral(u"#0b0b0c");
     QString slideName;
+    QString scaleMode = QStringLiteral(u"fit");
+    QString maskMode = QStringLiteral(u"out");
+    QString maskShape = QStringLiteral(u"rectangle");
 };
 
 // Builds a render scene from the current slide and stage options.
@@ -71,7 +74,9 @@ class SceneBuilder
 {
 public:
     RenderScene build(const ShowDocument& show, bool showChords, bool showClock,
-                      const QString& clockText) const;
+                      const QString& clockText, const QString& scaleMode = QStringLiteral(u"fit"),
+                      const QString& maskMode = QStringLiteral(u"out"),
+                      const QString& maskShape = QStringLiteral(u"rectangle")) const;
 
     static QVariantList sceneToQml(const RenderScene& scene);
 };

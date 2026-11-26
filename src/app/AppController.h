@@ -115,6 +115,9 @@ class AppController : public QObject
     Q_PROPERTY(QObject* documents READ documents CONSTANT)
     Q_PROPERTY(QObject* audioDevices READ audioDevices CONSTANT)
     Q_PROPERTY(QVariantList currentSlideActions READ currentSlideActions NOTIFY editorChanged)
+    Q_PROPERTY(QString outputScaleMode READ outputScaleMode WRITE setOutputScaleMode NOTIFY settingsChanged)
+    Q_PROPERTY(QString outputMaskMode READ outputMaskMode WRITE setOutputMaskMode NOTIFY settingsChanged)
+    Q_PROPERTY(QString outputMaskShape READ outputMaskShape WRITE setOutputMaskShape NOTIFY settingsChanged)
     Q_PROPERTY(QObject* ndiSender READ ndiSender CONSTANT)
     Q_PROPERTY(QObject* deckLinkOutput READ deckLinkOutput CONSTANT)
     Q_PROPERTY(QObject* streaming READ streaming CONSTANT)
@@ -204,6 +207,12 @@ public:
     QObject* documents() { return &m_documents; }
     QObject* audioDevices() { return &m_audioDevices; }
     QVariantList currentSlideActions() const;
+    QString outputScaleMode() const;
+    QString outputMaskMode() const;
+    QString outputMaskShape() const;
+    void setOutputScaleMode(const QString& value);
+    void setOutputMaskMode(const QString& value);
+    void setOutputMaskShape(const QString& value);
     Q_INVOKABLE QString addSlideAction(const QString& kind, const QString& target);
     Q_INVOKABLE bool fireSlideAction(const QString& id);
     QObject* ndiSender() { return &m_ndi; }
@@ -279,6 +288,7 @@ signals:
     void outputChanged();
     void editorChanged();
     void sceneChanged();
+    void settingsChanged();
     void audioChanged();
     void notification(const QString& message);
 

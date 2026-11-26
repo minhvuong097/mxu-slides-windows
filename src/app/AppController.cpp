@@ -3,6 +3,7 @@
 #include <QGuiApplication>
 #include <QImage>
 #include <QPainter>
+#include <QPainterPath>
 #include <QScreen>
 #include <QTime>
 #include <QStandardPaths>
@@ -600,7 +601,8 @@ bool AppController::exportSlideImage(const QString& path)
     QImage image(1920, 1080, QImage::Format_ARGB32);
     image.fill(QColor(QStringLiteral(u"#0b0b0c")));
     QPainter painter(&image);
-    const core::RenderScene scene = m_sceneBuilder.build(m_show, chordsVisible(), clockVisible(), serviceClock());
+    const core::RenderScene scene = m_sceneBuilder.build(m_show, chordsVisible(), clockVisible(), serviceClock(),
+                                                          outputScaleMode(), outputMaskMode(), outputMaskShape());
     for (const auto& layer : scene.layers) {
         if (!layer.visible)
             continue;
@@ -623,6 +625,26 @@ bool AppController::exportSlideImage(const QString& path)
                                  Qt::AlignLeft, item.chord);
             }
         }
+    }
+    if (outputMaskMode() == QStringLiteral(u"out") || outputMaskMode() == QStringLiteral(u"in")) {
+        QPainter maskPainter(&image);
+        const QRect rect(static_cast<int>(image.width() * 0.08), static_cast<int>(image.height() * 0.08),
+                         static_cast<int>(image.width() * 0.84), static_cast<int>(image.height() * 0.84));
+        QPainterPath path;
+        if (outputMaskShape() == QStringLiteral(u"ellipse"))
+            path.addEllipse(QRectF(rect));
+        else
+            path.addRect(rect);
+        QPainterPath outside;
+        outside.addRect(image.rect());
+        outside = outside.subtracted(path);
+        maskPainter.setPen(Qt::NoPen);
+        maskPainter.setBrush(QColor(outputMaskMode() == QStringLiteral(u"out") ? Qt::black : Qt::white));
+        if (outputMaskMode() == QStringLiteral(u"out"))
+            maskPainter.drawPath(outside);
+        else
+            maskPainter.drawPath(path);
+        maskPainter.end();
     }
     painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
     painter.end();
@@ -771,6 +793,13 @@ QString AppController::nextServiceItem() const
     return QString();
 }
 
+QString AppController::outputScaleMode() const { return setting(QStringLiteral(u"outputScaleMode")).toString(); }
+QString AppController::outputMaskMode() const { return setting(QStringLiteral(u"outputMaskMode")).toString(); }
+QString AppController::outputMaskShape() const { return setting(QStringLiteral(u"outputMaskShape")).toString(); }
+void AppController::setOutputScaleMode(const QString& value) { setSetting(QStringLiteral(u"outputScaleMode"), value); }
+void AppController::setOutputMaskMode(const QString& value) { setSetting(QStringLiteral(u"outputMaskMode"), value); }
+void AppController::setOutputMaskShape(const QString& value) { setSetting(QStringLiteral(u"outputMaskShape"), value); }
+
 QVariantList AppController::currentSlideActions() const
 {
     return m_show.actionsForQml(m_show.selectedSlide());
@@ -817,7 +846,8 @@ QVariantList AppController::renderLayers() const
 
 QString AppController::currentSlideName() const
 {
-    const core::RenderScene scene = m_sceneBuilder.build(m_show, true, true, serviceClock());
+    const core::RenderScene scene = m_sceneBuilder.build(m_show, true, true, serviceClock(),
+                                                          outputScaleMode(), outputMaskMode(), outputMaskShape());
     return scene.slideName;
 }
 

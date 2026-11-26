@@ -445,6 +445,26 @@ Item {
                                 delegate: Text { text: modelData.name; color: Theme.textDim; font.pixelSize: 10 }
                             }
                         }
+                        Text { text: "VIDEO OUTPUT"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
+                        Row { spacing: 6
+                            Rectangle { width: 70; height: 26; radius: 7; color: Mxu.outputScaleMode === "fit" ? Theme.accent : Theme.surface
+                                Text { anchors.centerIn: parent; text: "Fit"; color: "white"; font.pixelSize: 10 }
+                                MouseArea { anchors.fill: parent; onClicked: Mxu.outputScaleMode = "fit" } }
+                            Rectangle { width: 70; height: 26; radius: 7; color: Mxu.outputScaleMode === "fill" ? Theme.accent : Theme.surface
+                                Text { anchors.centerIn: parent; text: "Fill"; color: "white"; font.pixelSize: 10 }
+                                MouseArea { anchors.fill: parent; onClicked: Mxu.outputScaleMode = "fill" } }
+                            Rectangle { width: 80; height: 26; radius: 7; color: Mxu.outputScaleMode === "stretch" ? Theme.accent : Theme.surface
+                                Text { anchors.centerIn: parent; text: "Stretch"; color: "white"; font.pixelSize: 10 }
+                                MouseArea { anchors.fill: parent; onClicked: Mxu.outputScaleMode = "stretch" } }
+                        }
+                        Row { spacing: 6
+                            Rectangle { width: 70; height: 26; radius: 7; color: Mxu.outputMaskShape === "rectangle" ? Theme.accent : Theme.surface
+                                Text { anchors.centerIn: parent; text: "Rect mask"; color: "white"; font.pixelSize: 10 }
+                                MouseArea { anchors.fill: parent; onClicked: Mxu.outputMaskShape = "rectangle" } }
+                            Rectangle { width: 80; height: 26; radius: 7; color: Mxu.outputMaskShape === "ellipse" ? Theme.accent : Theme.surface
+                                Text { anchors.centerIn: parent; text: "Ellipse mask"; color: "white"; font.pixelSize: 10 }
+                                MouseArea { anchors.fill: parent; onClicked: Mxu.outputMaskShape = "ellipse" } }
+                        }
                         SettingField { width: parent.width; label: "Confidence layout"; value: Mxu.confidenceLayout.structure }
                         Row { spacing: 6
                             Rectangle { width: 96; height: 26; radius: 7; color: Theme.surface
