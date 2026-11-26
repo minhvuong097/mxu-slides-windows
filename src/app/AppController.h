@@ -177,6 +177,7 @@ public:
     Q_INVOKABLE QVariantList search(const QString& query) const;
     Q_INVOKABLE bool addServiceItem(const QString& name, int section);
     Q_INVOKABLE bool openSearchResult(const QString& kind, const QString& ref);
+    Q_INVOKABLE bool moveServiceItem(int from, int to);
     QString transitionKind() const;
     double transitionDuration() const { return m_transitionDuration; }
     void setTransitionKind(const QString& value);

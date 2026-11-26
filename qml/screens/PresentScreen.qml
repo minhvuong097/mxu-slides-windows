@@ -151,6 +151,7 @@ Item {
                                             visible: root.collapsedSections.indexOf(sectionColumn.sectionName) < 0
                                             model: modelData.items
                                             delegate: Rectangle {
+                                                id: serviceItemRow
                                                 width: parent.width
                                                 height: 24
                                                 radius: 6
@@ -177,6 +178,15 @@ Item {
                                                 }
                                                 MouseArea {
                                                     anchors.fill: parent
+                                                    drag.target: serviceItemRow
+                                                    drag.axis: Drag.YAxis
+                                                    drag.smoothed: false
+                                                    onReleased: {
+                                                        const target = Math.max(0, Math.min(Mxu.serviceModel.itemCount - 1,
+                                                            Math.round(serviceItemRow.y / 26)))
+                                                        Mxu.moveServiceItem(modelData.index, target)
+                                                        serviceItemRow.y = modelData.index * 26
+                                                    }
                                                     onClicked: Mxu.goToCue(modelData.index)
                                                 }
                                             }

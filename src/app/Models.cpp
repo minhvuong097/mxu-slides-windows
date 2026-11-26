@@ -111,6 +111,18 @@ bool ServiceModel::removeItem(int index)
     return true;
 }
 
+bool ServiceModel::moveItem(int from, int to)
+{
+    if (!m_document || from < 0 || to < 0 || from >= m_document->items.size()
+        || to >= m_document->items.size() || from == to)
+        return false;
+    m_document->items.move(from, to);
+    m_current = to;
+    emit dataChanged();
+    emit currentChanged();
+    return true;
+}
+
 // -------------------------------------------------------------------- Cue
 CueModel::CueModel(QObject* parent)
     : QObject(parent)

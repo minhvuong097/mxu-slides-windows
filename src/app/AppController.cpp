@@ -526,6 +526,15 @@ bool AppController::importPptx(const QString& path)
     return false;
 }
 
+bool AppController::moveServiceItem(int from, int to)
+{
+    if (!m_service.moveItem(from, to))
+        return false;
+    m_showState.present(QStringLiteral(u""));
+    emit notification(QStringLiteral(u"Service item moved"));
+    return true;
+}
+
 bool AppController::openSearchResult(const QString& kind, const QString& ref)
 {
     if (kind == QStringLiteral(u"cue")) {

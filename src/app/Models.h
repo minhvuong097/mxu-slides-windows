@@ -40,6 +40,7 @@ public slots:
     void previousItem();
     bool addItem(const QString& name, int section);
     bool removeItem(int index);
+    bool moveItem(int from, int to);
 
 signals:
     void dataChanged();
