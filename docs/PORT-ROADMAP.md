@@ -17,7 +17,7 @@ theo package và xác định cái nào đã có, cái nào cần làm tiếp.
 | PresenterCore (Automerge, SQLite/FTS5) | ❌ |
 | RenderEngine (Metal) | ⚠️ Scene model + transitions; RHI blend/mask chưa có |
 | SlideScene / SlideEditorModel | ⚠️ `core::ShowDocument` + SlideObject/undo/redo; renderer đơn giản |
-| MediaEngine / AudioEngine | ❌ |
+| MediaEngine / AudioEngine | ⚠️ Media import/thumbnails + Qt Multimedia mixer; video frame grab & multitrack chưa có |
 | OutputEngine / NDI / DeckLink / Syphon | ❌ |
 | StreamEngine / MIDI / Scheduler / Notes | ❌ |
 | ProImport / PPTXImport | ❌ |
@@ -56,7 +56,14 @@ Kiến trúc gốc của phase này:
 - `SceneTransitionEngine`: cut/dissolve/fadeBlack/fadeWhite/blurDissolve.
 - Confidence layout builder + stage layout variants.
 
-## Phase 3 — Media & Audio (P1)
+## Phase 3 — Media & Audio (P1) — ĐÃ LÀM (phần lõi)
+
+- ✅ `MediaService`: import file/folder, QImage thumbnails, file size/type, service flow add, background.
+- ✅ Library screen dùng thumbnail thật + `FileDialog` Import.
+- ✅ `AudioService`: QMediaPlayer/QAudioOutput mixer, mute/solo/volume, play/stop; Settings › Audio pane.
+- ⚠️ Chưa có: FFmpeg video decode & frame grab, 2-deck crossfade, playlist, multitrack stems, camera/live input.
+
+Kiến trúc gốc của phase này:
 
 - FFmpeg decode (D3D11VA/DXVA2) → `QVideoSink`/RHI texture; thumbnailer.
 - Media library import, file hash, in/out points, playRate.

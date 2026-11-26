@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import QtQuick.Window
+import QtQuick.Dialogs
 import "qrc:/qml/theme"
 import "qrc:/qml/components"
 
@@ -134,6 +135,7 @@ Item {
                             radius: 7; color: Theme.surface
                             implicitWidth: 62; implicitHeight: 28
                             Text { anchors.centerIn: parent; text: "Import"; color: Theme.text; font.pixelSize: 12 }
+                            MouseArea { anchors.fill: parent; onClicked: importDialog.open() }
                         }
                         Rectangle {
                             radius: 7; color: Theme.surface
@@ -161,7 +163,7 @@ Item {
                             spacing: 16
                             property real cellW: (grid.width - 48) / 4
                             Repeater {
-                                model: Mxu.libraryModel.items
+                                model: Mxu.mediaService.items
                                 delegate: Column {
                                     width: grid.cellW
                                     Rectangle {
@@ -174,6 +176,12 @@ Item {
                                             orientation: Gradient.Horizontal
                                             GradientStop { position: 0; color: modelData.from }
                                             GradientStop { position: 1; color: modelData.to }
+                                        }
+                                        Image {
+                                            anchors.fill: parent
+                                            source: modelData.thumbnail || ""
+                                            fillMode: Image.PreserveAspectCrop
+                                            asynchronous: true
                                         }
                                         MouseArea {
                                             anchors.fill: parent
@@ -249,5 +257,12 @@ Item {
                 }
             }
         }
+    }
+
+    FileDialog {
+        id: importDialog
+        title: "Import media"
+        nameFilters: ["Images (*.png *.jpg *.jpeg)", "Videos (*.mp4 *.mov *.mkv)", "All files (*)"]
+        onAccepted: Mxu.mediaService.importFile(selectedFile)
     }
 }

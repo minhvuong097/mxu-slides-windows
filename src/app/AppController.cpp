@@ -52,6 +52,10 @@ AppController::AppController(QObject* parent)
     m_service.setDocument(&m_document);
     m_cues.setDocument(&m_document);
     m_library.setDocument(&m_document);
+    m_media.setDocument(&m_document);
+    connect(&m_media, &MediaService::notification, this, &AppController::notification);
+    connect(&m_audio, &AudioService::notification, this, &AppController::notification);
+    connect(&m_audio, &AudioService::changed, this, &AppController::audioChanged);
 
     loadSettings();
 
@@ -493,11 +497,17 @@ bool AppController::openDocument(const QString& path)
     m_service.setDocument(&m_document);
     m_cues.setDocument(&m_document);
     m_library.setDocument(&m_document);
+    m_media.setDocument(&m_document);
     loadSettings();
     m_documentPath = path;
     emit documentChanged();
     emit editorChanged();
     return true;
+}
+
+QVariantList AppController::audioChannels() const
+{
+    return m_audio.channels();
 }
 
 QVariantList AppController::renderLayers() const

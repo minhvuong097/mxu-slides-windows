@@ -6,6 +6,8 @@
 #include "core/ShowDocument.h"
 #include "core/SceneModel.h"
 #include "app/AppController.h"
+#include "app/AudioService.h"
+#include "app/MediaService.h"
 
 using namespace mxu;
 
@@ -19,6 +21,7 @@ private slots:
     void controllerNavigation();
     void slideObjectUndoRedo();
     void sceneAndTransitions();
+    void mediaAndAudio();
 };
 
 void MxuDocumentTest::demoMatchesServiceFlow()
@@ -133,6 +136,32 @@ void MxuDocumentTest::sceneAndTransitions()
     QVERIFY(state.isCleared(QStringLiteral(u"slide")));
     state.restoreAll();
     QVERIFY(!state.isCleared(QStringLiteral(u"slide")));
+}
+
+void MxuDocumentTest::mediaAndAudio()
+{
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString imagePath = dir.path() + QStringLiteral(u"/sample.png");
+    QImage(320, 180, QImage::Format_ARGB32).save(imagePath);
+
+    core::Document doc = core::Document::demo();
+    app::MediaService media;
+    media.setDocument(&doc);
+    const int before = doc.media.size();
+    const QString id = media.importFile(imagePath);
+    QVERIFY(!id.isEmpty());
+    QCOMPARE(doc.media.size(), before + 1);
+    QCOMPARE(media.items().size(), before + 1);
+
+    app::AudioService audio;
+    const QString channel = audio.addChannel(QStringLiteral(u"Prayer"), imagePath);
+    QVERIFY(!channel.isEmpty());
+    QCOMPARE(audio.channels().size(), 1);
+    QVERIFY(audio.toggleMute(channel));
+    QVERIFY(audio.setVolume(channel, 0.5));
+    QVERIFY(audio.stop(channel));
+    audio.stopAll();
 }
 
 int main(int argc, char** argv)

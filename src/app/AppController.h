@@ -1,5 +1,7 @@
 #pragma once
 
+#include "AudioService.h"
+#include "MediaService.h"
 #include "Models.h"
 #include "api/LocalApiServer.h"
 #include "core/Document.h"
@@ -68,6 +70,9 @@ class AppController : public QObject
     Q_PROPERTY(QString currentSlideName READ currentSlideName NOTIFY sceneChanged)
     Q_PROPERTY(QObject* transition READ transition CONSTANT)
     Q_PROPERTY(QObject* showState READ showState CONSTANT)
+    Q_PROPERTY(QObject* mediaService READ mediaService CONSTANT)
+    Q_PROPERTY(QObject* audioService READ audioService CONSTANT)
+    Q_PROPERTY(QVariantList audioChannels READ audioChannels NOTIFY audioChanged)
     Q_PROPERTY(QString transitionKind READ transitionKind WRITE setTransitionKind NOTIFY sceneChanged)
     Q_PROPERTY(double transitionDuration READ transitionDuration WRITE setTransitionDuration NOTIFY sceneChanged)
 
@@ -122,6 +127,9 @@ public:
     QString currentSlideName() const;
     QObject* transition() { return &m_transition; }
     QObject* showState() { return &m_showState; }
+    QObject* mediaService() { return &m_media; }
+    QObject* audioService() { return &m_audio; }
+    QVariantList audioChannels() const;
     QString transitionKind() const;
     double transitionDuration() const { return m_transitionDuration; }
     void setTransitionKind(const QString& value);
@@ -173,6 +181,7 @@ signals:
     void outputChanged();
     void editorChanged();
     void sceneChanged();
+    void audioChanged();
     void notification(const QString& message);
 
 private slots:
@@ -189,6 +198,8 @@ private:
     core::SceneBuilder m_sceneBuilder;
     core::SceneTransitionEngine m_transition;
     core::ShowState m_showState;
+    MediaService m_media;
+    AudioService m_audio;
     QString m_transitionKind = QStringLiteral(u"dissolve");
     double m_transitionDuration = 0.6;
     ServiceModel m_service;

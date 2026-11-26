@@ -23,7 +23,7 @@ else()
 endif()
 
 find_package(Qt6 6.5 REQUIRED COMPONENTS
-    Core Gui Qml Quick QuickControls2 Network WebSockets Svg
+    Core Gui Qml Quick QuickControls2 Network WebSockets Svg Multimedia QuickDialogs2
 )
 qt_standard_project_setup(REQUIRES 6.5)
 
@@ -47,11 +47,15 @@ qt_add_library(mxu_shell STATIC
     src/app/AppController.cpp
     src/api/LocalApiServer.h
     src/api/LocalApiServer.cpp
+    src/app/MediaService.h
+    src/app/MediaService.cpp
+    src/app/AudioService.h
+    src/app/AudioService.cpp
 )
 target_include_directories(mxu_shell PUBLIC ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(mxu_shell PUBLIC
     mxu_core
-    Qt6::Core Qt6::Gui Qt6::Qml Qt6::Network Qt6::WebSockets Qt6::Svg
+    Qt6::Core Qt6::Gui Qt6::Qml Qt6::Network Qt6::WebSockets Qt6::Svg Qt6::Multimedia
 )
 
 qt_add_resources(MXU_RESOURCES resources.qrc)
@@ -62,7 +66,7 @@ qt_add_executable(mxu-slides WIN32
 target_include_directories(mxu-slides PRIVATE ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(mxu-slides PRIVATE
     mxu_shell
-    Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick Qt6::QuickControls2 Qt6::Svg
+    Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick Qt6::QuickControls2 Qt6::Svg Qt6::QuickDialogs2
 )
 set_target_properties(mxu-slides PROPERTIES
     OUTPUT_NAME "MxuSlides"

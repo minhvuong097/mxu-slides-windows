@@ -220,6 +220,60 @@ Item {
                             MouseArea { anchors.fill: parent; onClicked: Mxu.regenerateLocalApiToken() }
                         }
                     }
+                Rectangle {
+                    visible: root.pane === "Audio"
+                    width: parent.width
+                    height: parent.height - 42
+                    radius: 10
+                    color: Theme.card
+                    Column {
+                        anchors.fill: parent
+                        anchors.margins: 12
+                        spacing: 6
+                        Row {
+                            width: parent.width
+                            height: 36
+                            spacing: 10
+                            Rectangle {
+                                width: 28; height: 28; radius: 6; color: Theme.pink
+                                AppIcon { anchors.centerIn: parent; name: "audio"; size: 16; color: "white" }
+                            }
+                            Text { anchors.verticalCenter: parent.verticalCenter; text: "Audio"; color: Theme.text; font.pixelSize: 16; font.weight: Font.DemiBold }
+                        }
+                        Text { text: "CHANNELS"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
+                        Repeater {
+                            model: Mxu.audioChannels
+                            delegate: Rectangle {
+                                width: parent.width
+                                height: 44
+                                radius: 7
+                                color: Theme.inset
+                                RowLayout {
+                                    anchors.fill: parent
+                                    anchors.leftMargin: 10
+                                    anchors.rightMargin: 10
+                                    Text { Layout.fillWidth: true; text: modelData.name; color: Theme.text; font.pixelSize: 12 }
+                                    Rectangle {
+                                        width: 26; height: 26; radius: 7; color: modelData.muted ? Theme.pink : Theme.surface
+                                        Text { anchors.centerIn: parent; text: "M"; color: "white"; font.pixelSize: 11; font.weight: Font.Bold }
+                                        MouseArea { anchors.fill: parent; onClicked: Mxu.audioService.toggleMute(modelData.id) }
+                                    }
+                                    Rectangle {
+                                        width: 26; height: 26; radius: 7; color: modelData.solo ? Theme.yellow : Theme.surface
+                                        Text { anchors.centerIn: parent; text: "S"; color: "white"; font.pixelSize: 11; font.weight: Font.Bold }
+                                        MouseArea { anchors.fill: parent; onClicked: Mxu.audioService.toggleSolo(modelData.id) }
+                                    }
+                                    Rectangle {
+                                        width: 26; height: 26; radius: 7; color: Theme.surface
+                                        Text { anchors.centerIn: parent; text: modelData.playing ? "■" : "▶"; color: Theme.text; font.pixelSize: 11 }
+                                        MouseArea { anchors.fill: parent; onClicked: modelData.playing ? Mxu.audioService.stop(modelData.id) : Mxu.audioService.play(modelData.id) }
+                                    }
+                                }
+                            }
+                        }
+                        Text { text: "No channels yet. Add audio from the media library."; color: Theme.textDim; font.pixelSize: 11 }
+                    }
+                }
                 }
             }
         }
