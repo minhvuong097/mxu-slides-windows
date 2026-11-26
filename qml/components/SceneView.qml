@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Shapes
 import "qrc:/qml/theme"
 
 // Renders the C++ RenderScene: ordered layers with per-layer/item opacity,
@@ -28,6 +29,7 @@ Item {
                     z: item.z
 
                     Text {
+                        visible: item.kind !== "shape"
                         anchors.centerIn: parent
                         width: parent.width
                         text: item.text
@@ -39,6 +41,31 @@ Item {
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter
                         wrapMode: Text.WordWrap
+                    }
+
+                    Shape {
+                        visible: item.kind === "shape"
+                        anchors.fill: parent
+                        antialiasing: true
+                        ShapePath {
+                            strokeWidth: item.strokeWidth * view.scaleFactor
+                            strokeColor: item.strokeColor || "transparent"
+                            fillColor: item.fillColor || "transparent"
+                            capStyle: ShapePath.RoundCap
+                            joinStyle: ShapePath.RoundJoin
+                            PathSvg {
+                                path: item.pathData !== ""
+                                      ? item.pathData
+                                      : (item.shapeKind === "ellipse"
+                                         ? "M " + (item.width * view.scaleFactor / 2) + " 0 a "
+                                           + (item.width * view.scaleFactor / 2) + " "
+                                           + (item.height * view.scaleFactor / 2)
+                                           + " 0 1 0 0.01 0 z"
+                                         : "M0 0 H" + (item.width * view.scaleFactor)
+                                           + " V" + (item.height * view.scaleFactor)
+                                           + " H0 Z")
+                            }
+                        }
                     }
                     Text {
                         anchors.left: parent.left

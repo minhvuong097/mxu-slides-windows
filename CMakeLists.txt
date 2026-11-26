@@ -92,6 +92,10 @@ qt_add_library(mxu_shell STATIC
     src/app/WindowsMidiInput.cpp
     src/app/TokenVault.h
     src/app/TokenVault.cpp
+    src/app/PptxImporter.h
+    src/app/PptxImporter.cpp
+    src/app/DiscoveryService.h
+    src/app/DiscoveryService.cpp
     src/app/BackupService.h
     src/app/BackupService.cpp
     src/app/FontService.h

@@ -10,6 +10,8 @@
 #include "app/AppController.h"
 #include "app/AudioService.h"
 #include "app/BackupService.h"
+#include "app/DiscoveryService.h"
+#include "app/PptxImporter.h"
 #include "app/FontService.h"
 #include "app/AlertsService.h"
 #include "app/AutomationService.h"
@@ -42,6 +44,7 @@ private slots:
     void searchNavigation();
     void slideExport();
     void backupsAndFonts();
+    void pptxAndDiscovery();
 };
 
 void MxuDocumentTest::demoMatchesServiceFlow()
@@ -371,6 +374,21 @@ void MxuDocumentTest::backupsAndFonts()
 
     app::FontService fonts;
     QVERIFY(!fonts.families().isEmpty());
+}
+
+void MxuDocumentTest::pptxAndDiscovery()
+{
+    app::DiscoveryService discovery;
+    discovery.start();
+    QVERIFY(discovery.running());
+    QVERIFY(!discovery.deviceId().isEmpty());
+    discovery.stop();
+    QVERIFY(!discovery.running());
+
+    app::PptxImporter importer;
+    const QVariantList slides = importer.import(QStringLiteral(u"/does/not/exist.pptx"));
+    QVERIFY(slides.isEmpty());
+    QVERIFY(!importer.lastError().isEmpty());
 }
 
 int main(int argc, char** argv)

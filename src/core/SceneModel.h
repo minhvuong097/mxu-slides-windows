@@ -33,6 +33,13 @@ struct RenderItem
     QString id;
     QString text;
     QString chord;
+    QString kind = QStringLiteral(u"text");
+    QString shapeKind;
+    QString pathData;
+    QString fillColor;
+    QString strokeColor;
+    double strokeWidth = 0;
+    QString blendMode = QStringLiteral(u"normal");
     double x = 0;
     double y = 0;
     double width = 0;

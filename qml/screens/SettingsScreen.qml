@@ -353,6 +353,22 @@ Item {
                         SettingField { width: parent.width; label: "Source"; value: Mxu.automation.timecodeSource }
                         Text { text: "MIDI"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
                         SettingField { width: parent.width; label: "Input device"; value: Mxu.automation.midiAvailable ? "Connected" : "Not available" }
+                        Repeater {
+                            model: Mxu.automation.midiInput.devices
+                            delegate: Rectangle {
+                                width: parent.width; height: 28; radius: 6; color: Theme.inset
+                                RowLayout {
+                                    anchors.fill: parent; anchors.leftMargin: 8; anchors.rightMargin: 8
+                                    Text { Layout.fillWidth: true; text: modelData.name; color: Theme.text; font.pixelSize: 11 }
+                                    Rectangle {
+                                        radius: 6; color: Theme.accent
+                                        implicitWidth: 48; implicitHeight: 20
+                                        Text { anchors.centerIn: parent; text: "Connect"; color: "white"; font.pixelSize: 10 }
+                                        MouseArea { anchors.fill: parent; onClicked: Mxu.automation.midiInput.connectDevice(modelData.index) }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
 
@@ -417,6 +433,16 @@ Item {
                         }
                         SettingField { width: parent.width; label: "Uptime"; value: Mxu.diagnostics.uptime }
                         SettingField { width: parent.width; label: "Events"; value: Mxu.diagnostics.tickCount }
+                        SettingField { width: parent.width; label: "FPS / hitches"; value: Mxu.diagnostics.fps.toFixed(0) + " / " + Mxu.diagnostics.hitchCount }
+                        Row { spacing: 6
+                            Rectangle { width: 120; height: 28; radius: 8; color: Theme.accent
+                                Text { anchors.centerIn: parent; text: "Discover peers"; color: "white"; font.pixelSize: 11 }
+                                MouseArea { anchors.fill: parent; onClicked: Mxu.discovery.start() } }
+                            Repeater {
+                                model: Mxu.discovery.peers
+                                delegate: Text { text: modelData.name; color: Theme.textDim; font.pixelSize: 10 }
+                            }
+                        }
                         SettingField { width: parent.width; label: "Fonts installed"; value: Mxu.fontService.families.length }
                         Row {
                             spacing: 6

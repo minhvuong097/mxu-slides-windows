@@ -71,6 +71,20 @@ RenderScene SceneBuilder::build(const ShowDocument& show, bool showChords,
             RenderItem item;
             item.id = object.id;
             item.text = object.text;
+            item.kind = object.objectKind == model::SlideObjectKind::Shape
+                            ? QStringLiteral(u"shape") : QStringLiteral(u"text");
+            if (object.shapeKind)
+                item.shapeKind = model::toString(*object.shapeKind);
+            if (object.pathData)
+                item.pathData = *object.pathData;
+            if (object.blendMode)
+                item.blendMode = model::toString(*object.blendMode);
+            if (object.fill && object.fill->fillKind == model::FillKind::Solid && object.fill->colorHex)
+                item.fillColor = *object.fill->colorHex;
+            if (object.stroke) {
+                item.strokeColor = object.stroke->colorHex;
+                item.strokeWidth = object.stroke->width;
+            }
             item.x = object.x.value_or(70);
             item.y = object.y.value_or(130);
             item.width = object.width.value_or(500);
@@ -101,6 +115,13 @@ QVariantList SceneBuilder::sceneToQml(const RenderScene& scene)
             items.append(QVariantMap{
                 { QStringLiteral(u"id"), item.id },
                 { QStringLiteral(u"text"), item.text },
+                { QStringLiteral(u"kind"), item.kind },
+                { QStringLiteral(u"shapeKind"), item.shapeKind },
+                { QStringLiteral(u"pathData"), item.pathData },
+                { QStringLiteral(u"fillColor"), item.fillColor },
+                { QStringLiteral(u"strokeColor"), item.strokeColor },
+                { QStringLiteral(u"strokeWidth"), item.strokeWidth },
+                { QStringLiteral(u"blendMode"), item.blendMode },
                 { QStringLiteral(u"chord"), item.chord },
                 { QStringLiteral(u"x"), item.x },
                 { QStringLiteral(u"y"), item.y },

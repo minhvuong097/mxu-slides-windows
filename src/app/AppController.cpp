@@ -60,6 +60,9 @@ AppController::AppController(QObject* parent)
     connect(&m_arrangements, &ArrangementService::slideRequested, this, &AppController::selectSlide);
     connect(&m_arrangements, &ArrangementService::notification, this, &AppController::notification);
     connect(&m_backups, &BackupService::notification, this, &AppController::notification);
+    connect(&m_discovery, &DiscoveryService::peerFound, this, [this](const QVariantMap& peer) {
+        emit notification(QStringLiteral(u"Peer: %1").arg(peer.value(QStringLiteral(u"name")).toString()));
+    });
     m_search.rebuild(m_document, m_show);
     connect(&m_media, &MediaService::notification, this, &AppController::notification);
     connect(&m_audio, &AudioService::notification, this, &AppController::notification);
@@ -529,9 +532,22 @@ bool AppController::importProPresenter(const QString& path)
 
 bool AppController::importPptx(const QString& path)
 {
-    Q_UNUSED(path)
-    emit notification(QStringLiteral(u"PPTX import is not available in this build"));
-    return false;
+    const QVariantList slides = m_pptx.import(path);
+    if (slides.isEmpty()) {
+        emit notification(m_pptx.lastError().isEmpty() ? QStringLiteral(u"PPTX import failed")
+                                                       : m_pptx.lastError());
+        return false;
+    }
+    for (const QVariant& slide : slides) {
+        const QVariantMap map = slide.toMap();
+        m_show.addSlide(map.value(QStringLiteral(u"name")).toString(),
+                        map.value(QStringLiteral(u"text")).toString());
+    }
+    m_search.rebuild(m_document, m_show);
+    emit editorChanged();
+    emit sceneChanged();
+    emit notification(QStringLiteral(u"Imported %1 PPTX slides").arg(slides.size()));
+    return true;
 }
 
 bool AppController::moveServiceItem(int from, int to)
@@ -556,6 +572,17 @@ bool AppController::moveSlide(int from, int to)
     return true;
 }
 
+QPainter::CompositionMode AppController::itemBlendMode(const QString& mode)
+{
+    if (mode == QStringLiteral(u"multiply"))
+        return QPainter::CompositionMode_Multiply;
+    if (mode == QStringLiteral(u"screen"))
+        return QPainter::CompositionMode_Screen;
+    if (mode == QStringLiteral(u"add"))
+        return QPainter::CompositionMode_Plus;
+    return QPainter::CompositionMode_SourceOver;
+}
+
 bool AppController::exportSlideImage(const QString& path)
 {
     if (path.isEmpty())
@@ -569,6 +596,7 @@ bool AppController::exportSlideImage(const QString& path)
             continue;
         painter.setOpacity(layer.opacity);
         for (const auto& item : layer.items) {
+            painter.setCompositionMode(itemBlendMode(item.blendMode));
             QFont font(QStringLiteral(u"Segoe UI"));
             font.setPixelSize(static_cast<int>(item.fontSize));
             font.setBold(true);
@@ -586,6 +614,7 @@ bool AppController::exportSlideImage(const QString& path)
             }
         }
     }
+    painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
     painter.end();
     if (!image.save(path))
         return false;

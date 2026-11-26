@@ -3,6 +3,7 @@
 #include "AlertsService.h"
 #include "AutomationService.h"
 #include "DiagnosticsService.h"
+#include "DiscoveryService.h"
 #include "FontService.h"
 #include "ArrangementService.h"
 #include "AudioService.h"
@@ -14,6 +15,7 @@
 #include "OutputManager.h"
 #include "OutputPresetService.h"
 #include "PlaylistService.h"
+#include "PptxImporter.h"
 #include "api/LocalApiServer.h"
 #include "api/OutputBackends.h"
 #include "api/StreamingService.h"
@@ -24,6 +26,7 @@
 #include "core/ShowDocument.h"
 
 #include <QObject>
+#include <QtGui/QPainter>
 #include <QSettings>
 #include <QString>
 #include <QTimer>
@@ -98,6 +101,7 @@ class AppController : public QObject
     Q_PROPERTY(QObject* arrangements READ arrangements CONSTANT)
     Q_PROPERTY(QObject* backupService READ backupService CONSTANT)
     Q_PROPERTY(QObject* fontService READ fontService CONSTANT)
+    Q_PROPERTY(QObject* discovery READ discovery CONSTANT)
     Q_PROPERTY(QObject* ndiSender READ ndiSender CONSTANT)
     Q_PROPERTY(QObject* deckLinkOutput READ deckLinkOutput CONSTANT)
     Q_PROPERTY(QObject* streaming READ streaming CONSTANT)
@@ -179,6 +183,7 @@ public:
     QObject* arrangements() { return &m_arrangements; }
     QObject* backupService() { return &m_backups; }
     QObject* fontService() { return &m_fonts; }
+    QObject* discovery() { return &m_discovery; }
     QObject* ndiSender() { return &m_ndi; }
     QObject* deckLinkOutput() { return &m_decklink; }
     QObject* streaming() { return &m_streaming; }
@@ -263,6 +268,7 @@ private:
     void loadSettings();
     void persistSettings();
     void scheduleAutoAdvance();
+    static QPainter::CompositionMode itemBlendMode(const QString& mode);
     static QString duration(int seconds);
 
     core::Document m_document;
@@ -277,6 +283,8 @@ private:
     PlaylistService m_playlist;
     ArrangementService m_arrangements;
     BackupService m_backups;
+    PptxImporter m_pptx;
+    DiscoveryService m_discovery;
     FontService m_fonts;
     api::NdiSender m_ndi;
     api::DeckLinkOutput m_decklink;

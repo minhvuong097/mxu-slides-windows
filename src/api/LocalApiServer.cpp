@@ -274,6 +274,16 @@ QByteArray LocalApiServer::dispatch(const QString& method, const QString& path,
         addRoute(QStringLiteral(u"/v1/dismissAlert"), QStringLiteral(u"post"), QStringLiteral(u"Dismiss alert"), QStringLiteral(u"control"));
         addRoute(QStringLiteral(u"/v1/fire"), QStringLiteral(u"post"), QStringLiteral(u"Fire trigger action"), QStringLiteral(u"control"));
         addRoute(QStringLiteral(u"/v1/notes"), QStringLiteral(u"get"), QStringLiteral(u"List sermon notes"), QStringLiteral(u"status"));
+        addRoute(QStringLiteral(u"/v1/next"), QStringLiteral(u"post"), QStringLiteral(u"Next slide alias"), QStringLiteral(u"control"));
+        addRoute(QStringLiteral(u"/v1/previous"), QStringLiteral(u"post"), QStringLiteral(u"Previous slide alias"), QStringLiteral(u"control"));
+        addRoute(QStringLiteral(u"/v1/clearAll"), QStringLiteral(u"post"), QStringLiteral(u"Clear all layers"), QStringLiteral(u"control"));
+        addRoute(QStringLiteral(u"/v1/restore"), QStringLiteral(u"post"), QStringLiteral(u"Restore layers"), QStringLiteral(u"control"));
+        addRoute(QStringLiteral(u"/v1/timers/start"), QStringLiteral(u"post"), QStringLiteral(u"Toggle timer"), QStringLiteral(u"control"));
+        addRoute(QStringLiteral(u"/v1/playlist/next"), QStringLiteral(u"post"), QStringLiteral(u"Next playlist track"), QStringLiteral(u"control"));
+        addRoute(QStringLiteral(u"/v1/presets"), QStringLiteral(u"get"), QStringLiteral(u"List output presets"), QStringLiteral(u"status"));
+        addRoute(QStringLiteral(u"/v1/discovery"), QStringLiteral(u"get"), QStringLiteral(u"Discovered peers"), QStringLiteral(u"status"));
+        addRoute(QStringLiteral(u"/v1/audio"), QStringLiteral(u"get"), QStringLiteral(u"Audio channels"), QStringLiteral(u"status"));
+        addRoute(QStringLiteral(u"/v1/overlays"), QStringLiteral(u"get"), QStringLiteral(u"Active alerts"), QStringLiteral(u"status"));
         response.insert(QStringLiteral(u"paths"), paths);
     } else if (route == QStringLiteral(u"/v1/status") && method == QStringLiteral(u"GET")) {
         if (!authorized(auth, url, QStringLiteral(u"status")))
@@ -430,6 +440,45 @@ QByteArray LocalApiServer::dispatch(const QString& method, const QString& path,
             response.insert(QStringLiteral(u"error"), QStringLiteral(u"Admin scope required"));
         } else {
             response.insert(QStringLiteral(u"tokens"), tokens());
+        }
+    } else if (method == QStringLiteral(u"POST") && (
+                   route == QStringLiteral(u"/v1/next") || route == QStringLiteral(u"/v1/previous")
+                   || route == QStringLiteral(u"/v1/clearAll") || route == QStringLiteral(u"/v1/restore")
+                   || route == QStringLiteral(u"/v1/timers/start") || route == QStringLiteral(u"/v1/playlist/next"))) {
+        if (!authorized(auth, url, QStringLiteral(u"control"))) {
+            response.insert(QStringLiteral(u"error"), QStringLiteral(u"Control scope required"));
+        } else if (m_controller) {
+            QByteArray action;
+            if (route == QStringLiteral(u"/v1/next")) action = "next";
+            else if (route == QStringLiteral(u"/v1/previous")) action = "previous";
+            else if (route == QStringLiteral(u"/v1/playlist/next")) action = "playlistNext";
+            else if (route == QStringLiteral(u"/v1/timers/start")) action = "toggleTimer";
+            else if (route == QStringLiteral(u"/v1/clearAll")) action = "clearAllLayers";
+            else action = "restoreLayers";
+            if (action == "playlistNext")
+                QMetaObject::invokeMethod(m_controller->playlist(), "next", Qt::QueuedConnection);
+            else if (action == "clearAllLayers")
+                QMetaObject::invokeMethod(m_controller->showState(), "clearAll", Qt::QueuedConnection);
+            else if (action == "restoreLayers")
+                QMetaObject::invokeMethod(m_controller->showState(), "restoreAll", Qt::QueuedConnection);
+            else
+                QMetaObject::invokeMethod(m_controller, action.constData(), Qt::QueuedConnection);
+            response.insert(QStringLiteral(u"ok"), true);
+        }
+    } else if (method == QStringLiteral(u"GET") && (
+                   route == QStringLiteral(u"/v1/presets") || route == QStringLiteral(u"/v1/discovery")
+                   || route == QStringLiteral(u"/v1/audio") || route == QStringLiteral(u"/v1/overlays"))) {
+        if (!authorized(auth, url, QStringLiteral(u"status"))) {
+            response.insert(QStringLiteral(u"error"), QStringLiteral(u"Unauthorized"));
+        } else if (m_controller) {
+            if (route == QStringLiteral(u"/v1/presets"))
+                response.insert(QStringLiteral(u"presets"), m_controller->outputPresets()->property("presets"));
+            else if (route == QStringLiteral(u"/v1/discovery"))
+                response.insert(QStringLiteral(u"peers"), m_controller->discovery()->property("peers"));
+            else if (route == QStringLiteral(u"/v1/audio"))
+                response.insert(QStringLiteral(u"channels"), m_controller->property("audioChannels"));
+            else
+                response.insert(QStringLiteral(u"alerts"), m_controller->alerts()->property("active"));
         }
     } else {
         response.insert(QStringLiteral(u"error"), QStringLiteral(u"Unknown route"));
