@@ -38,6 +38,7 @@ private slots:
     void searchSyncDiagnostics();
     void timelineBasic();
     void searchNavigation();
+    void slideExport();
 };
 
 void MxuDocumentTest::demoMatchesServiceFlow()
@@ -340,6 +341,17 @@ void MxuDocumentTest::searchNavigation()
     QVERIFY(controller.openSearchResult(QStringLiteral(u"media"), QStringLiteral(u"Prayer night")));
     QCOMPARE(controller.screen(), QStringLiteral(u"library"));
     QVERIFY(!controller.openSearchResult(QStringLiteral(u"cue"), QStringLiteral(u"missing")));
+}
+
+void MxuDocumentTest::slideExport()
+{
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    app::AppController controller;
+    const QString path = dir.path() + QStringLiteral(u"/slide.png");
+    QVERIFY(controller.exportSlideImage(path));
+    QVERIFY(QFile::exists(path));
+    QVERIFY(QImage(path).size() == QSize(1920, 1080));
 }
 
 int main(int argc, char** argv)

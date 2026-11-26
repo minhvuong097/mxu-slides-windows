@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import QtQuick.Window
+import QtQuick.Dialogs
 import "qrc:/qml/theme"
 import "qrc:/qml/components"
 
@@ -165,6 +166,13 @@ Item {
                             Text { anchors.centerIn: parent; text: "Redo"; color: Theme.text; font.pixelSize: 11 }
                             MouseArea { anchors.fill: parent; onClicked: Mxu.redo() }
                         }
+                        Rectangle {
+                            anchors.verticalCenter: parent.verticalCenter
+                            radius: 7; color: Theme.surface
+                            implicitWidth: 88; implicitHeight: 26
+                            Text { anchors.centerIn: parent; text: "Export PNG"; color: Theme.text; font.pixelSize: 11 }
+                            MouseArea { anchors.fill: parent; onClicked: exportDialog.open() }
+                        }
                         Text { anchors.verticalCenter: parent.verticalCenter; text: "Zoom 100%"; color: Theme.textDim; font.pixelSize: 11 }
                     }
                 }
@@ -327,5 +335,14 @@ Item {
                 }
             }
         }
+    }
+
+    FileDialog {
+        id: exportDialog
+        title: "Export slide"
+        fileMode: FileDialog.SaveFile
+        defaultSuffix: "png"
+        nameFilters: ["PNG images (*.png)"]
+        onAccepted: Mxu.exportSlideImage(selectedFile)
     }
 }

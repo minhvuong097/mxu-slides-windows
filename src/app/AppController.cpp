@@ -1,6 +1,8 @@
 #include "AppController.h"
 
 #include <QGuiApplication>
+#include <QImage>
+#include <QPainter>
 #include <QScreen>
 #include <QTime>
 #include <QStandardPaths>
@@ -545,6 +547,43 @@ bool AppController::moveSlide(int from, int to)
     m_search.rebuild(m_document, m_show);
     emit editorChanged();
     emit sceneChanged();
+    return true;
+}
+
+bool AppController::exportSlideImage(const QString& path)
+{
+    if (path.isEmpty())
+        return false;
+    QImage image(1920, 1080, QImage::Format_ARGB32);
+    image.fill(QColor(QStringLiteral(u"#0b0b0c")));
+    QPainter painter(&image);
+    const core::RenderScene scene = m_sceneBuilder.build(m_show, chordsVisible(), clockVisible(), serviceClock());
+    for (const auto& layer : scene.layers) {
+        if (!layer.visible)
+            continue;
+        painter.setOpacity(layer.opacity);
+        for (const auto& item : layer.items) {
+            QFont font(QStringLiteral(u"Segoe UI"));
+            font.setPixelSize(static_cast<int>(item.fontSize));
+            font.setBold(true);
+            painter.setFont(font);
+            painter.setPen(QColor(item.colorHex));
+            QRectF rect(item.x, item.y, item.width, item.height);
+            painter.drawText(rect, Qt::AlignCenter | Qt::TextWordWrap, item.text);
+            if (!item.chord.isEmpty()) {
+                QFont chordFont = font;
+                chordFont.setPixelSize(static_cast<int>(item.fontSize * 0.7));
+                painter.setFont(chordFont);
+                painter.setPen(QColor(QStringLiteral(u"#ffd60a")));
+                painter.drawText(QRectF(item.x, item.y - item.fontSize, item.width, item.fontSize),
+                                 Qt::AlignLeft, item.chord);
+            }
+        }
+    }
+    painter.end();
+    if (!image.save(path))
+        return false;
+    emit notification(QStringLiteral(u"Exported %1").arg(path));
     return true;
 }
 

@@ -179,6 +179,7 @@ public:
     Q_INVOKABLE bool openSearchResult(const QString& kind, const QString& ref);
     Q_INVOKABLE bool moveServiceItem(int from, int to);
     Q_INVOKABLE bool moveSlide(int from, int to);
+    Q_INVOKABLE bool exportSlideImage(const QString& path);
     QString transitionKind() const;
     double transitionDuration() const { return m_transitionDuration; }
     void setTransitionKind(const QString& value);
