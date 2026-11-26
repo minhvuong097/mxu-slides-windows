@@ -191,6 +191,57 @@ QVariantList SceneBuilder::sceneToQml(const RenderScene& scene)
     return layers;
 }
 
+RenderScene SceneBuilder::sceneFromQml(const QVariantList& layers)
+{
+    RenderScene scene;
+    for (const QVariant& layerValue : layers) {
+        const QVariantMap layerMap = layerValue.toMap();
+        RenderLayer layer;
+        layer.z = layerMap.value(QStringLiteral(u"z")).toInt();
+        layer.opacity = layerMap.value(QStringLiteral(u"opacity")).toDouble();
+        layer.visible = layerMap.value(QStringLiteral(u"visible")).toBool();
+        const QString kind = layerMap.value(QStringLiteral(u"kind")).toString();
+        if (kind == QStringLiteral(u"foregroundVideos")) layer.kind = LayerKind::ForegroundVideo;
+        else if (kind == QStringLiteral(u"overlays")) layer.kind = LayerKind::Overlay;
+        else if (kind == QStringLiteral(u"alerts")) layer.kind = LayerKind::Alert;
+        else if (kind == QStringLiteral(u"liveInputs")) layer.kind = LayerKind::LiveInput;
+        else layer.kind = LayerKind::Slide;
+        if (layerMap.contains(QStringLiteral(u"scaleMode")))
+            scene.scaleMode = layerMap.value(QStringLiteral(u"scaleMode")).toString();
+        if (layerMap.contains(QStringLiteral(u"maskMode")))
+            scene.maskMode = layerMap.value(QStringLiteral(u"maskMode")).toString();
+        if (layerMap.contains(QStringLiteral(u"maskShape")))
+            scene.maskShape = layerMap.value(QStringLiteral(u"maskShape")).toString();
+
+        for (const QVariant& itemValue : layerMap.value(QStringLiteral(u"items")).toList()) {
+            const QVariantMap itemMap = itemValue.toMap();
+            RenderItem item;
+            item.id = itemMap.value(QStringLiteral(u"id")).toString();
+            item.text = itemMap.value(QStringLiteral(u"text")).toString();
+            item.chord = itemMap.value(QStringLiteral(u"chord")).toString();
+            item.kind = itemMap.value(QStringLiteral(u"kind")).toString();
+            item.shapeKind = itemMap.value(QStringLiteral(u"shapeKind")).toString();
+            item.pathData = itemMap.value(QStringLiteral(u"pathData")).toString();
+            item.fillColor = itemMap.value(QStringLiteral(u"fillColor")).toString();
+            item.strokeColor = itemMap.value(QStringLiteral(u"strokeColor")).toString();
+            item.strokeWidth = itemMap.value(QStringLiteral(u"strokeWidth")).toDouble();
+            item.blendMode = itemMap.value(QStringLiteral(u"blendMode")).toString();
+            item.renderedHtml = itemMap.value(QStringLiteral(u"richText")).toString();
+            item.x = itemMap.value(QStringLiteral(u"x")).toDouble();
+            item.y = itemMap.value(QStringLiteral(u"y")).toDouble();
+            item.width = itemMap.value(QStringLiteral(u"width")).toDouble();
+            item.height = itemMap.value(QStringLiteral(u"height")).toDouble();
+            item.fontSize = itemMap.value(QStringLiteral(u"fontSize")).toDouble();
+            item.colorHex = itemMap.value(QStringLiteral(u"colorHex")).toString();
+            item.opacity = itemMap.value(QStringLiteral(u"opacity")).toDouble();
+            item.z = itemMap.value(QStringLiteral(u"z")).toInt();
+            layer.items.append(item);
+        }
+        scene.layers.append(layer);
+    }
+    return scene;
+}
+
 // ------------------------------------------------------------- Transitions
 SceneTransitionEngine::SceneTransitionEngine(QObject* parent)
     : QObject(parent)

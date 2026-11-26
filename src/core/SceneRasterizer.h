@@ -20,6 +20,8 @@ public:
     explicit SceneRasterizer(QObject* parent = nullptr);
 
     Q_INVOKABLE QImage render(const RenderScene& scene, const QSize& size) const;
+    QImage renderBlended(const RenderScene& previous, const RenderScene& current,
+                         const QSize& size, double progress, const QString& kind) const;
 
 private:
     void drawItem(QPainter& painter, const RenderItem& item, const QRect& bounds) const;

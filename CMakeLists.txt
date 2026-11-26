@@ -64,6 +64,8 @@ qt_add_library(mxu_shell STATIC
     src/app/Models.cpp
     src/app/AppController.h
     src/app/AppController.cpp
+    src/ui/ScenePaintedItem.h
+    src/ui/ScenePaintedItem.cpp
     src/api/LocalApiServer.h
     src/api/LocalApiServer.cpp
     src/app/MediaService.h
@@ -130,7 +132,7 @@ qt_add_library(mxu_shell STATIC
 target_include_directories(mxu_shell PUBLIC ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(mxu_shell PUBLIC
     mxu_core
-    Qt6::Core Qt6::Gui Qt6::Qml Qt6::Network Qt6::WebSockets Qt6::Svg Qt6::Multimedia Qt6::Sql
+    Qt6::Core Qt6::Gui Qt6::Qml Qt6::Network Qt6::WebSockets Qt6::Svg Qt6::Multimedia Qt6::Sql Qt6::Quick
 )
 
 qt_add_resources(MXU_RESOURCES resources.qrc)

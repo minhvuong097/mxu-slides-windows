@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Window
+import Mxu.Scene 1.0
 import "qrc:/qml/theme"
 import "qrc:/qml/components"
 
@@ -30,9 +31,13 @@ Window {
             asynchronous: true
         }
 
-        SceneView {
+        SceneSurface {
             anchors.fill: parent
-            cleared: Mxu.showState.isCleared("slide")
+            layers: Mxu.renderLayers
+            previousLayers: Mxu.previousRenderLayers
+            transitionProgress: Mxu.transition.progress
+            transitionKind: Mxu.transition.kind
+            background: "black"
         }
 
         Rectangle {

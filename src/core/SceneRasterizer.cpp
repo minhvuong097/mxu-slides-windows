@@ -130,4 +130,34 @@ QImage SceneRasterizer::render(const RenderScene& scene, const QSize& size) cons
     return image;
 }
 
+QImage SceneRasterizer::renderBlended(const RenderScene& previous, const RenderScene& current,
+                                      const QSize& size, double progress, const QString& kind) const
+{
+    const QImage outgoing = render(previous, size);
+    QImage result = outgoing.copy();
+    if (kind == QStringLiteral(u"cut")) {
+        if (progress >= 0.5)
+            return render(current, size);
+        return result;
+    }
+    const QImage incoming = render(current, size);
+    QPainter painter(&result);
+    painter.setRenderHint(QPainter::Antialiasing, true);
+    painter.setOpacity(qBound(0.0, progress, 1.0));
+    painter.drawImage(0, 0, incoming);
+    painter.end();
+    if (kind == QStringLiteral(u"fadeBlack") || kind == QStringLiteral(u"fadeWhite")
+        || kind == QStringLiteral(u"fadeColor") || kind == QStringLiteral(u"filmBurn")) {
+        QPainter curtain(&result);
+        const QColor color = kind == QStringLiteral(u"fadeWhite") ? QColor(Qt::white)
+                             : kind == QStringLiteral(u"fadeColor") ? QColor(QStringLiteral(u"#0a84ff"))
+                             : kind == QStringLiteral(u"filmBurn") ? QColor(QStringLiteral(u"#ff8c1a"))
+                             : QColor(Qt::black);
+        curtain.fillRect(result.rect(), QColor(color.red(), color.green(), color.blue(),
+                                               qRound(255 * (1.0 - qAbs(0.5 - progress) * 2.0))));
+        curtain.end();
+    }
+    return result;
+}
+
 } // namespace mxu::core

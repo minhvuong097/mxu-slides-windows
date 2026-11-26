@@ -82,6 +82,7 @@ public:
                       const QString& maskShape = QStringLiteral(u"rectangle")) const;
 
     static QVariantList sceneToQml(const RenderScene& scene);
+    static RenderScene sceneFromQml(const QVariantList& layers);
 };
 
 // Qt-side counterpart of the macOS SceneTransitionEngine.

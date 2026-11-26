@@ -66,6 +66,7 @@ private slots:
     void slideHistory();
     void midiTimecode();
     void sceneRasterizer();
+    void qmlSceneRoundTrip();
 };
 
 void MxuDocumentTest::demoMatchesServiceFlow()
@@ -547,6 +548,25 @@ void MxuDocumentTest::sceneRasterizer()
     const QImage image = rasterizer.render(scene, QSize(320, 180));
     QVERIFY(!image.isNull());
     QCOMPARE(image.size(), QSize(320, 180));
+}
+
+void MxuDocumentTest::qmlSceneRoundTrip()
+{
+    core::ShowDocument show;
+    show.setDocument(core::Document::demo());
+    show.addSlide(QStringLiteral(u"Blend"), QStringLiteral(u"Blend me"));
+    const core::SceneBuilder builder;
+    const core::RenderScene scene = builder.build(show, true, true, QStringLiteral(u"9:00 AM"));
+    const QVariantList qml = core::SceneBuilder::sceneToQml(scene);
+    const core::RenderScene rebuilt = core::SceneBuilder::sceneFromQml(qml);
+    QCOMPARE(rebuilt.layers.size(), 1);
+    QCOMPARE(rebuilt.layers.first().items.size(), 1);
+
+    core::SceneRasterizer rasterizer;
+    const QImage blended = rasterizer.renderBlended(scene, rebuilt, QSize(160, 90), 0.5,
+                                                    QStringLiteral(u"dissolve"));
+    QVERIFY(!blended.isNull());
+    QCOMPARE(blended.size(), QSize(160, 90));
 }
 
 int main(int argc, char** argv)

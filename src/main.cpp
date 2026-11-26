@@ -1,6 +1,8 @@
 #include "app/AppController.h"
+#include "ui/ScenePaintedItem.h"
 
 #include <QGuiApplication>
+#include <QQmlEngine>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QIcon>
@@ -8,6 +10,8 @@
 
 int main(int argc, char* argv[])
 {
+    qmlRegisterType<mxu::ui::ScenePaintedItem>("Mxu.Scene", 1, 0, "SceneSurface");
+
     QGuiApplication app(argc, argv);
     app.setApplicationName(QStringLiteral(u"MxU Slides"));
     app.setApplicationDisplayName(QStringLiteral(u"MxU Slides"));
@@ -28,6 +32,7 @@ int main(int argc, char* argv[])
     mxu::app::AppController controller;
 
     QQmlApplicationEngine engine;
+    engine.addImportPath(QStringLiteral(u"qrc:/qml"));
     engine.rootContext()->setContextProperty(QStringLiteral(u"Mxu"), &controller);
     engine.rootContext()->setContextProperty(QStringLiteral(u"AppVersion"),
                                              QStringLiteral(u"0.1.0"));

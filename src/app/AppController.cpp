@@ -863,6 +863,7 @@ void AppController::playTransition()
 
 void AppController::refreshPreview()
 {
+    m_previousLayers = renderLayers();
     scheduleAutoAdvance();
     emit previewChanged();
     emit sceneChanged();

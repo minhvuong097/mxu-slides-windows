@@ -100,6 +100,7 @@ class AppController : public QObject
     Q_PROPERTY(bool canRedo READ canRedo NOTIFY editorChanged)
 
     Q_PROPERTY(QVariantList renderLayers READ renderLayers NOTIFY sceneChanged)
+    Q_PROPERTY(QVariantList previousRenderLayers READ previousRenderLayers NOTIFY sceneChanged)
     Q_PROPERTY(QString currentSlideName READ currentSlideName NOTIFY sceneChanged)
     Q_PROPERTY(QObject* transition READ transition CONSTANT)
     Q_PROPERTY(QObject* showState READ showState CONSTANT)
@@ -198,6 +199,7 @@ public:
     bool canRedo() const;
 
     QVariantList renderLayers() const;
+    QVariantList previousRenderLayers() const { return m_previousLayers; }
     QString currentSlideName() const;
     QObject* transition() { return &m_transition; }
     QObject* showState() { return &m_showState; }
@@ -371,6 +373,7 @@ private:
     QTimer m_autoAdvanceTimer;
 
     QString m_screen = QStringLiteral(u"present");
+    QVariantList m_previousLayers;
     QString m_documentPath;
     int m_seconds = 155;
     int m_held = 4;
