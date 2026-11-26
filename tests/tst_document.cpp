@@ -11,6 +11,7 @@
 #include "app/AudioService.h"
 #include "app/BackupService.h"
 #include "app/ConfidenceLayoutService.h"
+#include "app/ServiceVersionService.h"
 #include "app/DiscoveryService.h"
 #include "app/PptxImporter.h"
 #include "app/FontService.h"
@@ -50,6 +51,7 @@ private slots:
     void timerBoard();
     void slideActions();
     void confidenceLayout();
+    void serviceVersions();
 };
 
 void MxuDocumentTest::demoMatchesServiceFlow()
@@ -429,6 +431,17 @@ void MxuDocumentTest::confidenceLayout()
     QVERIFY(layout.remove(id));
     layout.setStructure(QStringLiteral(u"Grid"));
     QCOMPARE(layout.structure(), QStringLiteral(u"Grid"));
+}
+
+void MxuDocumentTest::serviceVersions()
+{
+    app::ServiceVersionService versions;
+    const QString id = versions.add(QStringLiteral(u"Stage"), QVariantList{ QStringLiteral(u"item-1") });
+    QVERIFY(!id.isEmpty());
+    QCOMPARE(versions.versions().size(), 1);
+    QVERIFY(versions.activate(id));
+    QCOMPARE(versions.activeStation(), QStringLiteral(u"Stage"));
+    QVERIFY(versions.remove(id));
 }
 
 int main(int argc, char** argv)

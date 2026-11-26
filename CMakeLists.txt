@@ -98,6 +98,8 @@ qt_add_library(mxu_shell STATIC
     src/app/SlideActionRouter.cpp
     src/app/ConfidenceLayoutService.h
     src/app/ConfidenceLayoutService.cpp
+    src/app/ServiceVersionService.h
+    src/app/ServiceVersionService.cpp
     src/app/PptxImporter.h
     src/app/PptxImporter.cpp
     src/app/DiscoveryService.h

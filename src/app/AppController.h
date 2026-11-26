@@ -10,6 +10,7 @@
 #include "AudioService.h"
 #include "BackupService.h"
 #include "TimelineService.h"
+#include "ServiceVersionService.h"
 #include "SlideActionRouter.h"
 #include "TimerBoardService.h"
 #include "MediaService.h"
@@ -108,6 +109,7 @@ class AppController : public QObject
     Q_PROPERTY(QObject* timerBoard READ timerBoard CONSTANT)
     Q_PROPERTY(QObject* slideActions READ slideActions CONSTANT)
     Q_PROPERTY(QObject* confidenceLayout READ confidenceLayout CONSTANT)
+    Q_PROPERTY(QObject* serviceVersions READ serviceVersions CONSTANT)
     Q_PROPERTY(QVariantList currentSlideActions READ currentSlideActions NOTIFY editorChanged)
     Q_PROPERTY(QObject* ndiSender READ ndiSender CONSTANT)
     Q_PROPERTY(QObject* deckLinkOutput READ deckLinkOutput CONSTANT)
@@ -194,6 +196,7 @@ public:
     QObject* timerBoard() { return &m_timerBoard; }
     QObject* slideActions() { return &m_actionRouter; }
     QObject* confidenceLayout() { return &m_confidenceLayout; }
+    QObject* serviceVersions() { return &m_serviceVersions; }
     QVariantList currentSlideActions() const;
     Q_INVOKABLE QString addSlideAction(const QString& kind, const QString& target);
     Q_INVOKABLE bool fireSlideAction(const QString& id);
@@ -301,6 +304,7 @@ private:
     TimerBoardService m_timerBoard;
     SlideActionRouter m_actionRouter;
     ConfidenceLayoutService m_confidenceLayout;
+    ServiceVersionService m_serviceVersions;
     FontService m_fonts;
     api::NdiSender m_ndi;
     api::DeckLinkOutput m_decklink;
