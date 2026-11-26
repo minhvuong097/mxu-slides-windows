@@ -3,7 +3,9 @@
 #include "AudioService.h"
 #include "MediaService.h"
 #include "Models.h"
+#include "OutputManager.h"
 #include "api/LocalApiServer.h"
+#include "api/OutputBackends.h"
 #include "core/Document.h"
 #include "core/SceneModel.h"
 #include "core/ShowDocument.h"
@@ -72,6 +74,9 @@ class AppController : public QObject
     Q_PROPERTY(QObject* showState READ showState CONSTANT)
     Q_PROPERTY(QObject* mediaService READ mediaService CONSTANT)
     Q_PROPERTY(QObject* audioService READ audioService CONSTANT)
+    Q_PROPERTY(QObject* outputs READ outputs CONSTANT)
+    Q_PROPERTY(QObject* ndiSender READ ndiSender CONSTANT)
+    Q_PROPERTY(QObject* deckLinkOutput READ deckLinkOutput CONSTANT)
     Q_PROPERTY(QVariantList audioChannels READ audioChannels NOTIFY audioChanged)
     Q_PROPERTY(QString transitionKind READ transitionKind WRITE setTransitionKind NOTIFY sceneChanged)
     Q_PROPERTY(double transitionDuration READ transitionDuration WRITE setTransitionDuration NOTIFY sceneChanged)
@@ -130,6 +135,9 @@ public:
     QObject* mediaService() { return &m_media; }
     QObject* audioService() { return &m_audio; }
     QVariantList audioChannels() const;
+    QObject* outputs() { return &m_outputs; }
+    QObject* ndiSender() { return &m_ndi; }
+    QObject* deckLinkOutput() { return &m_decklink; }
     QString transitionKind() const;
     double transitionDuration() const { return m_transitionDuration; }
     void setTransitionKind(const QString& value);
@@ -200,6 +208,9 @@ private:
     core::ShowState m_showState;
     MediaService m_media;
     AudioService m_audio;
+    OutputManager m_outputs;
+    api::NdiSender m_ndi;
+    api::DeckLinkOutput m_decklink;
     QString m_transitionKind = QStringLiteral(u"dissolve");
     double m_transitionDuration = 0.6;
     ServiceModel m_service;

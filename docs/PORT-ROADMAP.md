@@ -12,13 +12,13 @@ theo package và xác định cái nào đã có, cái nào cần làm tiếp.
 |---|---|
 | UI shell / AppShell / ModeSwitcher | ✅ `qml/main.qml` + 5 screens |
 | Service outline + cue cards | ✅ demo data, `ServiceModel` / `CueModel` |
-| LocalAPI (tối giản) | ✅ REST + WS + scoped token |
+| LocalAPI | ✅ 12 routes + WS + scoped tokens; Bonjour/follow chưa có |
 | Document schema | ✅ `scripts/generate_models.py` → 103 record / 62 enum từ `schema/documents.json` |
 | PresenterCore (Automerge, SQLite/FTS5) | ❌ |
 | RenderEngine (Metal) | ⚠️ Scene model + transitions; RHI blend/mask chưa có |
 | SlideScene / SlideEditorModel | ⚠️ `core::ShowDocument` + SlideObject/undo/redo; renderer đơn giản |
 | MediaEngine / AudioEngine | ⚠️ Media import/thumbnails + Qt Multimedia mixer; video frame grab & multitrack chưa có |
-| OutputEngine / NDI / DeckLink / Syphon | ❌ |
+| OutputEngine / NDI / DeckLink / Syphon | ⚠️ OutputManager + SDK stubs; recorder/Syphon chưa có |
 | StreamEngine / MIDI / Scheduler / Notes | ❌ |
 | ProImport / PPTXImport | ❌ |
 | Diagnostics / perf | ❌ |
@@ -70,7 +70,15 @@ Kiến trúc gốc của phase này:
 - WASAPI audio engine: 2 decks, crossfade, playlist queue, mixer.
 - Multitrack stems (từ `MultitrackEngine`) — có thể làm sau.
 
-## Phase 4 — Outputs & APIs (P1)
+## Phase 4 — Outputs & APIs (P1) — ĐÃ LÀM (phần lõi)
+
+- ✅ `OutputManager`: QScreen topology, per-role assignment, identify, persistence.
+- ✅ Settings Outputs dùng màn hình thật & gán role.
+- ✅ NDI/DeckLink backend stubs với build options (`MXU_ENABLE_NDI`, `MXU_ENABLE_DECKLINK`).
+- ✅ LocalAPI 12 routes: ping/status/slides/advance/clear/goToSlide/timers/present/stop/clearLayer/tokens/openapi + WS.
+- ⚠️ Chưa có: Bonjour/mDNS, follow pairing, recorder, SDK implementation thật.
+
+Kiến trúc gốc của phase này:
 
 - `OutputManager`: screen map, placeholder screens, per-screen preset.
 - NDI sender (SDK) + DeckLink SDK (đã có header vendor trong repo Mac).

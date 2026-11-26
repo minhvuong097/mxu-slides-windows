@@ -14,12 +14,21 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 option(MXU_BUILD_TESTS "Build unit tests" OFF)
+option(MXU_ENABLE_NDI "Enable NDI sender (requires NDI SDK)" OFF)
+option(MXU_ENABLE_DECKLINK "Enable DeckLink output (requires Blackmagic SDK)" OFF)
 
 if(MSVC)
     add_compile_options(/W4 /permissive- /utf-8 /EHsc /Zc:__cplusplus)
     add_compile_definitions(NOMINMAX WIN32_LEAN_AND_MEAN UNICODE)
 else()
     add_compile_options(-Wall -Wextra)
+endif()
+
+if(MXU_ENABLE_NDI)
+    add_compile_definitions(MXU_HAS_NDI_SDK=1)
+endif()
+if(MXU_ENABLE_DECKLINK)
+    add_compile_definitions(MXU_HAS_DECKLINK_SDK=1)
 endif()
 
 find_package(Qt6 6.5 REQUIRED COMPONENTS
@@ -51,6 +60,10 @@ qt_add_library(mxu_shell STATIC
     src/app/MediaService.cpp
     src/app/AudioService.h
     src/app/AudioService.cpp
+    src/app/OutputManager.h
+    src/app/OutputManager.cpp
+    src/api/OutputBackends.h
+    src/api/OutputBackends.cpp
 )
 target_include_directories(mxu_shell PUBLIC ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(mxu_shell PUBLIC

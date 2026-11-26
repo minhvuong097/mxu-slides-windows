@@ -8,6 +8,11 @@
 #include "app/AppController.h"
 #include "app/AudioService.h"
 #include "app/MediaService.h"
+#include "api/LocalApiServer.h"
+#include <QTcpSocket>
+#include <QHostAddress>
+#include <QEventLoop>
+#include <QTimer>
 
 using namespace mxu;
 
@@ -22,6 +27,7 @@ private slots:
     void slideObjectUndoRedo();
     void sceneAndTransitions();
     void mediaAndAudio();
+    void localApiRoutes();
 };
 
 void MxuDocumentTest::demoMatchesServiceFlow()
@@ -162,6 +168,54 @@ void MxuDocumentTest::mediaAndAudio()
     QVERIFY(audio.setVolume(channel, 0.5));
     QVERIFY(audio.stop(channel));
     audio.stopAll();
+}
+
+void MxuDocumentTest::localApiRoutes()
+{
+    app::AppController controller;
+    api::LocalApiServer server;
+    server.attach(&controller);
+    server.setPort(6982);
+    QVERIFY(server.start());
+
+    auto request = [](const QByteArray& data) {
+        QTcpSocket socket;
+        socket.connectToHost(QHostAddress::LocalHost, 6982);
+        if (!socket.waitForConnected(2000))
+            return QByteArray();
+        socket.write(data);
+        socket.waitForBytesWritten(1000);
+        QEventLoop loop;
+        QTimer timeout;
+        timeout.setSingleShot(true);
+        timeout.setInterval(800);
+        QObject::connect(&socket, &QIODevice::readyRead, &loop, [&loop]() { loop.quit(); });
+        QObject::connect(&timeout, &QTimer::timeout, &loop, [&loop]() { loop.quit(); });
+        timeout.start();
+        loop.exec();
+        return socket.readAll();
+    };
+
+    const QByteArray ping = request("GET /v1/ping HTTP/1.1\r\nHost: localhost\r\n\r\n");
+    QVERIFY(ping.contains("\"ok\":true"));
+
+    const QByteArray noAuth = request("GET /v1/status HTTP/1.1\r\nHost: localhost\r\n\r\n");
+    QVERIFY(noAuth.contains("Unauthorized"));
+
+    const QByteArray auth = "Authorization: Bearer " + server.token().toUtf8() + "\r\n";
+    const QByteArray status = request(QByteArray("GET /v1/status HTTP/1.1\r\nHost: localhost\r\n")
+                                      + auth + "\r\n");
+    QVERIFY(status.contains("\"ok\":true"));
+    QVERIFY(status.contains("MxU Slides for Windows"));
+
+    const QByteArray body = "{\"index\":1}";
+    const QByteArray goTo = request(QByteArray("POST /v1/goToSlide HTTP/1.1\r\nHost: localhost\r\n")
+                                    + auth + "Content-Type: application/json\r\nContent-Length: "
+                                    + QByteArray::number(body.size()) + "\r\n\r\n" + body);
+    QVERIFY(goTo.contains("\"ok\":true"));
+
+    server.stop();
+    QVERIFY(!server.running());
 }
 
 int main(int argc, char** argv)

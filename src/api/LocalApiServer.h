@@ -62,7 +62,8 @@ private:
     void loadTokens();
     void saveTokens();
     bool authorized(const QString& header, const QUrl& url, const QString& scope) const;
-    QByteArray dispatch(const QString& method, const QString& path, const QString& auth) const;
+    QByteArray dispatch(const QString& method, const QString& path, const QString& auth,
+                        const QByteArray& body) const;
     QVariantMap statusDocument() const;
 
     QTcpServer m_http;

@@ -120,17 +120,23 @@ Item {
                             }
 
                             Text { text: "DISPLAYS"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
-                            SettingRow { width: parent.width; label: "Main output"; value: Mxu.setting("mainOutput") }
-                            SettingRow { width: parent.width; label: "Stage display"; value: Mxu.setting("stageDisplay"); fieldWidth: 120 }
+                            SettingRow {
+                                width: parent.width; label: "Main output"; value: Mxu.outputs.assignment("main")
+                                onClicked: Mxu.outputs.cycleScreen("main")
+                            }
+                            SettingRow {
+                                width: parent.width; label: "Stage display"; value: Mxu.outputs.assignment("stage"); fieldWidth: 120
+                                onClicked: Mxu.outputs.cycleScreen("stage")
+                            }
                             SettingRow {
                                 width: parent.width; label: "Confidence monitor"; toggle: true
-                                checked: Mxu.setting("confidenceMonitor")
-                                onToggled: Mxu.setSetting("confidenceMonitor", value)
+                                checked: Mxu.outputs.confidenceMonitor
+                                onToggled: Mxu.outputs.confidenceMonitor = value
                             }
                             SettingRow {
                                 width: parent.width; label: "Always on top of taskbar"; toggle: true
-                                checked: Mxu.setting("alwaysOnTop")
-                                onToggled: Mxu.setSetting("alwaysOnTop", value)
+                                checked: Mxu.outputs.alwaysOnTop
+                                onToggled: Mxu.outputs.alwaysOnTop = value
                             }
 
                             Text { text: "VIDEO OUTPUT"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }

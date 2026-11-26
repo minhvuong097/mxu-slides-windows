@@ -56,6 +56,7 @@ AppController::AppController(QObject* parent)
     connect(&m_media, &MediaService::notification, this, &AppController::notification);
     connect(&m_audio, &AudioService::notification, this, &AppController::notification);
     connect(&m_audio, &AudioService::changed, this, &AppController::audioChanged);
+    connect(&m_outputs, &OutputManager::notification, this, &AppController::notification);
 
     loadSettings();
 
@@ -435,15 +436,7 @@ void AppController::redo()
 
 void AppController::identifyDisplays()
 {
-    QStringList names;
-    const auto screens = QGuiApplication::screens();
-    for (qsizetype i = 0; i < screens.size(); ++i) {
-        const QSize size = screens.at(i)->geometry().size();
-        names.append(QStringLiteral(u"Display %1 (%2 × %3)")
-                         .arg(i + 1).arg(size.width()).arg(size.height()));
-    }
-    emit notification(names.isEmpty() ? QStringLiteral(u"No displays found")
-                                      : names.join(QStringLiteral(u", ")));
+    m_outputs.identify();
 }
 
 void AppController::setLocalApiEnabled(bool value)

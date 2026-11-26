@@ -159,6 +159,7 @@ void LocalApiServer::onReadyRead()
     const QString method = QString::fromLatin1(request.at(0));
     const QString path = QString::fromLatin1(request.at(1));
     QString auth;
+    int contentLength = 0;
     for (qsizetype i = 1; i < lines.size(); ++i) {
         const QByteArray line = lines.at(i).trimmed();
         const int colon = line.indexOf(':');
@@ -167,9 +168,12 @@ void LocalApiServer::onReadyRead()
         const QString key = QString::fromLatin1(line.left(colon)).trimmed();
         if (key.compare(QStringLiteral(u"Authorization"), Qt::CaseInsensitive) == 0)
             auth = QString::fromLatin1(line.mid(colon + 1)).trimmed();
+        else if (key.compare(QStringLiteral(u"Content-Length"), Qt::CaseInsensitive) == 0)
+            contentLength = QString::fromLatin1(line.mid(colon + 1)).trimmed().toInt();
     }
+    const QByteArray requestBody = contentLength > 0 ? data.mid(end + 4, contentLength) : QByteArray();
 
-    const QByteArray json = dispatch(method, path, auth);
+    const QByteArray json = dispatch(method, path, auth, requestBody);
     QByteArray reply = "HTTP/1.1 200 OK\r\n"
                        "Content-Type: application/json; charset=utf-8\r\n"
                        "Access-Control-Allow-Origin: *\r\n"
@@ -216,8 +220,9 @@ QVariantMap LocalApiServer::statusDocument() const
 }
 
 QByteArray LocalApiServer::dispatch(const QString& method, const QString& path,
-                                    const QString& auth) const
+                                    const QString& auth, const QByteArray& body) const
 {
+    const QJsonObject payload = QJsonDocument::fromJson(body).object();
     const QUrl url(path);
     const QString route = url.path();
     QVariantMap response;
@@ -265,6 +270,47 @@ QByteArray LocalApiServer::dispatch(const QString& method, const QString& path,
                                       route == QStringLiteral(u"/v1/advance") ? "next" : "toggleClear",
                                       Qt::QueuedConnection);
             response.insert(QStringLiteral(u"ok"), true);
+        }
+    } else if (route == QStringLiteral(u"/v1/goToSlide") && method == QStringLiteral(u"POST")) {
+        if (!authorized(auth, url, QStringLiteral(u"control"))) {
+            response.insert(QStringLiteral(u"error"), QStringLiteral(u"Control scope required"));
+        } else if (m_controller) {
+            QMetaObject::invokeMethod(m_controller, "selectSlide", Qt::QueuedConnection,
+                                      Q_ARG(int, payload.value(QStringLiteral(u"index")).toInt()));
+            response.insert(QStringLiteral(u"ok"), true);
+        }
+    } else if (route == QStringLiteral(u"/v1/timers") && method == QStringLiteral(u"GET")) {
+        if (!authorized(auth, url, QStringLiteral(u"status"))) {
+            response.insert(QStringLiteral(u"error"), QStringLiteral(u"Unauthorized"));
+        } else if (m_controller) {
+            response.insert(QStringLiteral(u"timer"), m_controller->property("serviceTimerText"));
+            response.insert(QStringLiteral(u"running"), m_controller->property("timerRunning"));
+            response.insert(QStringLiteral(u"rows"), m_controller->property("timerRows"));
+        }
+    } else if ((route == QStringLiteral(u"/v1/present") || route == QStringLiteral(u"/v1/stop"))
+               && method == QStringLiteral(u"POST")) {
+        if (!authorized(auth, url, QStringLiteral(u"control"))) {
+            response.insert(QStringLiteral(u"error"), QStringLiteral(u"Control scope required"));
+        } else if (m_controller) {
+            QMetaObject::invokeMethod(m_controller,
+                                      route == QStringLiteral(u"/v1/present") ? "setPresenting" : "setPresenting",
+                                      Qt::QueuedConnection,
+                                      Q_ARG(bool, route == QStringLiteral(u"/v1/present")));
+            response.insert(QStringLiteral(u"ok"), true);
+        }
+    } else if (route == QStringLiteral(u"/v1/clearLayer") && method == QStringLiteral(u"POST")) {
+        if (!authorized(auth, url, QStringLiteral(u"control"))) {
+            response.insert(QStringLiteral(u"error"), QStringLiteral(u"Control scope required"));
+        } else if (m_controller) {
+            QMetaObject::invokeMethod(m_controller->showState(), "clearLayer", Qt::QueuedConnection,
+                                      Q_ARG(QString, payload.value(QStringLiteral(u"kind")).toString()));
+            response.insert(QStringLiteral(u"ok"), true);
+        }
+    } else if (route == QStringLiteral(u"/v1/tokens") && method == QStringLiteral(u"GET")) {
+        if (!authorized(auth, url, QStringLiteral(u"admin"))) {
+            response.insert(QStringLiteral(u"error"), QStringLiteral(u"Admin scope required"));
+        } else {
+            response.insert(QStringLiteral(u"tokens"), tokens());
         }
     } else {
         response.insert(QStringLiteral(u"error"), QStringLiteral(u"Unknown route"));
