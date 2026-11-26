@@ -56,6 +56,9 @@ AppController::AppController(QObject* parent)
     m_library.setDocument(&m_document);
     m_media.setDocument(&m_document);
     m_notes.setDocument(&m_document);
+    m_arrangements.setDocument(&m_document);
+    connect(&m_arrangements, &ArrangementService::slideRequested, this, &AppController::selectSlide);
+    connect(&m_arrangements, &ArrangementService::notification, this, &AppController::notification);
     m_search.rebuild(m_document, m_show);
     connect(&m_media, &MediaService::notification, this, &AppController::notification);
     connect(&m_audio, &AudioService::notification, this, &AppController::notification);
@@ -695,6 +698,7 @@ bool AppController::openDocument(const QString& path)
     m_library.setDocument(&m_document);
     m_media.setDocument(&m_document);
     m_notes.setDocument(&m_document);
+    m_arrangements.setDocument(&m_document);
     m_search.rebuild(m_document, m_show);
     loadSettings();
     m_documentPath = path;

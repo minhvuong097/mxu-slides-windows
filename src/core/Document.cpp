@@ -328,6 +328,7 @@ Document Document::fromJson(const QByteArray& json, QString* error)
     doc.cues = cuesFromJson(root.value(QStringLiteral(u"cues")).toArray());
     doc.media = mediaFromJson(root.value(QStringLiteral(u"media")).toArray());
     doc.notes = root.value(QStringLiteral(u"notes")).toObject();
+    doc.arrangements = root.value(QStringLiteral(u"arrangements")).toObject();
     for (const QJsonValue& value : root.value(QStringLiteral(u"slides")).toArray())
         doc.slides.append(model::SlideFromJson(value.toObject()));
     const QJsonObject settings = root.value(QStringLiteral(u"settings")).toObject();
@@ -355,6 +356,7 @@ QByteArray Document::toJson() const
     root.insert(QStringLiteral(u"slides"), slidesJson);
     root.insert(QStringLiteral(u"settings"), QJsonObject::fromVariantMap(settings.toVariantMap()));
     root.insert(QStringLiteral(u"notes"), notes);
+    root.insert(QStringLiteral(u"arrangements"), arrangements);
     return QJsonDocument(root).toJson(QJsonDocument::Indented);
 }
 

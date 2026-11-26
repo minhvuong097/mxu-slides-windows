@@ -173,6 +173,13 @@ Item {
                             Text { anchors.centerIn: parent; text: "Export PNG"; color: Theme.text; font.pixelSize: 11 }
                             MouseArea { anchors.fill: parent; onClicked: exportDialog.open() }
                         }
+                        Rectangle {
+                            anchors.verticalCenter: parent.verticalCenter
+                            radius: 7; color: Theme.surface
+                            implicitWidth: 96; implicitHeight: 26
+                            Text { anchors.centerIn: parent; text: "Full ▾"; color: Theme.text; font.pixelSize: 11 }
+                            MouseArea { anchors.fill: parent; onClicked: arrangementPopup.open() }
+                        }
                         Text { anchors.verticalCenter: parent.verticalCenter; text: "Zoom 100%"; color: Theme.textDim; font.pixelSize: 11 }
                     }
                 }
@@ -344,5 +351,37 @@ Item {
         defaultSuffix: "png"
         nameFilters: ["PNG images (*.png)"]
         onAccepted: Mxu.exportSlideImage(selectedFile)
+    }
+
+    Rectangle {
+        id: arrangementPopup
+        anchors.centerIn: parent
+        width: 280
+        height: 220
+        radius: 12
+        color: Theme.card
+        border.color: "#3a3a3e"
+        border.width: 1
+        visible: false
+        z: 20
+        Column {
+            anchors.fill: parent
+            anchors.margins: 12
+            spacing: 6
+            Text { text: "Arrangement"; color: Theme.text; font.pixelSize: 13; font.weight: Font.DemiBold }
+            Repeater {
+                model: Mxu.arrangements.arrangements
+                delegate: Rectangle {
+                    width: parent.width; height: 28; radius: 6; color: "transparent"
+                    Text { anchors.left: parent.left; anchors.verticalCenter: parent.verticalCenter; text: modelData.name; color: Theme.text; font.pixelSize: 11 }
+                    MouseArea { anchors.fill: parent; onClicked: { Mxu.arrangements.apply(modelData.id); arrangementPopup.visible = false } }
+                }
+            }
+            Rectangle {
+                width: parent.width; height: 28; radius: 8; color: Theme.accent
+                Text { anchors.centerIn: parent; text: "Save 'Full'"; color: "white"; font.pixelSize: 11 }
+                MouseArea { anchors.fill: parent; onClicked: Mxu.arrangements.save("Full", [0, 1, 2]) }
+            }
+        }
     }
 }

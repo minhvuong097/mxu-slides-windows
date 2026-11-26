@@ -3,6 +3,7 @@
 #include "AlertsService.h"
 #include "AutomationService.h"
 #include "DiagnosticsService.h"
+#include "ArrangementService.h"
 #include "AudioService.h"
 #include "TimelineService.h"
 #include "MediaService.h"
@@ -92,6 +93,7 @@ class AppController : public QObject
     Q_PROPERTY(QObject* outputs READ outputs CONSTANT)
     Q_PROPERTY(QObject* outputPresets READ outputPresets CONSTANT)
     Q_PROPERTY(QObject* playlist READ playlist CONSTANT)
+    Q_PROPERTY(QObject* arrangements READ arrangements CONSTANT)
     Q_PROPERTY(QObject* ndiSender READ ndiSender CONSTANT)
     Q_PROPERTY(QObject* deckLinkOutput READ deckLinkOutput CONSTANT)
     Q_PROPERTY(QObject* streaming READ streaming CONSTANT)
@@ -170,6 +172,7 @@ public:
     QObject* outputs() { return &m_outputs; }
     QObject* outputPresets() { return &m_outputPresets; }
     QObject* playlist() { return &m_playlist; }
+    QObject* arrangements() { return &m_arrangements; }
     QObject* ndiSender() { return &m_ndi; }
     QObject* deckLinkOutput() { return &m_decklink; }
     QObject* streaming() { return &m_streaming; }
@@ -266,6 +269,7 @@ private:
     OutputManager m_outputs;
     OutputPresetService m_outputPresets;
     PlaylistService m_playlist;
+    ArrangementService m_arrangements;
     api::NdiSender m_ndi;
     api::DeckLinkOutput m_decklink;
     api::StreamingService m_streaming;

@@ -86,6 +86,8 @@ qt_add_library(mxu_shell STATIC
     src/app/OutputPresetService.cpp
     src/app/PlaylistService.h
     src/app/PlaylistService.cpp
+    src/app/ArrangementService.h
+    src/app/ArrangementService.cpp
     src/api/StreamingService.h
     src/api/StreamingService.cpp
 )

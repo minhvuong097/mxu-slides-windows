@@ -95,6 +95,7 @@ public:
     QVector<model::Slide> slides;
     QJsonObject settings;
     QJsonObject notes;
+    QJsonObject arrangements;
     int schemaVersion = 161;
     QString name = QStringLiteral(u"Renew Worship");
     QString date = QStringLiteral(u"Nov 29, 2026");
