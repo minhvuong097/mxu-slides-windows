@@ -868,6 +868,34 @@ Item {
                         }
 
                         Rectangle {
+                            visible: root.controlTab === "timers"
+                            width: parent.width
+                            height: 90
+                            color: "transparent"
+                            Column {
+                                anchors.fill: parent
+                                spacing: 4
+                                Repeater {
+                                    model: Mxu.timerBoard.timers
+                                    delegate: Row {
+                                        width: parent.width
+                                        height: 26
+                                        Text { width: parent.width * 0.5; text: modelData.name; color: Theme.text; font.pixelSize: 10; elide: Text.ElideRight }
+                                        Text { width: parent.width * 0.2; text: (modelData.remaining / 60).toFixed(0) + ":" + String(modelData.remaining % 60).padStart(2, "0"); color: modelData.warned ? Theme.yellow : Theme.text; font.pixelSize: 11; font.weight: Font.DemiBold }
+                                        Rectangle {
+                                            width: 44; height: 20; radius: 6; color: Theme.surface
+                                            Text { anchors.centerIn: parent; text: modelData.running ? "Pause" : "Start"; color: Theme.text; font.pixelSize: 9 }
+                                            MouseArea {
+                                                anchors.fill: parent
+                                                onClicked: modelData.running ? Mxu.timerBoard.pause(modelData.id) : Mxu.timerBoard.start(modelData.id)
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        Rectangle {
                             visible: root.controlTab === "combos"
                             width: parent.width
                             height: Math.max(120, parent.height - 90)

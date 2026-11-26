@@ -60,6 +60,12 @@ AppController::AppController(QObject* parent)
     connect(&m_arrangements, &ArrangementService::slideRequested, this, &AppController::selectSlide);
     connect(&m_arrangements, &ArrangementService::notification, this, &AppController::notification);
     connect(&m_backups, &BackupService::notification, this, &AppController::notification);
+    connect(&m_timerBoard, &TimerBoardService::warning, this, [this](const QString& name) {
+        emit notification(QStringLiteral(u"Warning: %1").arg(name));
+    });
+    connect(&m_timerBoard, &TimerBoardService::expired, this, [this](const QString& name) {
+        emit notification(QStringLiteral(u"Timer expired: %1").arg(name));
+    });
     connect(&m_discovery, &DiscoveryService::peerFound, this, [this](const QVariantMap& peer) {
         emit notification(QStringLiteral(u"Peer: %1").arg(peer.value(QStringLiteral(u"name")).toString()));
     });

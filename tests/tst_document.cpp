@@ -17,6 +17,7 @@
 #include "app/AutomationService.h"
 #include "app/NotesService.h"
 #include "app/TimelineService.h"
+#include "app/TimerBoardService.h"
 #include "app/MediaService.h"
 #include "api/LocalApiServer.h"
 #include <QTcpSocket>
@@ -45,6 +46,7 @@ private slots:
     void slideExport();
     void backupsAndFonts();
     void pptxAndDiscovery();
+    void timerBoard();
 };
 
 void MxuDocumentTest::demoMatchesServiceFlow()
@@ -389,6 +391,20 @@ void MxuDocumentTest::pptxAndDiscovery()
     const QVariantList slides = importer.import(QStringLiteral(u"/does/not/exist.pptx"));
     QVERIFY(slides.isEmpty());
     QVERIFY(!importer.lastError().isEmpty());
+}
+
+void MxuDocumentTest::timerBoard()
+{
+    app::TimerBoardService board;
+    QVERIFY(board.timers().size() >= 1);
+    const QString id = board.add(QStringLiteral(u"Sermon"), 60, 10, QStringLiteral(u"countUp"));
+    QVERIFY(!id.isEmpty());
+    QVERIFY(board.start(id));
+    QVERIFY(board.runningCount() >= 1);
+    QVERIFY(board.pause(id));
+    QVERIFY(board.runningCount() == 0);
+    QVERIFY(board.reset(id));
+    QVERIFY(board.remove(id));
 }
 
 int main(int argc, char** argv)
