@@ -222,6 +222,16 @@ void MxuDocumentTest::localApiRoutes()
                                     + QByteArray::number(body.size()) + "\r\n\r\n" + body);
     QVERIFY(goTo.contains("\"ok\":true"));
 
+    const QByteArray fireBody = "{\"action\":\"next\"}";
+    const QByteArray fire = request(QByteArray("POST /v1/fire HTTP/1.1\r\nHost: localhost\r\n")
+                                    + auth + "Content-Length: "
+                                    + QByteArray::number(fireBody.size()) + "\r\n\r\n" + fireBody);
+    QVERIFY(fire.contains("\"ok\":true"));
+
+    const QByteArray openapi = request("GET /openapi.json HTTP/1.1\r\nHost: localhost\r\n\r\n");
+    QVERIFY(openapi.contains("/v1/advance"));
+    QVERIFY(openapi.contains("/v1/search"));
+
     server.stop();
     QVERIFY(!server.running());
 }

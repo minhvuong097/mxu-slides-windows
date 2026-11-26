@@ -237,6 +237,36 @@ QByteArray LocalApiServer::dispatch(const QString& method, const QString& path,
             { QStringLiteral(u"version"), QStringLiteral(u"0.1.0") } });
         response.insert(QStringLiteral(u"servers"), QVariantList{
             QVariantMap{ { QStringLiteral(u"url"), address() } } });
+        QVariantMap paths;
+        auto addRoute = [&paths](const QString& route, const QString& method,
+                                 const QString& summary, const QString& scope) {
+            QVariantMap operation{
+                { QStringLiteral(u"summary"), summary },
+                { QStringLiteral(u"x-scope"), scope },
+            };
+            QVariantMap entry = paths.value(route).toMap();
+            entry.insert(method, operation);
+            paths.insert(route, entry);
+        };
+        addRoute(QStringLiteral(u"/v1/ping"), QStringLiteral(u"get"), QStringLiteral(u"Health check"), QString());
+        addRoute(QStringLiteral(u"/v1/status"), QStringLiteral(u"get"), QStringLiteral(u"Live show state"), QStringLiteral(u"status"));
+        addRoute(QStringLiteral(u"/v1/slides"), QStringLiteral(u"get"), QStringLiteral(u"List slides"), QStringLiteral(u"status"));
+        addRoute(QStringLiteral(u"/v1/advance"), QStringLiteral(u"post"), QStringLiteral(u"Next slide"), QStringLiteral(u"control"));
+        addRoute(QStringLiteral(u"/v1/clear"), QStringLiteral(u"post"), QStringLiteral(u"Toggle clear"), QStringLiteral(u"control"));
+        addRoute(QStringLiteral(u"/v1/goToSlide"), QStringLiteral(u"post"), QStringLiteral(u"Go to slide index"), QStringLiteral(u"control"));
+        addRoute(QStringLiteral(u"/v1/timers"), QStringLiteral(u"get"), QStringLiteral(u"Service timers"), QStringLiteral(u"status"));
+        addRoute(QStringLiteral(u"/v1/present"), QStringLiteral(u"post"), QStringLiteral(u"Start presentation"), QStringLiteral(u"control"));
+        addRoute(QStringLiteral(u"/v1/stop"), QStringLiteral(u"post"), QStringLiteral(u"Stop presentation"), QStringLiteral(u"control"));
+        addRoute(QStringLiteral(u"/v1/clearLayer"), QStringLiteral(u"post"), QStringLiteral(u"Clear a layer"), QStringLiteral(u"control"));
+        addRoute(QStringLiteral(u"/v1/stream"), QStringLiteral(u"post"), QStringLiteral(u"Start stream"), QStringLiteral(u"control"));
+        addRoute(QStringLiteral(u"/v1/stream"), QStringLiteral(u"delete"), QStringLiteral(u"Stop stream"), QStringLiteral(u"control"));
+        addRoute(QStringLiteral(u"/v1/record"), QStringLiteral(u"post"), QStringLiteral(u"Start recorder"), QStringLiteral(u"control"));
+        addRoute(QStringLiteral(u"/v1/record"), QStringLiteral(u"delete"), QStringLiteral(u"Stop recorder"), QStringLiteral(u"control"));
+        addRoute(QStringLiteral(u"/v1/search"), QStringLiteral(u"get"), QStringLiteral(u"Full-text search"), QStringLiteral(u"status"));
+        addRoute(QStringLiteral(u"/v1/sync"), QStringLiteral(u"post"), QStringLiteral(u"Merge sync operations"), QStringLiteral(u"admin"));
+        addRoute(QStringLiteral(u"/v1/diagnostics"), QStringLiteral(u"get"), QStringLiteral(u"Diagnostics report"), QStringLiteral(u"admin"));
+        addRoute(QStringLiteral(u"/v1/tokens"), QStringLiteral(u"get"), QStringLiteral(u"List tokens"), QStringLiteral(u"admin"));
+        response.insert(QStringLiteral(u"paths"), paths);
     } else if (route == QStringLiteral(u"/v1/status") && method == QStringLiteral(u"GET")) {
         if (!authorized(auth, url, QStringLiteral(u"status")))
             response.insert(QStringLiteral(u"error"), QStringLiteral(u"Unauthorized"));
@@ -270,6 +300,22 @@ QByteArray LocalApiServer::dispatch(const QString& method, const QString& path,
                                       route == QStringLiteral(u"/v1/advance") ? "next" : "toggleClear",
                                       Qt::QueuedConnection);
             response.insert(QStringLiteral(u"ok"), true);
+        }
+    } else if (route == QStringLiteral(u"/v1/fire") && method == QStringLiteral(u"POST")) {
+        if (!authorized(auth, url, QStringLiteral(u"control"))) {
+            response.insert(QStringLiteral(u"error"), QStringLiteral(u"Control scope required"));
+        } else if (m_controller) {
+            bool applied = false;
+            QMetaObject::invokeMethod(m_controller->automation(), "fire",
+                                      Q_RETURN_ARG(bool, applied),
+                                      Q_ARG(QString, payload.value(QStringLiteral(u"action")).toString()));
+            response.insert(QStringLiteral(u"ok"), applied);
+        }
+    } else if (route == QStringLiteral(u"/v1/notes") && method == QStringLiteral(u"GET")) {
+        if (!authorized(auth, url, QStringLiteral(u"status"))) {
+            response.insert(QStringLiteral(u"error"), QStringLiteral(u"Unauthorized"));
+        } else if (m_controller) {
+            response.insert(QStringLiteral(u"blocks"), m_controller->notes()->property("blocks"));
         }
     } else if (route == QStringLiteral(u"/v1/goToSlide") && method == QStringLiteral(u"POST")) {
         if (!authorized(auth, url, QStringLiteral(u"control"))) {
