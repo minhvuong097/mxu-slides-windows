@@ -10,6 +10,8 @@
 #include "core/AutomergeCompat.h"
 #include "audio/WavRecorder.h"
 #include "audio/WasapiEngine.h"
+#include "api/FfmpegEncoder.h"
+#include "api/DeckLinkWindows.h"
 #include "core/SyncLedger.h"
 #include "app/AppController.h"
 #include "app/AudioService.h"
@@ -74,6 +76,7 @@ private slots:
     void audioDsp();
     void automergeAndWav();
     void wasapiStub();
+    void sdkBackends();
 };
 
 void MxuDocumentTest::demoMatchesServiceFlow()
@@ -647,6 +650,24 @@ void MxuDocumentTest::wasapiStub()
 #else
     QVERIFY(!engine.available());
     QVERIFY(!engine.start());
+#endif
+}
+
+void MxuDocumentTest::sdkBackends()
+{
+    api::FfmpegEncoder encoder;
+    api::DeckLinkWindows decklink;
+#ifdef MXU_HAS_FFMPEG
+    QVERIFY(encoder.available());
+#else
+    QVERIFY(!encoder.available());
+    QVERIFY(!encoder.start(QStringLiteral(u"rtmp://localhost/live")));
+#endif
+#ifdef Q_OS_WIN
+    QVERIFY(decklink.available());
+#else
+    QVERIFY(!decklink.available());
+    QVERIFY(!decklink.start(0));
 #endif
 }
 

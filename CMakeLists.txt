@@ -12,6 +12,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 option(MXU_BUILD_TESTS "Build unit tests" OFF)
 option(MXU_ENABLE_NDI "Enable NDI sender (requires NDI SDK)" OFF)
@@ -32,6 +33,7 @@ if(MXU_ENABLE_DECKLINK)
     add_compile_definitions(MXU_HAS_DECKLINK_SDK=1)
 endif()
 if(MXU_ENABLE_FFMPEG)
+    find_package(FFmpeg REQUIRED COMPONENTS avcodec avformat avutil swscale)
     add_compile_definitions(MXU_HAS_FFMPEG=1)
 endif()
 
@@ -86,6 +88,10 @@ qt_add_library(mxu_shell STATIC
     src/api/OutputBackends.cpp
     src/api/NdiDynamicSender.h
     src/api/NdiDynamicSender.cpp
+    src/api/DeckLinkWindows.h
+    src/api/DeckLinkWindows.cpp
+    src/api/FfmpegEncoder.h
+    src/api/FfmpegEncoder.cpp
     src/app/AutomationService.h
     src/app/AutomationService.cpp
     src/app/NotesService.h
@@ -162,7 +168,12 @@ set_target_properties(mxu-slides PROPERTIES
     WIN32_EXECUTABLE ON
 )
 
+if(MXU_ENABLE_FFMPEG)
+    target_include_directories(mxu_shell PRIVATE ${FFMPEG_INCLUDE_DIRS})
+    target_link_libraries(mxu_shell PUBLIC ${FFMPEG_LIBRARIES})
+endif()
 if(WIN32)
+    target_include_directories(mxu_shell PRIVATE ${CMAKE_SOURCE_DIR}/vendor/decklink)
     target_link_libraries(mxu_shell PUBLIC winmm advapi32 ole32 mmdevapi avrt)
     find_program(WINDEPLOYQT windeployqt HINTS "${Qt6_DIR}/../../../bin")
     if(WINDEPLOYQT)
