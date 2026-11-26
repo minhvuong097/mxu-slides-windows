@@ -278,6 +278,18 @@ Item {
                             }
                         }
                         Text { text: "No channels yet. Add audio from the media library."; color: Theme.textDim; font.pixelSize: 11 }
+
+                        Rectangle { width: parent.width; height: 1; color: "#333" }
+                        Text { text: "PLAYLIST"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
+                        Repeater {
+                            model: Mxu.playlist.entries
+                            delegate: Text { text: (modelData.name || "") + " → " + (modelData.path || ""); color: Theme.text; font.pixelSize: 11; elide: Text.ElideRight; width: parent.width }
+                        }
+                        Row { spacing: 6
+                            Rectangle { width: 90; height: 26; radius: 8; color: Theme.accent
+                                Text { anchors.centerIn: parent; text: "Next track"; color: "white"; font.pixelSize: 11 }
+                                MouseArea { anchors.fill: parent; onClicked: Mxu.playlist.next() } }
+                        }
                     }
                 }
                 }
