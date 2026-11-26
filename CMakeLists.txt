@@ -32,7 +32,7 @@ if(MXU_ENABLE_DECKLINK)
 endif()
 
 find_package(Qt6 6.5 REQUIRED COMPONENTS
-    Core Gui Qml Quick QuickControls2 Network WebSockets Svg Multimedia QuickDialogs2
+    Core Gui Qml Quick QuickControls2 Network WebSockets Svg Multimedia QuickDialogs2 Sql
 )
 qt_standard_project_setup(REQUIRES 6.5)
 
@@ -45,9 +45,13 @@ qt_add_library(mxu_core STATIC
     src/core/ShowDocument.cpp
     src/core/SceneModel.h
     src/core/SceneModel.cpp
+    src/core/SearchIndex.h
+    src/core/SearchIndex.cpp
+    src/core/SyncLedger.h
+    src/core/SyncLedger.cpp
 )
 target_include_directories(mxu_core PUBLIC ${CMAKE_SOURCE_DIR}/src)
-target_link_libraries(mxu_core PUBLIC Qt6::Core Qt6::Gui)
+target_link_libraries(mxu_core PUBLIC Qt6::Core Qt6::Gui Qt6::Sql)
 
 qt_add_library(mxu_shell STATIC
     src/app/Models.h
@@ -68,11 +72,13 @@ qt_add_library(mxu_shell STATIC
     src/app/AutomationService.cpp
     src/app/NotesService.h
     src/app/NotesService.cpp
+    src/app/DiagnosticsService.h
+    src/app/DiagnosticsService.cpp
 )
 target_include_directories(mxu_shell PUBLIC ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(mxu_shell PUBLIC
     mxu_core
-    Qt6::Core Qt6::Gui Qt6::Qml Qt6::Network Qt6::WebSockets Qt6::Svg Qt6::Multimedia
+    Qt6::Core Qt6::Gui Qt6::Qml Qt6::Network Qt6::WebSockets Qt6::Svg Qt6::Multimedia Qt6::Sql
 )
 
 qt_add_resources(MXU_RESOURCES resources.qrc)

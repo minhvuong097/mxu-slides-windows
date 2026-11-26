@@ -14,7 +14,7 @@ theo package và xác định cái nào đã có, cái nào cần làm tiếp.
 | Service outline + cue cards | ✅ demo data, `ServiceModel` / `CueModel` |
 | LocalAPI | ✅ 12 routes + WS + scoped tokens; Bonjour/follow chưa có |
 | Document schema | ✅ `scripts/generate_models.py` → 103 record / 62 enum từ `schema/documents.json` |
-| PresenterCore (Automerge, SQLite/FTS5) | ❌ |
+| PresenterCore (Automerge, SQLite/FTS5) | ⚠️ FTS5 search + LWW/SyncLedger; Automerge interoperability chưa có |
 | RenderEngine (Metal) | ⚠️ Scene model + transitions; RHI blend/mask chưa có |
 | SlideScene / SlideEditorModel | ⚠️ `core::ShowDocument` + SlideObject/undo/redo; renderer đơn giản |
 | MediaEngine / AudioEngine | ⚠️ Media import/thumbnails + Qt Multimedia mixer; video frame grab & multitrack chưa có |
@@ -101,7 +101,15 @@ Kiến trúc gốc của phase này:
 - Song map, presentation timeline, arrangements.
 - ProPresenter/PPTX import, "Make Slides" lyric generator.
 
-## Phase 6 — Chất lượng (P2)
+## Phase 6 — Chất lượng (P2) — ĐÃ LÀM (phần lõi)
+
+- ✅ `SearchIndex`: SQLite FTS5 (fallback linear) over slides/cues/media/notes.
+- ✅ `SyncLedger`: Lamport clock + LWW op log + JSON merge.
+- ✅ `DiagnosticsService`: event ring buffer, counters, JSON report; API `/v1/diagnostics`.
+- ✅ Local API thêm `/v1/search`, `/v1/sync`, `/v1/diagnostics`.
+- ⚠️ Chưa có: Automerge wire compatibility, hitch/perf meter, streaming/recorder thật.
+
+Kiến trúc gốc của phase này:
 
 - SQLite FTS5 search, CRDT sync ledger.
 - Diagnostics, `MainPassMeter`, hitch report, perf scripts.

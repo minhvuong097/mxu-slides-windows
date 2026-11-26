@@ -1,6 +1,7 @@
 #pragma once
 
 #include "AutomationService.h"
+#include "DiagnosticsService.h"
 #include "AudioService.h"
 #include "MediaService.h"
 #include "Models.h"
@@ -9,7 +10,9 @@
 #include "api/LocalApiServer.h"
 #include "api/OutputBackends.h"
 #include "core/Document.h"
+#include "core/SearchIndex.h"
 #include "core/SceneModel.h"
+#include "core/SyncLedger.h"
 #include "core/ShowDocument.h"
 
 #include <QObject>
@@ -81,6 +84,9 @@ class AppController : public QObject
     Q_PROPERTY(QObject* deckLinkOutput READ deckLinkOutput CONSTANT)
     Q_PROPERTY(QObject* automation READ automation CONSTANT)
     Q_PROPERTY(QObject* notes READ notes CONSTANT)
+    Q_PROPERTY(QObject* searchIndex READ searchIndex CONSTANT)
+    Q_PROPERTY(QObject* syncLedger READ syncLedger CONSTANT)
+    Q_PROPERTY(QObject* diagnostics READ diagnostics CONSTANT)
     Q_PROPERTY(QVariantList audioChannels READ audioChannels NOTIFY audioChanged)
     Q_PROPERTY(QString transitionKind READ transitionKind WRITE setTransitionKind NOTIFY sceneChanged)
     Q_PROPERTY(double transitionDuration READ transitionDuration WRITE setTransitionDuration NOTIFY sceneChanged)
@@ -144,6 +150,10 @@ public:
     QObject* deckLinkOutput() { return &m_decklink; }
     QObject* automation() { return &m_automation; }
     QObject* notes() { return &m_notes; }
+    QObject* searchIndex() { return &m_search; }
+    QObject* syncLedger() { return &m_sync; }
+    QObject* diagnostics() { return &m_diagnostics; }
+    Q_INVOKABLE QVariantList search(const QString& query) const;
     QString transitionKind() const;
     double transitionDuration() const { return m_transitionDuration; }
     void setTransitionKind(const QString& value);
@@ -222,6 +232,9 @@ private:
     api::DeckLinkOutput m_decklink;
     AutomationService m_automation;
     NotesService m_notes;
+    DiagnosticsService m_diagnostics;
+    core::SearchIndex m_search;
+    core::SyncLedger m_sync;
     QString m_transitionKind = QStringLiteral(u"dissolve");
     double m_transitionDuration = 0.6;
     ServiceModel m_service;

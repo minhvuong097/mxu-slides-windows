@@ -5,6 +5,8 @@
 #include "core/Document.h"
 #include "core/ShowDocument.h"
 #include "core/SceneModel.h"
+#include "core/SearchIndex.h"
+#include "core/SyncLedger.h"
 #include "app/AppController.h"
 #include "app/AudioService.h"
 #include "app/AutomationService.h"
@@ -31,6 +33,7 @@ private slots:
     void mediaAndAudio();
     void localApiRoutes();
     void automationNotesAndImports();
+    void searchSyncDiagnostics();
 };
 
 void MxuDocumentTest::demoMatchesServiceFlow()
@@ -247,6 +250,35 @@ void MxuDocumentTest::automationNotesAndImports()
     QVERIFY(notes.updateBlock(id, QStringLiteral(u"Prayer after sermon")));
     QVERIFY(notes.text().contains(QStringLiteral(u"after sermon")));
     QVERIFY(doc.notes.contains(QStringLiteral(u"blocks")));
+}
+
+void MxuDocumentTest::searchSyncDiagnostics()
+{
+    core::Document document = core::Document::demo();
+    core::ShowDocument show;
+    show.setDocument(document);
+    const QString id = show.addSlide(QStringLiteral(u"Search"), QStringLiteral(u"amazing grace lyric"));
+
+    core::SearchIndex index;
+    index.rebuild(document, show);
+    QVERIFY(index.indexedCount() > 0);
+    QVERIFY(!index.search(QStringLiteral(u"amazing")).isEmpty());
+    QVERIFY(index.search(QStringLiteral(u"zzzznotfound")).isEmpty());
+
+    core::SyncLedger ledger;
+    const QVariantMap op = ledger.append(id, QStringLiteral(u"text"), QStringLiteral(u"changed"));
+    QCOMPARE(ledger.clock(), 1);
+    QCOMPARE(ledger.operationCount(), 1);
+    core::SyncLedger peer;
+    QCOMPARE(peer.merge(QString::fromUtf8(ledger.exportJson())), 1);
+    QCOMPARE(peer.clock(), 1);
+
+    app::DiagnosticsService diagnostics;
+    diagnostics.log(QStringLiteral(u"test event"));
+    diagnostics.tick();
+    QCOMPARE(diagnostics.errorCount(), 0);
+    QVERIFY(diagnostics.reportJson().contains(QStringLiteral(u"test event")));
+    Q_UNUSED(op)
 }
 
 int main(int argc, char** argv)

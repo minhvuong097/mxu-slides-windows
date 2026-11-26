@@ -54,12 +54,14 @@ AppController::AppController(QObject* parent)
     m_library.setDocument(&m_document);
     m_media.setDocument(&m_document);
     m_notes.setDocument(&m_document);
+    m_search.rebuild(m_document, m_show);
     connect(&m_media, &MediaService::notification, this, &AppController::notification);
     connect(&m_audio, &AudioService::notification, this, &AppController::notification);
     connect(&m_audio, &AudioService::changed, this, &AppController::audioChanged);
     connect(&m_outputs, &OutputManager::notification, this, &AppController::notification);
     m_automation.attach(this);
     connect(&m_automation, &AutomationService::notification, this, &AppController::notification);
+    connect(this, &AppController::notification, &m_diagnostics, [this](const QString& message) { m_diagnostics.log(message); });
 
     loadSettings();
 
@@ -394,6 +396,7 @@ void AppController::selectSlide(int index)
     m_show.selectSlide(id);
     m_showState.present(id);
     playTransition();
+    m_search.rebuild(m_document, m_show);
     emit editorChanged();
     emit sceneChanged();
 }
@@ -540,6 +543,7 @@ bool AppController::openDocument(const QString& path)
     m_library.setDocument(&m_document);
     m_media.setDocument(&m_document);
     m_notes.setDocument(&m_document);
+    m_search.rebuild(m_document, m_show);
     loadSettings();
     m_documentPath = path;
     emit documentChanged();
@@ -599,8 +603,14 @@ void AppController::refreshPreview()
     m_api.broadcastState();
 }
 
+QVariantList AppController::search(const QString& query) const
+{
+    return m_search.search(query);
+}
+
 void AppController::onTick()
 {
+    m_diagnostics.tick();
     emit tick();
     if (!m_timerRunning)
         return;

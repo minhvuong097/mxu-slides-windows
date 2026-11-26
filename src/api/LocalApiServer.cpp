@@ -306,6 +306,31 @@ QByteArray LocalApiServer::dispatch(const QString& method, const QString& path,
                                       Q_ARG(QString, payload.value(QStringLiteral(u"kind")).toString()));
             response.insert(QStringLiteral(u"ok"), true);
         }
+    } else if (route == QStringLiteral(u"/v1/search") && method == QStringLiteral(u"GET")) {
+        if (!authorized(auth, url, QStringLiteral(u"status"))) {
+            response.insert(QStringLiteral(u"error"), QStringLiteral(u"Unauthorized"));
+        } else if (m_controller) {
+            response.insert(QStringLiteral(u"results"),
+                            m_controller->search(QUrlQuery(url).queryItemValue(QStringLiteral(u"q"))));
+        }
+    } else if (route == QStringLiteral(u"/v1/diagnostics") && method == QStringLiteral(u"GET")) {
+        if (!authorized(auth, url, QStringLiteral(u"admin"))) {
+            response.insert(QStringLiteral(u"error"), QStringLiteral(u"Admin scope required"));
+        } else if (m_controller) {
+            response.insert(QStringLiteral(u"report"),
+                            m_controller->diagnostics()->property("reportJson").toString());
+        }
+    } else if (route == QStringLiteral(u"/v1/sync") && method == QStringLiteral(u"POST")) {
+        if (!authorized(auth, url, QStringLiteral(u"admin"))) {
+            response.insert(QStringLiteral(u"error"), QStringLiteral(u"Admin scope required"));
+        } else if (m_controller) {
+            int applied = 0;
+            QMetaObject::invokeMethod(m_controller->syncLedger(), "merge",
+                                      Q_RETURN_ARG(int, applied),
+                                      Q_ARG(QString, QString::fromUtf8(body)));
+            response.insert(QStringLiteral(u"ok"), true);
+            response.insert(QStringLiteral(u"applied"), applied);
+        }
     } else if (route == QStringLiteral(u"/v1/tokens") && method == QStringLiteral(u"GET")) {
         if (!authorized(auth, url, QStringLiteral(u"admin"))) {
             response.insert(QStringLiteral(u"error"), QStringLiteral(u"Admin scope required"));
