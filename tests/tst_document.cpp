@@ -9,6 +9,7 @@
 #include "core/SyncLedger.h"
 #include "app/AppController.h"
 #include "app/AudioService.h"
+#include "app/AlertsService.h"
 #include "app/AutomationService.h"
 #include "app/NotesService.h"
 #include "app/MediaService.h"
@@ -228,9 +229,16 @@ void MxuDocumentTest::localApiRoutes()
                                     + QByteArray::number(fireBody.size()) + "\r\n\r\n" + fireBody);
     QVERIFY(fire.contains("\"ok\":true"));
 
+    const QByteArray alertBody = "{\"text\":\"Test alert\"}";
+    const QByteArray alert = request(QByteArray("POST /v1/alert HTTP/1.1\r\nHost: localhost\r\n")
+                                     + auth + "Content-Length: "
+                                     + QByteArray::number(alertBody.size()) + "\r\n\r\n" + alertBody);
+    QVERIFY(alert.contains("\"ok\":true"));
+
     const QByteArray openapi = request("GET /openapi.json HTTP/1.1\r\nHost: localhost\r\n\r\n");
     QVERIFY(openapi.contains("/v1/advance"));
     QVERIFY(openapi.contains("/v1/search"));
+    QVERIFY(openapi.contains("/v1/alert"));
 
     server.stop();
     QVERIFY(!server.running());
@@ -262,6 +270,12 @@ void MxuDocumentTest::automationNotesAndImports()
     QVERIFY(notes.updateBlock(id, QStringLiteral(u"Prayer after sermon")));
     QVERIFY(notes.text().contains(QStringLiteral(u"after sermon")));
     QVERIFY(doc.notes.contains(QStringLiteral(u"blocks")));
+
+    app::AlertsService alerts;
+    QVERIFY(alerts.fire(QStringLiteral(u"Wrap up"), QStringLiteral(u"both")));
+    QVERIFY(alerts.visible());
+    alerts.dismiss();
+    QVERIFY(!alerts.visible());
 }
 
 void MxuDocumentTest::searchSyncDiagnostics()

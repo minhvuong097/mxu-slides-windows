@@ -78,6 +78,8 @@ qt_add_library(mxu_shell STATIC
     src/app/NotesService.cpp
     src/app/DiagnosticsService.h
     src/app/DiagnosticsService.cpp
+    src/app/AlertsService.h
+    src/app/AlertsService.cpp
     src/api/StreamingService.h
     src/api/StreamingService.cpp
 )

@@ -61,6 +61,7 @@ AppController::AppController(QObject* parent)
     connect(&m_outputs, &OutputManager::notification, this, &AppController::notification);
     m_automation.attach(this);
     connect(&m_automation, &AutomationService::notification, this, &AppController::notification);
+    connect(&m_alerts, &AlertsService::notification, this, &AppController::notification);
     connect(this, &AppController::notification, &m_diagnostics, [this](const QString& message) { m_diagnostics.log(message); });
 
     loadSettings();

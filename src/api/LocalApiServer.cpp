@@ -266,6 +266,10 @@ QByteArray LocalApiServer::dispatch(const QString& method, const QString& path,
         addRoute(QStringLiteral(u"/v1/sync"), QStringLiteral(u"post"), QStringLiteral(u"Merge sync operations"), QStringLiteral(u"admin"));
         addRoute(QStringLiteral(u"/v1/diagnostics"), QStringLiteral(u"get"), QStringLiteral(u"Diagnostics report"), QStringLiteral(u"admin"));
         addRoute(QStringLiteral(u"/v1/tokens"), QStringLiteral(u"get"), QStringLiteral(u"List tokens"), QStringLiteral(u"admin"));
+        addRoute(QStringLiteral(u"/v1/alert"), QStringLiteral(u"post"), QStringLiteral(u"Fire alert"), QStringLiteral(u"control"));
+        addRoute(QStringLiteral(u"/v1/dismissAlert"), QStringLiteral(u"post"), QStringLiteral(u"Dismiss alert"), QStringLiteral(u"control"));
+        addRoute(QStringLiteral(u"/v1/fire"), QStringLiteral(u"post"), QStringLiteral(u"Fire trigger action"), QStringLiteral(u"control"));
+        addRoute(QStringLiteral(u"/v1/notes"), QStringLiteral(u"get"), QStringLiteral(u"List sermon notes"), QStringLiteral(u"status"));
         response.insert(QStringLiteral(u"paths"), paths);
     } else if (route == QStringLiteral(u"/v1/status") && method == QStringLiteral(u"GET")) {
         if (!authorized(auth, url, QStringLiteral(u"status")))
@@ -299,6 +303,25 @@ QByteArray LocalApiServer::dispatch(const QString& method, const QString& path,
             QMetaObject::invokeMethod(m_controller,
                                       route == QStringLiteral(u"/v1/advance") ? "next" : "toggleClear",
                                       Qt::QueuedConnection);
+            response.insert(QStringLiteral(u"ok"), true);
+        }
+    } else if (route == QStringLiteral(u"/v1/alert") && method == QStringLiteral(u"POST")) {
+        if (!authorized(auth, url, QStringLiteral(u"control"))) {
+            response.insert(QStringLiteral(u"error"), QStringLiteral(u"Control scope required"));
+        } else if (m_controller) {
+            bool applied = false;
+            QMetaObject::invokeMethod(m_controller->alerts(), "fire",
+                                      Q_RETURN_ARG(bool, applied),
+                                      Q_ARG(QString, payload.value(QStringLiteral(u"text")).toString()),
+                                      Q_ARG(QString, payload.value(QStringLiteral(u"target")).toString()),
+                                      Q_ARG(QString, payload.value(QStringLiteral(u"behavior")).toString()));
+            response.insert(QStringLiteral(u"ok"), applied);
+        }
+    } else if (route == QStringLiteral(u"/v1/dismissAlert") && method == QStringLiteral(u"POST")) {
+        if (!authorized(auth, url, QStringLiteral(u"control"))) {
+            response.insert(QStringLiteral(u"error"), QStringLiteral(u"Control scope required"));
+        } else if (m_controller) {
+            QMetaObject::invokeMethod(m_controller->alerts(), "dismiss");
             response.insert(QStringLiteral(u"ok"), true);
         }
     } else if (route == QStringLiteral(u"/v1/fire") && method == QStringLiteral(u"POST")) {

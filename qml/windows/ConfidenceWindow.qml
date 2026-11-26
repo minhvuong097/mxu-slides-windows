@@ -104,5 +104,27 @@ Window {
                 }
             }
         }
+
+        Rectangle {
+            visible: Mxu.alerts.visible &&
+                     (Mxu.alerts.active.target === "both" || Mxu.alerts.active.target === "confidence")
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: 40
+            width: parent.width * 0.8
+            height: 64
+            radius: 10
+            color: Theme.pink
+            Text {
+                anchors.centerIn: parent
+                width: parent.width - 24
+                text: Mxu.alerts.active.text || ""
+                color: "white"
+                font.pixelSize: 22
+                font.weight: Font.Bold
+                elide: Text.ElideRight
+            }
+            MouseArea { anchors.fill: parent; onClicked: Mxu.alerts.dismiss() }
+        }
     }
 }

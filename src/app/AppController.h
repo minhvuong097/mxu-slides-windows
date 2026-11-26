@@ -1,5 +1,6 @@
 #pragma once
 
+#include "AlertsService.h"
 #include "AutomationService.h"
 #include "DiagnosticsService.h"
 #include "AudioService.h"
@@ -86,6 +87,7 @@ class AppController : public QObject
     Q_PROPERTY(QObject* deckLinkOutput READ deckLinkOutput CONSTANT)
     Q_PROPERTY(QObject* streaming READ streaming CONSTANT)
     Q_PROPERTY(QObject* automation READ automation CONSTANT)
+    Q_PROPERTY(QObject* alerts READ alerts CONSTANT)
     Q_PROPERTY(QObject* notes READ notes CONSTANT)
     Q_PROPERTY(QObject* searchIndex READ searchIndex CONSTANT)
     Q_PROPERTY(QObject* syncLedger READ syncLedger CONSTANT)
@@ -154,6 +156,7 @@ public:
     QObject* deckLinkOutput() { return &m_decklink; }
     QObject* streaming() { return &m_streaming; }
     QObject* automation() { return &m_automation; }
+    QObject* alerts() { return &m_alerts; }
     QObject* notes() { return &m_notes; }
     QObject* searchIndex() { return &m_search; }
     QObject* syncLedger() { return &m_sync; }
@@ -239,6 +242,7 @@ private:
     api::NdiSender m_ndi;
     api::DeckLinkOutput m_decklink;
     api::StreamingService m_streaming;
+    AlertsService m_alerts;
     AutomationService m_automation;
     NotesService m_notes;
     DiagnosticsService m_diagnostics;
