@@ -443,6 +443,18 @@ Item {
                                 delegate: Text { text: modelData.name; color: Theme.textDim; font.pixelSize: 10 }
                             }
                         }
+                        SettingField { width: parent.width; label: "Confidence layout"; value: Mxu.confidenceLayout.structure }
+                        Row { spacing: 6
+                            Rectangle { width: 96; height: 26; radius: 7; color: Theme.surface
+                                Text { anchors.centerIn: parent; text: "Tall Stack"; color: Theme.text; font.pixelSize: 10 }
+                                MouseArea { anchors.fill: parent; onClicked: Mxu.confidenceLayout.structure = "Tall Stack" } }
+                            Rectangle { width: 76; height: 26; radius: 7; color: Theme.surface
+                                Text { anchors.centerIn: parent; text: "Grid"; color: Theme.text; font.pixelSize: 10 }
+                                MouseArea { anchors.fill: parent; onClicked: Mxu.confidenceLayout.structure = "Grid" } }
+                            Rectangle { width: 90; height: 26; radius: 7; color: Theme.accent
+                                Text { anchors.centerIn: parent; text: "+ Message"; color: "white"; font.pixelSize: 10 }
+                                MouseArea { anchors.fill: parent; onClicked: Mxu.confidenceLayout.add("stageMessage", "Message") } }
+                        }
                         SettingField { width: parent.width; label: "Fonts installed"; value: Mxu.fontService.families.length }
                         Row {
                             spacing: 6

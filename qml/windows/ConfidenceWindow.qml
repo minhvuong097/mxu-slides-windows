@@ -26,106 +26,45 @@ Window {
             anchors.margins: 32
             spacing: 14
 
-            Row {
-                width: parent.width
-                Text { text: Mxu.serviceClock; color: Theme.textMid; font.pixelSize: 26; font.weight: Font.Bold }
-                Item { width: parent.width - 260; height: 1 }
-                Text { text: Mxu.serviceTimerText; color: Theme.green; font.pixelSize: 26; font.weight: Font.Bold }
-            }
-
-            Rectangle {
-                width: parent.width
-                height: (parent.height - 190) * 0.5
-                radius: 10
-                border.color: "white"
-                border.width: 2
-                color: "transparent"
-                Text {
-                    anchors.centerIn: parent
-                    width: parent.width - 30
-                    text: Mxu.currentSlideText
-                    color: Theme.text
-                    font.pixelSize: 34
-                    font.weight: Font.Bold
-                    wrapMode: Text.WordWrap
-                    horizontalAlignment: Text.AlignHCenter
-                }
-                Text {
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    anchors.bottom: parent.bottom
-                    anchors.bottomMargin: -12
-                    color: Theme.textDim
-                    font.pixelSize: 11
-                    font.weight: Font.DemiBold
-                    text: "CURRENT SLIDE"
-                }
-            }
-
-            Rectangle {
-                width: parent.width
-                height: (parent.height - 190) * 0.35
-                radius: 10
-                border.color: Theme.yellow
-                border.width: 2
-                color: "transparent"
-                Text {
-                    anchors.centerIn: parent
-                    width: parent.width - 30
-                    text: Mxu.nextSlideText
-                    color: Theme.text
-                    font.pixelSize: 26
-                    wrapMode: Text.WordWrap
-                    horizontalAlignment: Text.AlignHCenter
-                }
-                Text {
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    anchors.top: parent.top
-                    anchors.topMargin: -12
-                    color: Theme.yellow
-                    font.pixelSize: 11
-                    font.weight: Font.DemiBold
-                    text: "NEXT SLIDE"
+            Repeater {
+                model: Mxu.confidenceLayout.nodes
+                delegate: Rectangle {
+                    width: parent.width
+                    height: modelData.source === "currentSlide" || modelData.source === "nextSlide"
+                            ? (parent.height - 120) / 2 : 70
+                    radius: 12
+                    border.color: modelData.source === "nextSlide" ? Theme.yellow : "#ffffff"
+                    border.width: 2
+                    color: "transparent"
+                    Text {
+                        anchors.centerIn: parent
+                        width: parent.width - 32
+                        text: {
+                            if (modelData.source === "clock") return Mxu.serviceClock
+                            if (modelData.source === "timer") return Mxu.serviceTimerText
+                            if (modelData.source === "stageMessage") return Mxu.stageMessage
+                            if (modelData.source === "currentSlide") return Mxu.currentSlideText
+                            if (modelData.source === "nextSlide") return Mxu.nextSlideText
+                            return Mxu.currentSlideName
+                        }
+                        color: modelData.source === "clock" || modelData.source === "timer" ? Theme.green : Theme.text
+                        font.pixelSize: modelData.source === "currentSlide" ? 32
+                                        : (modelData.source === "nextSlide" ? 24 : 26)
+                        font.weight: Font.Bold
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                    }
+                    Text {
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        anchors.top: parent.top
+                        anchors.topMargin: -12
+                        text: modelData.title
+                        color: Theme.textDim
+                        font.pixelSize: 11
+                        font.weight: Font.DemiBold
+                    }
                 }
             }
-
-            Rectangle {
-                width: parent.width
-                height: 44
-                radius: 10
-                color: Mxu.accent
-                visible: Mxu.stageMessage.length > 0
-                Text {
-                    anchors.centerIn: parent
-                    width: parent.width - 20
-                    text: Mxu.stageMessage
-                    color: "white"
-                    font.pixelSize: 18
-                    font.weight: Font.DemiBold
-                    elide: Text.ElideRight
-                }
-            }
-        }
-
-        Rectangle {
-            visible: Mxu.alerts.visible &&
-                     (Mxu.alerts.active.target === "both" || Mxu.alerts.active.target === "confidence")
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.bottom: parent.bottom
-            anchors.bottomMargin: 40
-            width: parent.width * 0.8
-            height: 64
-            radius: 10
-            color: Theme.pink
-            Text {
-                anchors.centerIn: parent
-                width: parent.width - 24
-                text: Mxu.alerts.active.text || ""
-                color: "white"
-                font.pixelSize: 22
-                font.weight: Font.Bold
-                elide: Text.ElideRight
-            }
-            MouseArea { anchors.fill: parent; onClicked: Mxu.alerts.dismiss() }
         }
     }
 }

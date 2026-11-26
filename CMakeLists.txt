@@ -96,6 +96,8 @@ qt_add_library(mxu_shell STATIC
     src/app/TimerBoardService.cpp
     src/app/SlideActionRouter.h
     src/app/SlideActionRouter.cpp
+    src/app/ConfidenceLayoutService.h
+    src/app/ConfidenceLayoutService.cpp
     src/app/PptxImporter.h
     src/app/PptxImporter.cpp
     src/app/DiscoveryService.h

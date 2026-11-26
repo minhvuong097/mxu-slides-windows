@@ -2,6 +2,7 @@
 
 #include "AlertsService.h"
 #include "AutomationService.h"
+#include "ConfidenceLayoutService.h"
 #include "DiagnosticsService.h"
 #include "DiscoveryService.h"
 #include "FontService.h"
@@ -106,6 +107,7 @@ class AppController : public QObject
     Q_PROPERTY(QObject* discovery READ discovery CONSTANT)
     Q_PROPERTY(QObject* timerBoard READ timerBoard CONSTANT)
     Q_PROPERTY(QObject* slideActions READ slideActions CONSTANT)
+    Q_PROPERTY(QObject* confidenceLayout READ confidenceLayout CONSTANT)
     Q_PROPERTY(QVariantList currentSlideActions READ currentSlideActions NOTIFY editorChanged)
     Q_PROPERTY(QObject* ndiSender READ ndiSender CONSTANT)
     Q_PROPERTY(QObject* deckLinkOutput READ deckLinkOutput CONSTANT)
@@ -191,6 +193,7 @@ public:
     QObject* discovery() { return &m_discovery; }
     QObject* timerBoard() { return &m_timerBoard; }
     QObject* slideActions() { return &m_actionRouter; }
+    QObject* confidenceLayout() { return &m_confidenceLayout; }
     QVariantList currentSlideActions() const;
     Q_INVOKABLE QString addSlideAction(const QString& kind, const QString& target);
     Q_INVOKABLE bool fireSlideAction(const QString& id);
@@ -297,6 +300,7 @@ private:
     DiscoveryService m_discovery;
     TimerBoardService m_timerBoard;
     SlideActionRouter m_actionRouter;
+    ConfidenceLayoutService m_confidenceLayout;
     FontService m_fonts;
     api::NdiSender m_ndi;
     api::DeckLinkOutput m_decklink;

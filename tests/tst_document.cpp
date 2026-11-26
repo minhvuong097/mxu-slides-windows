@@ -10,6 +10,7 @@
 #include "app/AppController.h"
 #include "app/AudioService.h"
 #include "app/BackupService.h"
+#include "app/ConfidenceLayoutService.h"
 #include "app/DiscoveryService.h"
 #include "app/PptxImporter.h"
 #include "app/FontService.h"
@@ -48,6 +49,7 @@ private slots:
     void pptxAndDiscovery();
     void timerBoard();
     void slideActions();
+    void confidenceLayout();
 };
 
 void MxuDocumentTest::demoMatchesServiceFlow()
@@ -415,6 +417,18 @@ void MxuDocumentTest::slideActions()
     QVERIFY(!id.isEmpty());
     QVERIFY(controller.currentSlideActions().size() >= 1);
     QVERIFY(controller.fireSlideAction(id));
+}
+
+void MxuDocumentTest::confidenceLayout()
+{
+    app::ConfidenceLayoutService layout;
+    QVERIFY(layout.nodes().size() >= 3);
+    const QString id = layout.add(QStringLiteral(u"stageMessage"), QStringLiteral(u"Message"));
+    QVERIFY(!id.isEmpty());
+    QVERIFY(layout.move(id, -1));
+    QVERIFY(layout.remove(id));
+    layout.setStructure(QStringLiteral(u"Grid"));
+    QCOMPARE(layout.structure(), QStringLiteral(u"Grid"));
 }
 
 int main(int argc, char** argv)
