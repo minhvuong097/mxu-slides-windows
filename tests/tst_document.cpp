@@ -9,6 +9,8 @@
 #include "core/SyncLedger.h"
 #include "app/AppController.h"
 #include "app/AudioService.h"
+#include "app/BackupService.h"
+#include "app/FontService.h"
 #include "app/AlertsService.h"
 #include "app/AutomationService.h"
 #include "app/NotesService.h"
@@ -39,6 +41,7 @@ private slots:
     void timelineBasic();
     void searchNavigation();
     void slideExport();
+    void backupsAndFonts();
 };
 
 void MxuDocumentTest::demoMatchesServiceFlow()
@@ -352,6 +355,22 @@ void MxuDocumentTest::slideExport()
     QVERIFY(controller.exportSlideImage(path));
     QVERIFY(QFile::exists(path));
     QVERIFY(QImage(path).size() == QSize(1920, 1080));
+}
+
+void MxuDocumentTest::backupsAndFonts()
+{
+    app::BackupService backups;
+    core::Document document = core::Document::demo();
+    const QString id = backups.createBackup(document, QStringLiteral(u"Test"));
+    QVERIFY(!id.isEmpty());
+    QVERIFY(!backups.backups().isEmpty());
+    core::Document restored;
+    QVERIFY(backups.restore(id, &restored));
+    QCOMPARE(restored.items.size(), document.items.size());
+    QVERIFY(backups.remove(id));
+
+    app::FontService fonts;
+    QVERIFY(!fonts.families().isEmpty());
 }
 
 int main(int argc, char** argv)

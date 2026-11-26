@@ -59,6 +59,7 @@ AppController::AppController(QObject* parent)
     m_arrangements.setDocument(&m_document);
     connect(&m_arrangements, &ArrangementService::slideRequested, this, &AppController::selectSlide);
     connect(&m_arrangements, &ArrangementService::notification, this, &AppController::notification);
+    connect(&m_backups, &BackupService::notification, this, &AppController::notification);
     m_search.rebuild(m_document, m_show);
     connect(&m_media, &MediaService::notification, this, &AppController::notification);
     connect(&m_audio, &AudioService::notification, this, &AppController::notification);
@@ -680,6 +681,7 @@ bool AppController::saveDocument(const QString& path)
     m_documentPath = target;
     emit documentChanged();
     emit notification(QStringLiteral(u"Saved %1").arg(target));
+    m_backups.createBackup(m_document, QStringLiteral(u"Auto"));
     return true;
 }
 

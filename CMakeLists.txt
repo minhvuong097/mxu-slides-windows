@@ -88,6 +88,10 @@ qt_add_library(mxu_shell STATIC
     src/app/PlaylistService.cpp
     src/app/ArrangementService.h
     src/app/ArrangementService.cpp
+    src/app/BackupService.h
+    src/app/BackupService.cpp
+    src/app/FontService.h
+    src/app/FontService.cpp
     src/api/StreamingService.h
     src/api/StreamingService.cpp
 )

@@ -417,6 +417,17 @@ Item {
                         }
                         SettingField { width: parent.width; label: "Uptime"; value: Mxu.diagnostics.uptime }
                         SettingField { width: parent.width; label: "Events"; value: Mxu.diagnostics.tickCount }
+                        SettingField { width: parent.width; label: "Fonts installed"; value: Mxu.fontService.families.length }
+                        Row {
+                            spacing: 6
+                            Rectangle { width: 110; height: 28; radius: 8; color: Theme.accent
+                                Text { anchors.centerIn: parent; text: "Create backup"; color: "white"; font.pixelSize: 11 }
+                                MouseArea { anchors.fill: parent; onClicked: Mxu.backupService.createBackup(Mxu.serviceModel.serviceName, "Manual") } }
+                            Repeater {
+                                model: Mxu.backupService.backups
+                                delegate: Text { text: modelData.created; color: Theme.textDim; font.pixelSize: 10 }
+                            }
+                        }
                         Text {
                             width: parent.width
                             text: "Port of the macOS MxU Slides domain model. PolyForm Shield terms apply to the original source."
