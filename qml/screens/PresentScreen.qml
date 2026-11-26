@@ -871,6 +871,33 @@ Item {
                                     color: Theme.textDim
                                     font.pixelSize: 11
                                 }
+
+                                Rectangle { height: 6; width: 1; color: "transparent" }
+
+                                Text { text: "ALERT"; color: Theme.textDim; font.pixelSize: 9; font.weight: Font.Bold; font.letterSpacing: 0.72 }
+                                TextField {
+                                    id: alertText
+                                    width: parent.width
+                                    placeholderText: "Message for stage / audience"
+                                    placeholderTextColor: Theme.textDim
+                                    color: Theme.text
+                                    font.pixelSize: 11
+                                    background: Rectangle { radius: 7; color: Theme.inset }
+                                }
+                                Row { spacing: 6
+                                    Rectangle {
+                                        radius: 9; color: Theme.pink
+                                        implicitWidth: 82; implicitHeight: 26
+                                        Text { anchors.centerIn: parent; text: "Fire alert"; color: "white"; font.pixelSize: 11; font.weight: Font.DemiBold }
+                                        MouseArea { anchors.fill: parent; onClicked: Mxu.alerts.fire(alertText.text, "both") }
+                                    }
+                                    Rectangle {
+                                        radius: 9; color: Theme.surface
+                                        implicitWidth: 70; implicitHeight: 26
+                                        Text { anchors.centerIn: parent; text: "Dismiss"; color: Theme.text; font.pixelSize: 11 }
+                                        MouseArea { anchors.fill: parent; onClicked: Mxu.alerts.dismiss() }
+                                    }
+                                }
                             }
                         }
                     }
