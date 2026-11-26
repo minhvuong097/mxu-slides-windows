@@ -9,6 +9,7 @@ import "qrc:/qml/components"
 // Media library screen (1280x800 in the mockup).
 Item {
     id: root
+    property int gridColumns: 4
 
     Row {
         anchors.fill: parent
@@ -142,6 +143,7 @@ Item {
                             radius: 7; color: Theme.surface
                             implicitWidth: 52; implicitHeight: 28
                             Text { anchors.centerIn: parent; text: "Grid"; color: Theme.text; font.pixelSize: 12 }
+                            MouseArea { anchors.fill: parent; onClicked: root.gridColumns = root.gridColumns === 4 ? 2 : 4 }
                         }
                     }
                 }
@@ -160,9 +162,9 @@ Item {
                         Grid {
                             id: grid
                             width: parent.width
-                            columns: 4
+                            columns: root.gridColumns
                             spacing: 16
-                            property real cellW: (grid.width - 48) / 4
+                            property real cellW: (grid.width - (root.gridColumns - 1) * 16) / root.gridColumns
                             Repeater {
                                 model: Mxu.mediaService.items
                                 delegate: Column {

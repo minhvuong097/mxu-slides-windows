@@ -223,12 +223,17 @@ Item {
                     SettingField { width: parent.width; label: Mxu.stageLayout; value: "Change" }
 
                     Text { text: "SHOW"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
-                    SettingField { width: parent.width; label: "Chords"; value: Mxu.chordsVisible ? "On" : "Off" }
-                    SettingField { width: parent.width; label: "Clock"; value: Mxu.clockVisible ? "On" : "Off" }
-                    SettingField { width: parent.width; label: "Section timer"; value: Mxu.sectionTimerVisible ? "On" : "Off" }
+                    SettingField { width: parent.width; label: "Chords"; value: Mxu.chordsVisible ? "On" : "Off"; onClicked: Mxu.toggleStageFlag("showChords") }
+                    SettingField { width: parent.width; label: "Clock"; value: Mxu.clockVisible ? "On" : "Off"; onClicked: Mxu.toggleStageFlag("showClock") }
+                    SettingField { width: parent.width; label: "Section timer"; value: Mxu.sectionTimerVisible ? "On" : "Off"; onClicked: Mxu.toggleStageFlag("showSectionTimer") }
 
                     Text { text: "FONT SIZE"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
-                    SettingField { width: parent.width; label: "Lyrics"; value: Mxu.lyricsFontSize + " px" }
+                    NumberField {
+                        width: parent.width
+                        label: "Lyrics px"
+                        value: Mxu.lyricsFontSize
+                        onCommitted: Mxu.setLyricsFontSize(value)
+                    }
 
                     Text { text: "STAGE MESSAGE"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
                     Rectangle {
