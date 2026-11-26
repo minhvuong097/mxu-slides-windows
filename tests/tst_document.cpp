@@ -11,6 +11,7 @@
 #include "app/AudioService.h"
 #include "app/BackupService.h"
 #include "app/ConfidenceLayoutService.h"
+#include "app/DocumentRegistry.h"
 #include "app/ServiceVersionService.h"
 #include "app/DiscoveryService.h"
 #include "app/PptxImporter.h"
@@ -52,6 +53,7 @@ private slots:
     void slideActions();
     void confidenceLayout();
     void serviceVersions();
+    void documentRegistry();
 };
 
 void MxuDocumentTest::demoMatchesServiceFlow()
@@ -442,6 +444,17 @@ void MxuDocumentTest::serviceVersions()
     QVERIFY(versions.activate(id));
     QCOMPARE(versions.activeStation(), QStringLiteral(u"Stage"));
     QVERIFY(versions.remove(id));
+}
+
+void MxuDocumentTest::documentRegistry()
+{
+    app::DocumentRegistry registry;
+    QCOMPARE(registry.kinds().size(), 29);
+    QCOMPARE(registry.directoryFor(QStringLiteral(u"presentation")), QStringLiteral(u"presentations"));
+    const QString id = registry.create(QStringLiteral(u"presentation"), QStringLiteral(u"Song"));
+    QVERIFY(!id.isEmpty());
+    QCOMPARE(registry.inKind(QStringLiteral(u"presentation")).size(), 1);
+    QVERIFY(registry.remove(id));
 }
 
 int main(int argc, char** argv)

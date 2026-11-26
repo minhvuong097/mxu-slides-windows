@@ -63,6 +63,7 @@ AppController::AppController(QObject* parent)
     m_actionRouter.attach(this);
     connect(&m_actionRouter, &SlideActionRouter::notification, this, &AppController::notification);
     connect(&m_serviceVersions, &ServiceVersionService::notification, this, &AppController::notification);
+    connect(&m_documents, &DocumentRegistry::notification, this, &AppController::notification);
     connect(&m_timerBoard, &TimerBoardService::warning, this, [this](const QString& name) {
         emit notification(QStringLiteral(u"Warning: %1").arg(name));
     });

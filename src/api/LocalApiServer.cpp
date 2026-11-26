@@ -294,6 +294,7 @@ QByteArray LocalApiServer::dispatch(const QString& method, const QString& path,
         addRoute(QStringLiteral(u"/v1/recording/start"), QStringLiteral(u"post"), QStringLiteral(u"Start recording"), QStringLiteral(u"control"));
         addRoute(QStringLiteral(u"/v1/recording/stop"), QStringLiteral(u"post"), QStringLiteral(u"Stop recording"), QStringLiteral(u"control"));
         addRoute(QStringLiteral(u"/v1/notes/add"), QStringLiteral(u"post"), QStringLiteral(u"Add note"), QStringLiteral(u"control"));
+        addRoute(QStringLiteral(u"/v1/documents"), QStringLiteral(u"get"), QStringLiteral(u"Document registry"), QStringLiteral(u"status"));
         addRoute(QStringLiteral(u"/v1/service/versions"), QStringLiteral(u"get"), QStringLiteral(u"Service station versions"), QStringLiteral(u"status"));
         addRoute(QStringLiteral(u"/v1/backup/create"), QStringLiteral(u"post"), QStringLiteral(u"Create backup"), QStringLiteral(u"control"));
         response.insert(QStringLiteral(u"paths"), paths);
@@ -491,6 +492,8 @@ QByteArray LocalApiServer::dispatch(const QString& method, const QString& path,
                 response.insert(QStringLiteral(u"slide"), m_controller->property("nextSlideText"));
             else if (route == QStringLiteral(u"/v1/service/versions"))
                 response.insert(QStringLiteral(u"versions"), m_controller->serviceVersions()->property("versions"));
+            else if (route == QStringLiteral(u"/v1/documents"))
+                response.insert(QStringLiteral(u"documents"), m_controller->documents()->property("documents"));
             else
                 response.insert(QStringLiteral(u"blocks"), m_controller->notes()->property("blocks"));
         }
