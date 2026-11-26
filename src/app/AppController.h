@@ -1,6 +1,7 @@
 #pragma once
 
 #include "AlertsService.h"
+#include "AudioDeviceService.h"
 #include "AutomationService.h"
 #include "ConfidenceLayoutService.h"
 #include "DiagnosticsService.h"
@@ -112,6 +113,7 @@ class AppController : public QObject
     Q_PROPERTY(QObject* confidenceLayout READ confidenceLayout CONSTANT)
     Q_PROPERTY(QObject* serviceVersions READ serviceVersions CONSTANT)
     Q_PROPERTY(QObject* documents READ documents CONSTANT)
+    Q_PROPERTY(QObject* audioDevices READ audioDevices CONSTANT)
     Q_PROPERTY(QVariantList currentSlideActions READ currentSlideActions NOTIFY editorChanged)
     Q_PROPERTY(QObject* ndiSender READ ndiSender CONSTANT)
     Q_PROPERTY(QObject* deckLinkOutput READ deckLinkOutput CONSTANT)
@@ -200,6 +202,7 @@ public:
     QObject* confidenceLayout() { return &m_confidenceLayout; }
     QObject* serviceVersions() { return &m_serviceVersions; }
     QObject* documents() { return &m_documents; }
+    QObject* audioDevices() { return &m_audioDevices; }
     QVariantList currentSlideActions() const;
     Q_INVOKABLE QString addSlideAction(const QString& kind, const QString& target);
     Q_INVOKABLE bool fireSlideAction(const QString& id);
@@ -309,6 +312,7 @@ private:
     ConfidenceLayoutService m_confidenceLayout;
     ServiceVersionService m_serviceVersions;
     DocumentRegistry m_documents;
+    AudioDeviceService m_audioDevices;
     FontService m_fonts;
     api::NdiSender m_ndi;
     api::DeckLinkOutput m_decklink;

@@ -246,6 +246,8 @@ Item {
                             }
                             Text { anchors.verticalCenter: parent.verticalCenter; text: "Audio"; color: Theme.text; font.pixelSize: 16; font.weight: Font.DemiBold }
                         }
+                        SettingField { width: parent.width; label: "Audio inputs"; value: Mxu.audioDevices.inputs.length }
+                        SettingField { width: parent.width; label: "Audio outputs"; value: Mxu.audioDevices.outputs.length }
                         Text { text: "CHANNELS"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
                         Repeater {
                             model: Mxu.audioChannels
