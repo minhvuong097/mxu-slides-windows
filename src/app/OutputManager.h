@@ -23,7 +23,7 @@ public:
 
     QVariantList screens() const;
     QVariantMap assignments() const;
-    QString assignment(const QString& role) const;
+    Q_INVOKABLE QString assignment(const QString& role) const;
     bool confidenceMonitor() const;
     bool alwaysOnTop() const;
 
