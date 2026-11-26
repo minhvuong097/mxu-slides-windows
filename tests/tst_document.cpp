@@ -16,6 +16,7 @@
 #include "app/GroupPaletteService.h"
 #include "app/ImportLedgerService.h"
 #include "app/PresetBoardService.h"
+#include "app/TimecodeService.h"
 #include "app/ServiceVersionService.h"
 #include "app/DiscoveryService.h"
 #include "app/PptxImporter.h"
@@ -62,6 +63,7 @@ private slots:
     void ledgerAndGroups();
     void presetBoards();
     void slideHistory();
+    void midiTimecode();
 };
 
 void MxuDocumentTest::demoMatchesServiceFlow()
@@ -516,6 +518,20 @@ void MxuDocumentTest::slideHistory()
     QVERIFY(versions.size() >= 1);
     QVERIFY(controller.restoreSlideVersion(versions.first().toMap()
                                            .value(QStringLiteral(u"id")).toString()));
+}
+
+void MxuDocumentTest::midiTimecode()
+{
+    app::TimecodeService timecode;
+    timecode.setFramesPerSecond(30);
+    for (int i = 0; i < 8; ++i)
+        timecode.quarterFrame(i);
+    QVERIFY(timecode.locked());
+    QVERIFY(!timecode.timecode().isEmpty());
+    timecode.setManual(QStringLiteral(u"01:02:03:15"));
+    QVERIFY(timecode.timecode().contains(QStringLiteral(u"01:02:03")));
+    timecode.reset();
+    QVERIFY(!timecode.locked());
 }
 
 int main(int argc, char** argv)

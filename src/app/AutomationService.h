@@ -1,5 +1,6 @@
 #pragma once
 
+#include "TimecodeService.h"
 #include "WindowsMidiInput.h"
 
 #include <QObject>
@@ -23,6 +24,7 @@ class AutomationService : public QObject
     Q_PROPERTY(QString timecodeSource READ timecodeSource NOTIFY changed)
     Q_PROPERTY(bool midiAvailable READ midiAvailable CONSTANT)
     Q_PROPERTY(QObject* midiInput READ midiInput CONSTANT)
+    Q_PROPERTY(QObject* timecodeDecoder READ timecodeDecoder CONSTANT)
     Q_PROPERTY(QVariantList triggers READ triggers NOTIFY changed)
     Q_PROPERTY(QVariantList schedules READ schedules NOTIFY changed)
 
@@ -34,6 +36,7 @@ public:
     QString timecodeSource() const;
     bool midiAvailable() const;
     QObject* midiInput() { return &m_midi; }
+    QObject* timecodeDecoder() { return &m_timecode; }
     QVariantList triggers() const;
     QVariantList schedules() const;
 
@@ -58,6 +61,7 @@ private:
 
     QSettings m_store;
     WindowsMidiInput m_midi;
+    TimecodeService m_timecode;
     AppController* m_controller = nullptr;
     QVariantList m_triggers;
     QVariantList m_schedules;

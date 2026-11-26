@@ -22,6 +22,9 @@ void CALLBACK midiCallback(HMIDIIN, UINT message, DWORD_PTR instance, DWORD_PTR 
         if ((status & 0xF0) == 0x90 || (status & 0xF0) == 0x80)
             QMetaObject::invokeMethod(self, "onNote", Qt::QueuedConnection,
                                       Q_ARG(int, note), Q_ARG(bool, (status & 0xF0) == 0x90 && velocity > 0));
+        else if (status == 0xF1)
+            QMetaObject::invokeMethod(self, "onQuarterFrame", Qt::QueuedConnection,
+                                      Q_ARG(int, note));
     }
 }
 #endif
@@ -48,6 +51,11 @@ bool WindowsMidiInput::available() const
 }
 
 QVariantList WindowsMidiInput::devices() const { return m_devices; }
+
+void WindowsMidiInput::onQuarterFrame(int value)
+{
+    emit quarterFrame(value);
+}
 
 void WindowsMidiInput::onNote(int note, bool on)
 {

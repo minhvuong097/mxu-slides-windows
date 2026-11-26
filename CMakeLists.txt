@@ -90,6 +90,8 @@ qt_add_library(mxu_shell STATIC
     src/app/ArrangementService.cpp
     src/app/WindowsMidiInput.h
     src/app/WindowsMidiInput.cpp
+    src/app/TimecodeService.h
+    src/app/TimecodeService.cpp
     src/app/TokenVault.h
     src/app/TokenVault.cpp
     src/app/TimerBoardService.h

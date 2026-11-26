@@ -10,6 +10,7 @@ AutomationService::AutomationService(QObject* parent)
     : QObject(parent)
 {
     load();
+    connect(&m_midi, &WindowsMidiInput::quarterFrame, &m_timecode, &TimecodeService::quarterFrame);
     connect(&m_midi, &WindowsMidiInput::noteReceived, this, [this](int note, bool on) {
         if (!on)
             return;

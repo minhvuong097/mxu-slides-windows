@@ -30,10 +30,12 @@ public slots:
     void disconnectDevice();
     void refresh();
     Q_INVOKABLE void onNote(int note, bool on);
+    Q_INVOKABLE void onQuarterFrame(int value);
 
 signals:
     void changed();
     void noteReceived(int note, bool on);
+    void quarterFrame(int value);
     void notification(const QString& message);
 
 private:
