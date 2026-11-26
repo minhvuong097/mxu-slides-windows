@@ -4,6 +4,7 @@
 
 #include "core/Document.h"
 #include "core/ShowDocument.h"
+#include "core/SceneModel.h"
 #include "app/AppController.h"
 
 using namespace mxu;
@@ -17,6 +18,7 @@ private slots:
     void jsonRoundTrip();
     void controllerNavigation();
     void slideObjectUndoRedo();
+    void sceneAndTransitions();
 };
 
 void MxuDocumentTest::demoMatchesServiceFlow()
@@ -100,6 +102,37 @@ void MxuDocumentTest::slideObjectUndoRedo()
     QCOMPARE(show.objectsForQml(slideId).size(), 1);
     QVERIFY(show.duplicateSlide(slideId));
     QCOMPARE(show.slidesForQml().size(), 2);
+}
+
+void MxuDocumentTest::sceneAndTransitions()
+{
+    core::ShowDocument show;
+    show.setDocument(core::Document::demo());
+    const QString id = show.addSlide(QStringLiteral(u"Scene"), QStringLiteral(u"Amazing grace"));
+    show.selectSlide(id);
+
+    core::SceneBuilder builder;
+    const core::RenderScene scene = builder.build(show, true, true, QStringLiteral(u"9:12 AM"));
+    QCOMPARE(scene.layers.size(), 1);
+    QCOMPARE(scene.layers.first().items.size(), 1);
+    QCOMPARE(core::SceneBuilder::sceneToQml(scene).size(), 1);
+
+    core::SceneTransitionEngine transition;
+    transition.start(QStringLiteral(u"fadeBlack"), 0.2);
+    QVERIFY(transition.running());
+    QCOMPARE(transition.kind(), QStringLiteral(u"fadeBlack"));
+    QVERIFY(transition.curtainOpacity() >= 0.0);
+    transition.finish();
+    QVERIFY(!transition.running());
+    QCOMPARE(transition.incomingOpacity(), 1.0);
+
+    core::ShowState state;
+    state.present(id);
+    QCOMPARE(state.liveSlideId(), id);
+    state.clearAll();
+    QVERIFY(state.isCleared(QStringLiteral(u"slide")));
+    state.restoreAll();
+    QVERIFY(!state.isCleared(QStringLiteral(u"slide")));
 }
 
 int main(int argc, char** argv)

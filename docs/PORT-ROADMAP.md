@@ -15,7 +15,7 @@ theo package và xác định cái nào đã có, cái nào cần làm tiếp.
 | LocalAPI (tối giản) | ✅ REST + WS + scoped token |
 | Document schema | ✅ `scripts/generate_models.py` → 103 record / 62 enum từ `schema/documents.json` |
 | PresenterCore (Automerge, SQLite/FTS5) | ❌ |
-| RenderEngine (Metal) | ❌ |
+| RenderEngine (Metal) | ⚠️ Scene model + transitions; RHI blend/mask chưa có |
 | SlideScene / SlideEditorModel | ⚠️ `core::ShowDocument` + SlideObject/undo/redo; renderer đơn giản |
 | MediaEngine / AudioEngine | ❌ |
 | OutputEngine / NDI / DeckLink / Syphon | ❌ |
@@ -41,7 +41,14 @@ Còn lại của Phase 1: transition/layer rendering và scene rules đầy đ�
 - `SlideEditorModel`: selection, drag/resize, commit/undo queue.
 - QML `SceneCanvas` + inspector bind thật vào object model.
 
-## Phase 2 — Output renderer (P0)
+## Phase 2 — Output renderer (P0) — ĐÃ LÀM (phần lõi)
+
+- ✅ `core::SceneModel`: RenderScene/RenderLayer/RenderItem, layer kinds, ShowState.
+- ✅ `SceneTransitionEngine`: cut/dissolve/fadeBlack/White/Color/blurDissolve/filmBurn + curtain.
+- ✅ `SceneView.qml`: render layers, opacity, chord, clear; dùng trong PresentationWindow & StageOutputWindow.
+- ⚠️ Chưa có: blend mode shader, mask, per-screen output preset (Phase 4).
+
+Kiến trúc gốc của phase này:
 
 - Scene model (`RenderScene`, `RenderLayer`, `RenderItem`, `LayerKind`).
 - Qt Quick/RHI scene graph thay cho `Text` thuần: layer ordering, opacity,

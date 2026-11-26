@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Window
 import "qrc:/qml/theme"
+import "qrc:/qml/components"
 
 // Musician stage display with clock, section timer, current/next slide and message.
 Window {
@@ -49,16 +50,10 @@ Window {
                 border.color: "white"
                 border.width: 3
                 color: "transparent"
-                Text {
-                    anchors.centerIn: parent
-                    width: parent.width - 40
-                    text: Mxu.currentSlideText
-                    color: Theme.text
-                    font.pixelSize: Mxu.lyricsFontSize * 1.4
-                    font.weight: Font.Bold
-                    lineHeight: 1.4
-                    horizontalAlignment: Text.AlignHCenter
-                    wrapMode: Text.WordWrap
+                SceneView {
+                    anchors.fill: parent
+                    anchors.margins: 12
+                    cleared: false
                 }
                 Text {
                     anchors.left: parent.left

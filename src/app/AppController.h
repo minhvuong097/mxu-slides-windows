@@ -3,6 +3,7 @@
 #include "Models.h"
 #include "api/LocalApiServer.h"
 #include "core/Document.h"
+#include "core/SceneModel.h"
 #include "core/ShowDocument.h"
 
 #include <QObject>
@@ -63,6 +64,13 @@ class AppController : public QObject
     Q_PROPERTY(bool canUndo READ canUndo NOTIFY editorChanged)
     Q_PROPERTY(bool canRedo READ canRedo NOTIFY editorChanged)
 
+    Q_PROPERTY(QVariantList renderLayers READ renderLayers NOTIFY sceneChanged)
+    Q_PROPERTY(QString currentSlideName READ currentSlideName NOTIFY sceneChanged)
+    Q_PROPERTY(QObject* transition READ transition CONSTANT)
+    Q_PROPERTY(QObject* showState READ showState CONSTANT)
+    Q_PROPERTY(QString transitionKind READ transitionKind WRITE setTransitionKind NOTIFY sceneChanged)
+    Q_PROPERTY(double transitionDuration READ transitionDuration WRITE setTransitionDuration NOTIFY sceneChanged)
+
 public:
     explicit AppController(QObject* parent = nullptr);
     ~AppController() override;
@@ -110,6 +118,15 @@ public:
     bool canUndo() const;
     bool canRedo() const;
 
+    QVariantList renderLayers() const;
+    QString currentSlideName() const;
+    QObject* transition() { return &m_transition; }
+    QObject* showState() { return &m_showState; }
+    QString transitionKind() const;
+    double transitionDuration() const { return m_transitionDuration; }
+    void setTransitionKind(const QString& value);
+    void setTransitionDuration(double value);
+
     Q_INVOKABLE QVariant setting(const QString& key) const;
     Q_INVOKABLE void setSetting(const QString& key, const QVariant& value);
 
@@ -141,6 +158,7 @@ public slots:
     void selectObject(const QString& id);
     void updateObject(const QVariantMap& patch);
     void addTextObject();
+    void playTransition();
     bool saveDocument(const QString& path = {});
     bool openDocument(const QString& path);
 
@@ -154,6 +172,7 @@ signals:
     void documentChanged();
     void outputChanged();
     void editorChanged();
+    void sceneChanged();
     void notification(const QString& message);
 
 private slots:
@@ -167,6 +186,11 @@ private:
 
     core::Document m_document;
     core::ShowDocument m_show;
+    core::SceneBuilder m_sceneBuilder;
+    core::SceneTransitionEngine m_transition;
+    core::ShowState m_showState;
+    QString m_transitionKind = QStringLiteral(u"dissolve");
+    double m_transitionDuration = 0.6;
     ServiceModel m_service;
     CueModel m_cues;
     LibraryModel m_library;

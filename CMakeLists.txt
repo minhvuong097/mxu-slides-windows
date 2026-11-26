@@ -34,9 +34,11 @@ qt_add_library(mxu_core STATIC
     src/core/Document.cpp
     src/core/ShowDocument.h
     src/core/ShowDocument.cpp
+    src/core/SceneModel.h
+    src/core/SceneModel.cpp
 )
 target_include_directories(mxu_core PUBLIC ${CMAKE_SOURCE_DIR}/src)
-target_link_libraries(mxu_core PUBLIC Qt6::Core)
+target_link_libraries(mxu_core PUBLIC Qt6::Core Qt6::Gui)
 
 qt_add_library(mxu_shell STATIC
     src/app/Models.h

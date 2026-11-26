@@ -64,6 +64,11 @@ AppController::AppController(QObject* parent)
     connect(&m_cues, &CueModel::currentChanged, this, &AppController::refreshPreview);
     connect(&m_library, &LibraryModel::notification, this, &AppController::notification);
 
+    connect(&m_transition, &core::SceneTransitionEngine::changed, this, &AppController::sceneChanged);
+    connect(&m_showState, &core::ShowState::changed, this, &AppController::sceneChanged);
+    if (!m_show.document().slides.isEmpty())
+        m_showState.present(m_show.document().slides.first().id);
+
     m_clock.setInterval(1000);
     connect(&m_clock, &QTimer::timeout, this, &AppController::onTick);
     m_clock.start();
@@ -218,6 +223,12 @@ void AppController::next()
 {
     m_cues.nextSlide();
     m_service.nextItem();
+    playTransition();
+    const QVariantList list = slides();
+    const QString id = list.isEmpty() ? QString() : list.at(selectedSlideIndex()).toMap()
+                                            .value(QStringLiteral(u"id")).toString();
+    if (!id.isEmpty())
+        m_showState.present(id);
     m_api.broadcastState();
 }
 
@@ -225,12 +236,17 @@ void AppController::previous()
 {
     m_cues.previousSlide();
     m_service.previousItem();
+    playTransition();
     m_api.broadcastState();
 }
 
 void AppController::toggleClear()
 {
     setOutputCleared(!m_outputCleared);
+    if (m_outputCleared)
+        m_showState.clearAll();
+    else
+        m_showState.restoreAll();
     emit notification(m_outputCleared ? QStringLiteral(u"Output cleared")
                                       : QStringLiteral(u"Output restored"));
 }
@@ -280,6 +296,7 @@ void AppController::sendStageMessage(const QString& message)
     if (message.trimmed().isEmpty())
         return;
     m_stageMessage = message.trimmed();
+    m_showState.setStageMessage(m_stageMessage);
     emit stageChanged();
     emit notification(QStringLiteral(u"Message sent to stage"));
 }
@@ -365,8 +382,12 @@ void AppController::selectSlide(int index)
     const QVariantList list = slides();
     if (index < 0 || index >= list.size())
         return;
-    m_show.selectSlide(list.at(index).toMap().value(QStringLiteral(u"id")).toString());
+    const QString id = list.at(index).toMap().value(QStringLiteral(u"id")).toString();
+    m_show.selectSlide(id);
+    m_showState.present(id);
+    playTransition();
     emit editorChanged();
+    emit sceneChanged();
 }
 
 void AppController::selectObject(const QString& id)
@@ -479,9 +500,50 @@ bool AppController::openDocument(const QString& path)
     return true;
 }
 
+QVariantList AppController::renderLayers() const
+{
+    const core::RenderScene scene = m_sceneBuilder.build(
+        m_show, chordsVisible(), clockVisible(), serviceClock());
+    return core::SceneBuilder::sceneToQml(scene);
+}
+
+QString AppController::currentSlideName() const
+{
+    const core::RenderScene scene = m_sceneBuilder.build(m_show, true, true, serviceClock());
+    return scene.slideName;
+}
+
+QString AppController::transitionKind() const
+{
+    return m_transitionKind;
+}
+
+void AppController::setTransitionKind(const QString& value)
+{
+    if (m_transitionKind == value)
+        return;
+    m_transitionKind = value;
+    emit sceneChanged();
+}
+
+void AppController::setTransitionDuration(double value)
+{
+    value = qBound(0.05, value, 5.0);
+    if (qFuzzyCompare(m_transitionDuration, value))
+        return;
+    m_transitionDuration = value;
+    emit sceneChanged();
+}
+
+void AppController::playTransition()
+{
+    m_transition.start(m_transitionKind, m_transitionDuration);
+}
+
 void AppController::refreshPreview()
 {
     emit previewChanged();
+    emit sceneChanged();
     m_api.broadcastState();
 }
 
