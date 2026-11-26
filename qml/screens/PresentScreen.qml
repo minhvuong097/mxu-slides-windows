@@ -173,8 +173,18 @@ Item {
                             anchors.leftMargin: 4
                             anchors.rightMargin: 4
                             AppIcon { name: "plus"; size: 12; color: Theme.textDim }
-                            Text { text: "Add Item"; color: Theme.textDim; font.pixelSize: 11 }
-                            AppIcon { name: "chevronDown"; size: 12; color: Theme.textDim }
+                            Rectangle {
+                                Layout.preferredWidth: 92
+                                Layout.preferredHeight: 20
+                                color: "transparent"
+                                Row {
+                                    anchors.centerIn: parent
+                                    spacing: 5
+                                    Text { text: "Add Item"; color: Theme.textDim; font.pixelSize: 11 }
+                                    AppIcon { name: "chevronDown"; size: 12; color: Theme.textDim }
+                                }
+                                MouseArea { anchors.fill: parent; onClicked: addItemPopup.visible = true }
+                            }
                             Item { Layout.fillWidth: true; height: 1 }
                             Text { text: Mxu.serviceModel.itemCount + " items"; color: Theme.textDim; font.pixelSize: 11 }
                         }
@@ -817,6 +827,45 @@ Item {
                             wrapMode: Text.WordWrap
                             lineHeight: 1.35
                         }
+                    }
+                }
+            }
+        }
+    }
+
+    Rectangle {
+        id: addItemPopup
+        anchors.centerIn: parent
+        width: 320
+        height: 130
+        radius: 12
+        color: Theme.card
+        border.color: "#3a3a3e"
+        border.width: 1
+        visible: false
+        z: 20
+        Column {
+            anchors.fill: parent
+            anchors.margins: 14
+            spacing: 8
+            Text { text: "New service item"; color: Theme.text; font.pixelSize: 13; font.weight: Font.DemiBold }
+            TextField {
+                id: newItemName
+                width: parent.width
+                placeholderText: "Item name"
+                placeholderTextColor: Theme.textDim
+                color: Theme.text
+                font.pixelSize: 12
+                background: Rectangle { radius: 7; color: Theme.inset }
+            }
+            Rectangle {
+                width: 100; height: 28; radius: 9; color: Theme.accent
+                Text { anchors.centerIn: parent; text: "Add"; color: "white"; font.pixelSize: 11; font.weight: Font.DemiBold }
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: {
+                        if (Mxu.addServiceItem(newItemName.text, 0))
+                            addItemPopup.visible = false
                     }
                 }
             }

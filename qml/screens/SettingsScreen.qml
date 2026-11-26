@@ -284,6 +284,120 @@ Item {
             }
         }
 
+                Rectangle {
+                    visible: root.pane === "Stream and NDI"
+                    width: parent.width
+                    height: parent.height - 42
+                    radius: 10
+                    color: Theme.card
+                    Column {
+                        anchors.fill: parent
+                        anchors.margins: 12
+                        spacing: 6
+                        Row {
+                            width: parent.width
+                            height: 36
+                            spacing: 10
+                            Rectangle { width: 28; height: 28; radius: 6; color: Theme.purple
+                                AppIcon { anchors.centerIn: parent; name: "ndi"; size: 16; color: "white" } }
+                            Text { anchors.verticalCenter: parent.verticalCenter; text: "Stream and NDI"; color: Theme.text; font.pixelSize: 16; font.weight: Font.DemiBold }
+                        }
+                        Text { text: "OUTPUTS"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
+                        SettingField { width: parent.width; label: "NDI sender"; value: Mxu.ndiSender.available ? (Mxu.ndiSender.active ? "Sending" : "Ready") : "Unavailable" }
+                        SettingField { width: parent.width; label: "DeckLink"; value: Mxu.deckLinkOutput.available ? "Ready" : "Unavailable" }
+                        SettingField { width: parent.width; label: "Streaming"; value: Mxu.streaming.status }
+                        Text { text: "ACTIONS"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
+                        Row { spacing: 6
+                            Rectangle { width: 120; height: 28; radius: 9; color: Theme.accent
+                                Text { anchors.centerIn: parent; text: "Start stream"; color: "white"; font.pixelSize: 11; font.weight: Font.DemiBold }
+                                MouseArea { anchors.fill: parent; onClicked: Mxu.streaming.start("rtmp://localhost/live") } }
+                            Rectangle { width: 100; height: 28; radius: 9; color: Theme.surface
+                                Text { anchors.centerIn: parent; text: "Stop"; color: Theme.text; font.pixelSize: 11 }
+                                MouseArea { anchors.fill: parent; onClicked: Mxu.streaming.stop() } }
+                        }
+                    }
+                }
+
+                Rectangle {
+                    visible: root.pane === "MIDI and Timecode"
+                    width: parent.width
+                    height: parent.height - 42
+                    radius: 10
+                    color: Theme.card
+                    Column {
+                        anchors.fill: parent
+                        anchors.margins: 12
+                        spacing: 6
+                        Row {
+                            width: parent.width
+                            height: 36
+                            spacing: 10
+                            Rectangle { width: 28; height: 28; radius: 6; color: Theme.orange
+                                AppIcon { anchors.centerIn: parent; name: "clock"; size: 16; color: "white" } }
+                            Text { anchors.verticalCenter: parent.verticalCenter; text: "MIDI and Timecode"; color: Theme.text; font.pixelSize: 16; font.weight: Font.DemiBold }
+                        }
+                        Text { text: "TIMECODE"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
+                        Text { text: Mxu.automation.timecode; color: Theme.text; font.pixelSize: 32; font.weight: Font.DemiBold }
+                        SettingField { width: parent.width; label: "Source"; value: Mxu.automation.timecodeSource }
+                        Text { text: "MIDI"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
+                        SettingField { width: parent.width; label: "Input device"; value: Mxu.automation.midiAvailable ? "Connected" : "Not available" }
+                    }
+                }
+
+                Rectangle {
+                    visible: root.pane === "Shortcuts"
+                    width: parent.width
+                    height: parent.height - 42
+                    radius: 10
+                    color: Theme.card
+                    Column {
+                        anchors.fill: parent
+                        anchors.margins: 12
+                        spacing: 6
+                        Text { text: "Shortcuts"; color: Theme.text; font.pixelSize: 16; font.weight: Font.DemiBold }
+                        Repeater {
+                            model: Mxu.automation.triggers
+                            delegate: SettingField {
+                                width: parent.width
+                                label: modelData.action
+                                value: modelData.kind === "key" ? modelData.value : "MIDI " + modelData.value
+                            }
+                        }
+                        Row { spacing: 6
+                            Rectangle { width: 150; height: 28; radius: 9; color: Theme.accent
+                                Text { anchors.centerIn: parent; text: "Add F8 → next"; color: "white"; font.pixelSize: 11 }
+                                MouseArea { anchors.fill: parent; onClicked: Mxu.automation.addKeyTrigger("next", "F8") } }
+                        }
+                        Text { text: "Global: F5 present · F6 stage · Ctrl+K search · Ctrl+1…5 screens"; color: Theme.textDim; font.pixelSize: 11 }
+                    }
+                }
+
+                Rectangle {
+                    visible: root.pane === "General" || root.pane === "About"
+                    width: parent.width
+                    height: parent.height - 42
+                    radius: 10
+                    color: Theme.card
+                    Column {
+                        anchors.fill: parent
+                        anchors.margins: 12
+                        spacing: 8
+                        Text { text: root.pane; color: Theme.text; font.pixelSize: 16; font.weight: Font.DemiBold }
+                        Text { text: "MxU Slides for Windows"; color: Theme.text; font.pixelSize: 13 }
+                        SettingField { width: parent.width; label: "Version"; value: AppVersion }
+                        SettingField { width: parent.width; label: "Document"; value: "schemaVersion 161" }
+                        SettingField { width: parent.width; label: "Uptime"; value: Mxu.diagnostics.uptime }
+                        SettingField { width: parent.width; label: "Events"; value: Mxu.diagnostics.tickCount }
+                        Text {
+                            width: parent.width
+                            text: "Port of the macOS MxU Slides domain model. PolyForm Shield terms apply to the original source."
+                            color: Theme.textDim
+                            font.pixelSize: 11
+                            wrapMode: Text.WordWrap
+                        }
+                    }
+                }
+
         // ---------------- preview + status ----------------
         Rectangle {
             width: 260

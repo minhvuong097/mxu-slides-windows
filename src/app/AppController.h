@@ -157,6 +157,7 @@ public:
     QObject* syncLedger() { return &m_sync; }
     QObject* diagnostics() { return &m_diagnostics; }
     Q_INVOKABLE QVariantList search(const QString& query) const;
+    Q_INVOKABLE bool addServiceItem(const QString& name, int section);
     QString transitionKind() const;
     double transitionDuration() const { return m_transitionDuration; }
     void setTransitionKind(const QString& value);

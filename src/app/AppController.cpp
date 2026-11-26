@@ -608,6 +608,15 @@ QVariantList AppController::search(const QString& query) const
     return m_search.search(query);
 }
 
+bool AppController::addServiceItem(const QString& name, int section)
+{
+    if (!m_service.addItem(name, section))
+        return false;
+    m_search.rebuild(m_document, m_show);
+    emit notification(QStringLiteral(u"Added service item: %1").arg(name));
+    return true;
+}
+
 void AppController::onTick()
 {
     m_diagnostics.tick();
