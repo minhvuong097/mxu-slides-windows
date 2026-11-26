@@ -1,6 +1,8 @@
 # Lộ trình port MxU Slides macOS → Windows
 
-App macOS có quy mô lớn (Swift + packages + tests, ~240k dòng). Một bản port
+Số liệu đo từ `mxu-slides-main`: **251.796 dòng code**, **1.048 file Swift**
+(`apps/mac/Sources`: 93.058 dòng/198 file; `apps/mac/Packages`: 145.912 dòng/843 file,
+gồm cả tests; helpers: 637 dòng). Một bản port
 "ngang chức năng" không thể làm trong một bước; tài liệu này chia công việc
 theo package và xác định cái nào đã có, cái nào cần làm tiếp.
 
