@@ -465,6 +465,21 @@ Item {
                                 Text { anchors.centerIn: parent; text: "Ellipse mask"; color: "white"; font.pixelSize: 10 }
                                 MouseArea { anchors.fill: parent; onClicked: Mxu.outputMaskShape = "ellipse" } }
                         }
+                        Text { text: "TRANSITION"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
+                        Row { spacing: 6
+                            Rectangle { width: 60; height: 26; radius: 7; color: Mxu.transition.easing === "linear" ? Theme.accent : Theme.surface
+                                Text { anchors.centerIn: parent; text: "Linear"; color: "white"; font.pixelSize: 10 }
+                                MouseArea { anchors.fill: parent; onClicked: Mxu.transition.easing = "linear" } }
+                            Rectangle { width: 60; height: 26; radius: 7; color: Mxu.transition.easing === "in" ? Theme.accent : Theme.surface
+                                Text { anchors.centerIn: parent; text: "In"; color: "white"; font.pixelSize: 10 }
+                                MouseArea { anchors.fill: parent; onClicked: Mxu.transition.easing = "in" } }
+                            Rectangle { width: 60; height: 26; radius: 7; color: Mxu.transition.easing === "out" ? Theme.accent : Theme.surface
+                                Text { anchors.centerIn: parent; text: "Out"; color: "white"; font.pixelSize: 10 }
+                                MouseArea { anchors.fill: parent; onClicked: Mxu.transition.easing = "out" } }
+                            Rectangle { width: 70; height: 26; radius: 7; color: Mxu.transition.easing === "inOut" ? Theme.accent : Theme.surface
+                                Text { anchors.centerIn: parent; text: "In-Out"; color: "white"; font.pixelSize: 10 }
+                                MouseArea { anchors.fill: parent; onClicked: Mxu.transition.easing = "inOut" } }
+                        }
                         SettingField { width: parent.width; label: "Confidence layout"; value: Mxu.confidenceLayout.structure }
                         Row { spacing: 6
                             Rectangle { width: 96; height: 26; radius: 7; color: Theme.surface

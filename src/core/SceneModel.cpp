@@ -48,6 +48,10 @@ RenderScene SceneBuilder::build(const ShowDocument& show, bool showChords,
 {
     Q_UNUSED(showClock)
     Q_UNUSED(clockText)
+    auto escapeHtml = [](const QString& text) {
+        return text.toHtmlEscaped();
+    };
+
     RenderScene scene;
     scene.scaleMode = scaleMode;
     scene.maskMode = maskMode;
@@ -99,6 +103,39 @@ RenderScene SceneBuilder::build(const ShowDocument& show, bool showChords,
             item.fontSize = object.textStyle && object.textStyle->fontSize
                                 ? *object.textStyle->fontSize : 22.0;
             item.opacity = object.opacity.value_or(1.0);
+
+            if (object.styleRuns) {
+                for (const auto& run : *object.styleRuns) {
+                    item.styleRuns.append(QVariantMap{
+                        { QStringLiteral(u"line"), run.line },
+                        { QStringLiteral(u"column"), run.column },
+                        { QStringLiteral(u"length"), run.length },
+                        { QStringLiteral(u"fontSize"), run.fontSize.value_or(item.fontSize) },
+                        { QStringLiteral(u"color"), run.colorHex.value_or(item.colorHex) },
+                    });
+                }
+            }
+
+            const QStringList lines = item.text.split(QLatin1Char('\n'));
+            QStringList htmlLines;
+            for (qsizetype lineIndex = 0; lineIndex < lines.size(); ++lineIndex) {
+                QString line = escapeHtml(lines.at(lineIndex));
+                for (const QVariant& runValue : item.styleRuns) {
+                    const QVariantMap run = runValue.toMap();
+                    if (run.value(QStringLiteral(u"line")).toInt() != lineIndex)
+                        continue;
+                    const int start = qBound(0, run.value(QStringLiteral(u"column")).toInt(), line.size());
+                    const int length = qBound(0, run.value(QStringLiteral(u"length")).toInt(), line.size() - start);
+                    const QString color = run.value(QStringLiteral(u"color")).toString();
+                    if (length <= 0 || color.isEmpty())
+                        continue;
+                    const QString segment = line.mid(start, length);
+                    line.replace(start, length,
+                                 QStringLiteral(u"<span style='color:%1'>%2</span>").arg(color, segment));
+                }
+                htmlLines.append(line);
+            }
+            item.renderedHtml = htmlLines.join(QStringLiteral(u"<br>"));
             item.z = index++;
             if (showChords && object.chords) {
                 for (const auto& chord : *object.chords)
@@ -127,6 +164,8 @@ QVariantList SceneBuilder::sceneToQml(const RenderScene& scene)
                 { QStringLiteral(u"strokeColor"), item.strokeColor },
                 { QStringLiteral(u"strokeWidth"), item.strokeWidth },
                 { QStringLiteral(u"blendMode"), item.blendMode },
+                { QStringLiteral(u"styleRuns"), item.styleRuns },
+                { QStringLiteral(u"richText"), item.renderedHtml },
                 { QStringLiteral(u"chord"), item.chord },
                 { QStringLiteral(u"x"), item.x },
                 { QStringLiteral(u"y"), item.y },
@@ -163,18 +202,38 @@ SceneTransitionEngine::SceneTransitionEngine(QObject* parent)
     timer->start();
 }
 
+void SceneTransitionEngine::setEasing(const QString& value)
+{
+    if (m_easing == value)
+        return;
+    m_easing = value;
+    emit changed();
+}
+
+double SceneTransitionEngine::eased() const
+{
+    const double t = m_progress;
+    if (m_easing == QStringLiteral(u"in"))
+        return t * t;
+    if (m_easing == QStringLiteral(u"out"))
+        return 1.0 - (1.0 - t) * (1.0 - t);
+    if (m_easing == QStringLiteral(u"inOut"))
+        return t < 0.5 ? 2 * t * t : 1.0 - qPow(-2 * t + 2, 2) / 2.0;
+    return t;
+}
+
 double SceneTransitionEngine::outgoingOpacity() const
 {
     if (m_kind == model::TransitionKind::Cut)
         return m_progress < 1.0 ? 0.0 : 1.0;
-    return 1.0 - m_progress;
+    return 1.0 - eased();
 }
 
 double SceneTransitionEngine::incomingOpacity() const
 {
     if (m_kind == model::TransitionKind::Cut)
         return m_progress >= 1.0 ? 1.0 : 0.0;
-    return m_progress;
+    return eased();
 }
 
 QColor SceneTransitionEngine::curtainColor() const
@@ -196,7 +255,7 @@ double SceneTransitionEngine::curtainOpacity() const
     case model::TransitionKind::FadeWhite:
     case model::TransitionKind::FadeColor:
     case model::TransitionKind::FilmBurn:
-        return 1.0 - qAbs(0.5 - m_progress) * 2.0;
+        return 1.0 - qAbs(0.5 - eased()) * 2.0;
     default:
         return 0.0;
     }

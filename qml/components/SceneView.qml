@@ -47,7 +47,8 @@ Item {
                         visible: item.kind !== "shape"
                         anchors.centerIn: parent
                         width: parent.width
-                        text: item.text
+                        text: item.richText || item.text
+                        textFormat: Text.RichText
                         color: item.colorHex
                         font.pixelSize: item.fontSize * view.scaleY
                         font.family: Theme.fontFamily

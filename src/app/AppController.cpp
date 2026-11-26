@@ -4,6 +4,7 @@
 #include <QImage>
 #include <QPainter>
 #include <QPainterPath>
+#include <QTextDocument>
 #include <QScreen>
 #include <QTime>
 #include <QStandardPaths>
@@ -615,7 +616,18 @@ bool AppController::exportSlideImage(const QString& path)
             painter.setFont(font);
             painter.setPen(QColor(item.colorHex));
             QRectF rect(item.x, item.y, item.width, item.height);
-            painter.drawText(rect, Qt::AlignCenter | Qt::TextWordWrap, item.text);
+            if (!item.renderedHtml.isEmpty()) {
+                QTextDocument document;
+                document.setHtml(QStringLiteral(u"<div style='color:%1;'>%2</div>")
+                                     .arg(item.colorHex, item.renderedHtml));
+                document.setTextWidth(rect.width());
+                painter.save();
+                painter.translate(rect.x(), rect.y() + (rect.height() - document.size().height()) / 2);
+                document.drawContents(&painter);
+                painter.restore();
+            } else {
+                painter.drawText(rect, Qt::AlignCenter | Qt::TextWordWrap, item.text);
+            }
             if (!item.chord.isEmpty()) {
                 QFont chordFont = font;
                 chordFont.setPixelSize(static_cast<int>(item.fontSize * 0.7));

@@ -8,6 +8,7 @@
 #include <QObject>
 #include <QString>
 #include <QVariantList>
+#include <QVariantList>
 #include <QVariantMap>
 #include <QVector>
 
@@ -40,6 +41,8 @@ struct RenderItem
     QString strokeColor;
     double strokeWidth = 0;
     QString blendMode = QStringLiteral(u"normal");
+    QVariantList styleRuns;
+    QString renderedHtml;
     double x = 0;
     double y = 0;
     double width = 0;
@@ -86,6 +89,7 @@ class SceneTransitionEngine : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString kind READ kind NOTIFY changed)
+    Q_PROPERTY(QString easing READ easing WRITE setEasing NOTIFY changed)
     Q_PROPERTY(double progress READ progress NOTIFY changed)
     Q_PROPERTY(double outgoingOpacity READ outgoingOpacity NOTIFY changed)
     Q_PROPERTY(double incomingOpacity READ incomingOpacity NOTIFY changed)
@@ -97,6 +101,8 @@ public:
     explicit SceneTransitionEngine(QObject* parent = nullptr);
 
     QString kind() const { return transitionName(m_kind); }
+    QString easing() const { return m_easing; }
+    void setEasing(const QString& value);
     double progress() const { return m_progress; }
     double outgoingOpacity() const;
     double incomingOpacity() const;
@@ -114,10 +120,13 @@ signals:
 private slots:
     void tick();
 
+    double eased() const;
+
 private:
     model::TransitionKind m_kind = model::TransitionKind::Cut;
     double m_duration = 0.0;
     double m_progress = 1.0;
+    QString m_easing = QStringLiteral(u"inOut");
     bool m_running = false;
     QElapsedTimer m_clock;
 };
