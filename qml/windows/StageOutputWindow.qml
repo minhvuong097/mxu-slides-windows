@@ -7,6 +7,7 @@ import "qrc:/qml/components"
 Window {
     id: stage
     flags: Qt.Window | Qt.FramelessWindowHint
+            | (Mxu.outputs.alwaysOnTop ? Qt.WindowStaysOnTopHint : 0)
     screen: Qt.application.screens.length > Mxu.outputs.screenIndexFor("stage")
             ? Qt.application.screens[Mxu.outputs.screenIndexFor("stage")]
             : Qt.application.screens[0]
