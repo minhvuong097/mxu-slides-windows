@@ -176,6 +176,7 @@ public:
     QObject* diagnostics() { return &m_diagnostics; }
     Q_INVOKABLE QVariantList search(const QString& query) const;
     Q_INVOKABLE bool addServiceItem(const QString& name, int section);
+    Q_INVOKABLE bool openSearchResult(const QString& kind, const QString& ref);
     QString transitionKind() const;
     double transitionDuration() const { return m_transitionDuration; }
     void setTransitionKind(const QString& value);

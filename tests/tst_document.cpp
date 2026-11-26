@@ -37,6 +37,7 @@ private slots:
     void automationNotesAndImports();
     void searchSyncDiagnostics();
     void timelineBasic();
+    void searchNavigation();
 };
 
 void MxuDocumentTest::demoMatchesServiceFlow()
@@ -329,6 +330,16 @@ void MxuDocumentTest::timelineBasic()
     timeline.pause();
     QVERIFY(!timeline.playing());
     QVERIFY(timeline.removeCue(id));
+}
+
+void MxuDocumentTest::searchNavigation()
+{
+    app::AppController controller;
+    QVERIFY(controller.openSearchResult(QStringLiteral(u"cue"), QStringLiteral(u"Pre-roll")));
+    QCOMPARE(controller.screen(), QStringLiteral(u"present"));
+    QVERIFY(controller.openSearchResult(QStringLiteral(u"media"), QStringLiteral(u"Prayer night")));
+    QCOMPARE(controller.screen(), QStringLiteral(u"library"));
+    QVERIFY(!controller.openSearchResult(QStringLiteral(u"cue"), QStringLiteral(u"missing")));
 }
 
 int main(int argc, char** argv)

@@ -526,6 +526,36 @@ bool AppController::importPptx(const QString& path)
     return false;
 }
 
+bool AppController::openSearchResult(const QString& kind, const QString& ref)
+{
+    if (kind == QStringLiteral(u"cue")) {
+        const QVariantList cues = m_cues.property("cues").toList();
+        for (qsizetype i = 0; i < cues.size(); ++i) {
+            if (cues.at(i).toMap().value(QStringLiteral(u"title")).toString() != ref)
+                continue;
+            QMetaObject::invokeMethod(&m_cues, "selectCue", Q_ARG(int, static_cast<int>(i)));
+            setScreen(QStringLiteral(u"present"));
+            return true;
+        }
+    } else if (kind == QStringLiteral(u"slide")) {
+        const QVariantList list = slides();
+        for (qsizetype i = 0; i < list.size(); ++i) {
+            if (list.at(i).toMap().value(QStringLiteral(u"name")).toString() != ref)
+                continue;
+            selectSlide(static_cast<int>(i));
+            setScreen(QStringLiteral(u"edit"));
+            return true;
+        }
+    } else if (kind == QStringLiteral(u"media")) {
+        setScreen(QStringLiteral(u"library"));
+        return true;
+    } else if (kind == QStringLiteral(u"note")) {
+        setScreen(QStringLiteral(u"edit"));
+        return true;
+    }
+    return false;
+}
+
 void AppController::undo()
 {
     if (!m_show.canUndo())

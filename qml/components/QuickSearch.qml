@@ -77,7 +77,10 @@ Rectangle {
                     id: area
                     anchors.fill: parent
                     hoverEnabled: true
-                    onClicked: search.closeRequested()
+                    onClicked: {
+                        Mxu.openSearchResult(modelData.kind, modelData.ref)
+                        search.closeRequested()
+                    }
                 }
             }
         }
