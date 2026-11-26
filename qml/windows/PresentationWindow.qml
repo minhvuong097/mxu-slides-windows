@@ -8,8 +8,9 @@ import "qrc:/qml/components"
 Window {
     id: output
     flags: Qt.Window | Qt.FramelessWindowHint
-    screen: Qt.application.screens.length > 1
-            ? Qt.application.screens[1] : Qt.application.screens[0]
+    screen: Qt.application.screens.length > Mxu.outputs.screenIndexFor("main")
+            ? Qt.application.screens[Mxu.outputs.screenIndexFor("main")]
+            : Qt.application.screens[0]
     visibility: Mxu.presenting ? Window.FullScreen : Window.Hidden
     color: "black"
     title: "MxU Slides — Output"

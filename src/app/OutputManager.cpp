@@ -91,6 +91,20 @@ bool OutputManager::assign(const QString& role, int screenIndex)
     return true;
 }
 
+int OutputManager::screenIndexFor(const QString& role) const
+{
+    const QString current = assignment(role);
+    const QVariantList list = screens();
+    for (int i = 0; i < list.size(); ++i) {
+        const QString name = QStringLiteral(u"Display %1").arg(i + 1);
+        if (current.contains(name))
+            return i;
+    }
+    const int fallback = role == QStringLiteral(u"main") ? 1
+                         : role == QStringLiteral(u"stage") ? 2 : 0;
+    return fallback < list.size() ? fallback : 0;
+}
+
 void OutputManager::cycleScreen(const QString& role)
 {
     const int count = screens().size();

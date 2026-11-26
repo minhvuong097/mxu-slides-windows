@@ -33,6 +33,7 @@ public:
 public slots:
     bool assign(const QString& role, int screenIndex);
     void cycleScreen(const QString& role);
+    Q_INVOKABLE int screenIndexFor(const QString& role) const;
     void identify();
 
 signals:

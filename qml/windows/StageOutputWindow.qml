@@ -7,8 +7,9 @@ import "qrc:/qml/components"
 Window {
     id: stage
     flags: Qt.Window | Qt.FramelessWindowHint
-    screen: Qt.application.screens.length > 2
-            ? Qt.application.screens[2] : Qt.application.screens[0]
+    screen: Qt.application.screens.length > Mxu.outputs.screenIndexFor("stage")
+            ? Qt.application.screens[Mxu.outputs.screenIndexFor("stage")]
+            : Qt.application.screens[0]
     visibility: Mxu.stageOutputVisible ? Window.FullScreen : Window.Hidden
     color: "black"
     title: "MxU Slides — Stage"

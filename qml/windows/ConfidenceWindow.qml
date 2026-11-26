@@ -7,8 +7,9 @@ import "qrc:/qml/components"
 Window {
     id: monitor
     flags: Qt.Window | Qt.FramelessWindowHint
-    screen: Qt.application.screens.length > 2
-            ? Qt.application.screens[2] : Qt.application.screens[0]
+    screen: Qt.application.screens.length > Mxu.outputs.screenIndexFor("confidence")
+            ? Qt.application.screens[Mxu.outputs.screenIndexFor("confidence")]
+            : Qt.application.screens[0]
     visibility: Mxu.confidenceVisible ? Window.FullScreen : Window.Hidden
     color: "black"
     title: "MxU Slides — Confidence"
