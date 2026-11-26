@@ -9,6 +9,7 @@
 #include "Models.h"
 #include "NotesService.h"
 #include "OutputManager.h"
+#include "OutputPresetService.h"
 #include "api/LocalApiServer.h"
 #include "api/OutputBackends.h"
 #include "api/StreamingService.h"
@@ -88,6 +89,7 @@ class AppController : public QObject
     Q_PROPERTY(QObject* mediaService READ mediaService CONSTANT)
     Q_PROPERTY(QObject* audioService READ audioService CONSTANT)
     Q_PROPERTY(QObject* outputs READ outputs CONSTANT)
+    Q_PROPERTY(QObject* outputPresets READ outputPresets CONSTANT)
     Q_PROPERTY(QObject* ndiSender READ ndiSender CONSTANT)
     Q_PROPERTY(QObject* deckLinkOutput READ deckLinkOutput CONSTANT)
     Q_PROPERTY(QObject* streaming READ streaming CONSTANT)
@@ -164,6 +166,7 @@ public:
     QObject* audioService() { return &m_audio; }
     QVariantList audioChannels() const;
     QObject* outputs() { return &m_outputs; }
+    QObject* outputPresets() { return &m_outputPresets; }
     QObject* ndiSender() { return &m_ndi; }
     QObject* deckLinkOutput() { return &m_decklink; }
     QObject* streaming() { return &m_streaming; }
@@ -258,6 +261,7 @@ private:
     MediaService m_media;
     AudioService m_audio;
     OutputManager m_outputs;
+    OutputPresetService m_outputPresets;
     api::NdiSender m_ndi;
     api::DeckLinkOutput m_decklink;
     api::StreamingService m_streaming;

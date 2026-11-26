@@ -258,6 +258,11 @@ Item {
                     Text { anchors.centerIn: parent; text: "Set as background"; color: Theme.text; font.pixelSize: 12 }
                     MouseArea { anchors.fill: parent; onClicked: Mxu.mediaService.setBackground(Mxu.libraryModel.selectedItem.name) }
                 }
+                Rectangle {
+                    width: parent.width; height: 28; radius: 9; color: "#3a2326"
+                    Text { anchors.centerIn: parent; text: "Remove"; color: Theme.pink; font.pixelSize: 11 }
+                    MouseArea { anchors.fill: parent; onClicked: Mxu.mediaService.removeMedia(Mxu.libraryModel.selectedIndex) }
+                }
             }
         }
     }

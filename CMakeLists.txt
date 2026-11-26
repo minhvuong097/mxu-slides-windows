@@ -82,6 +82,8 @@ qt_add_library(mxu_shell STATIC
     src/app/AlertsService.cpp
     src/app/TimelineService.h
     src/app/TimelineService.cpp
+    src/app/OutputPresetService.h
+    src/app/OutputPresetService.cpp
     src/api/StreamingService.h
     src/api/StreamingService.cpp
 )

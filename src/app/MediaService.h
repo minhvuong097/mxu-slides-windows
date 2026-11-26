@@ -34,6 +34,7 @@ public slots:
     int importFolder(const QString& path);
     bool setBackground(const QString& id);
     bool addToServiceFlow(const QString& id);
+    bool removeMedia(int index);
 
 signals:
     void changed();

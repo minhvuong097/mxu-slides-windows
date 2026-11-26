@@ -61,6 +61,8 @@ AppController::AppController(QObject* parent)
     connect(&m_audio, &AudioService::notification, this, &AppController::notification);
     connect(&m_audio, &AudioService::changed, this, &AppController::audioChanged);
     connect(&m_outputs, &OutputManager::notification, this, &AppController::notification);
+    m_outputPresets.attach(&m_outputs);
+    connect(&m_outputPresets, &OutputPresetService::notification, this, &AppController::notification);
     m_automation.attach(this);
     connect(&m_automation, &AutomationService::notification, this, &AppController::notification);
     connect(&m_alerts, &AlertsService::notification, this, &AppController::notification);

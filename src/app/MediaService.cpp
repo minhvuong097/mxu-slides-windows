@@ -181,6 +181,19 @@ bool MediaService::addToServiceFlow(const QString& id)
     return true;
 }
 
+bool MediaService::removeMedia(int index)
+{
+    if (!m_document || index < 0 || index >= m_document->media.size())
+        return false;
+    const QString name = m_document->media[index].name;
+    m_document->media.removeAt(index);
+    m_thumbnails.remove(QString::number(index));
+    m_paths.remove(QString::number(index));
+    refresh();
+    emit notification(QStringLiteral(u"Removed %1").arg(name));
+    return true;
+}
+
 void MediaService::refresh()
 {
     m_items.clear();
