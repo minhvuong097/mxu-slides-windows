@@ -172,6 +172,8 @@ void MxuDocumentTest::mediaAndAudio()
     QCOMPARE(audio.channels().size(), 1);
     QVERIFY(audio.toggleMute(channel));
     QVERIFY(audio.setVolume(channel, 0.5));
+    const QString second = audio.addChannel(QStringLiteral(u"Second"), imagePath);
+    QVERIFY(audio.crossfade(channel, second, 0.1));
     QVERIFY(audio.stop(channel));
     audio.stopAll();
 }

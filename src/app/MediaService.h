@@ -4,6 +4,8 @@
 
 #include <QHash>
 #include <QObject>
+#include <QVideoFrame>
+#include <QVideoSink>
 #include <QString>
 #include <QVariantList>
 
@@ -39,6 +41,7 @@ signals:
 
 private:
     QString thumbnailFor(const QString& id, const QString& path, bool isVideo);
+    bool grabVideoFrame(const QString& path, const QString& target);
     void refresh();
 
     core::Document* m_document = nullptr;

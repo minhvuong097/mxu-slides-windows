@@ -1,6 +1,7 @@
 #include "AudioService.h"
 
 #include <QFileInfo>
+#include <QPointer>
 #include <QUrl>
 #include <QUuid>
 
@@ -151,6 +152,33 @@ bool AudioService::toggleMute(const QString& id)
     channel->muted = !channel->muted;
     applyRouting();
     emit changed();
+    return true;
+}
+
+bool AudioService::crossfade(const QString& fromId, const QString& toId, double seconds)
+{
+    Channel* from = find(fromId);
+    Channel* to = find(toId);
+    if (!from || !to || !from->output || !to->output)
+        return false;
+    if (to->player)
+        to->player->play();
+
+    const int duration = qBound(50, static_cast<int>(seconds * 1000), 10000);
+    auto* fadeOut = new QPropertyAnimation(from->output, "volume", this);
+    fadeOut->setDuration(duration);
+    fadeOut->setStartValue(from->volume);
+    fadeOut->setEndValue(0.0);
+    auto* fadeIn = new QPropertyAnimation(to->output, "volume", this);
+    fadeIn->setDuration(duration);
+    fadeIn->setStartValue(0.0);
+    fadeIn->setEndValue(to->volume);
+    fadeOut->start(QAbstractAnimation::DeleteWhenStopped);
+    fadeIn->start(QAbstractAnimation::DeleteWhenStopped);
+    QObject::connect(fadeOut, &QPropertyAnimation::finished, this, [this, fromId]() {
+        stop(fromId);
+    });
+    emit notification(QStringLiteral(u"Crossfade %1 → %2").arg(from->name, to->name));
     return true;
 }
 

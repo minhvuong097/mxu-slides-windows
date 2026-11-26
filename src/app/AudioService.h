@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QPropertyAnimation>
 #include <QAudioOutput>
 #include <QMediaPlayer>
 #include <QObject>
@@ -31,6 +32,7 @@ public slots:
     bool setVolume(const QString& id, double volume);
     bool toggleMute(const QString& id);
     bool toggleSolo(const QString& id);
+    bool crossfade(const QString& fromId, const QString& toId, double seconds);
 
 signals:
     void changed();

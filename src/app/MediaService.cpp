@@ -4,8 +4,13 @@
 #include <QFileInfo>
 #include <QImage>
 #include <QImageReader>
+#include <QMediaPlayer>
+#include <QTimer>
+#include <QVideoSink>
+#include <QEventLoop>
 #include <QPainter>
 #include <QStandardPaths>
+#include <QUrl>
 #include <QUuid>
 
 namespace mxu::app {
@@ -32,6 +37,11 @@ QString MediaService::thumbnailFor(const QString& id, const QString& path, bool 
                             + QStringLiteral(u"/thumbs");
     QDir().mkpath(dirPath);
     const QString target = dirPath + QStringLiteral(u"/") + id + QStringLiteral(u".png");
+
+    if (isVideo && grabVideoFrame(path, target)) {
+        m_status = QStringLiteral(u"Video frame captured");
+        return QUrl::fromLocalFile(target).toString();
+    }
 
     if (!isVideo) {
         QImageReader reader(path);
@@ -63,6 +73,34 @@ QString MediaService::thumbnailFor(const QString& id, const QString& path, bool 
     m_status = isVideo ? QStringLiteral(u"Video placeholder — frame grab pending")
                        : QStringLiteral(u"Thumbnail unavailable");
     return QUrl::fromLocalFile(target).toString();
+}
+
+
+bool MediaService::grabVideoFrame(const QString& path, const QString& target)
+{
+    QMediaPlayer player;
+    QVideoSink sink;
+    player.setVideoSink(&sink);
+    QEventLoop loop;
+    QTimer timeout;
+    timeout.setSingleShot(true);
+    timeout.setInterval(3000);
+    QImage frame;
+    QObject::connect(&sink, &QVideoSink::videoFrameChanged, &loop, [&](const QVideoFrame& videoFrame) {
+        if (!videoFrame.isValid())
+            return;
+        frame = videoFrame.toImage();
+        loop.quit();
+    });
+    QObject::connect(&timeout, &QTimer::timeout, &loop, [&loop]() { loop.quit(); });
+    player.setSource(QUrl::fromLocalFile(path));
+    timeout.start();
+    player.play();
+    loop.exec();
+    player.stop();
+    if (frame.isNull())
+        return false;
+    return frame.scaled(320, 180, Qt::KeepAspectRatio, Qt::SmoothTransformation).save(target);
 }
 
 QString MediaService::importFile(const QString& path)
