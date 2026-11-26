@@ -386,6 +386,23 @@ Item {
                         Text { text: "MxU Slides for Windows"; color: Theme.text; font.pixelSize: 13 }
                         SettingField { width: parent.width; label: "Version"; value: AppVersion }
                         SettingField { width: parent.width; label: "Document"; value: "schemaVersion 161" }
+                        SettingRow {
+                            width: parent.width; label: "Auto-advance slides"; toggle: true
+                            checked: Mxu.autoAdvance
+                            onToggled: Mxu.autoAdvance = value
+                        }
+                        Row {
+                            spacing: 6
+                            Text { anchors.verticalCenter: parent.verticalCenter; text: "Seconds per slide"; color: Theme.text; font.pixelSize: 12 }
+                            TextField {
+                                width: 60
+                                text: String(Mxu.autoAdvanceSeconds)
+                                color: Theme.text
+                                font.pixelSize: 12
+                                background: Rectangle { radius: 7; color: Theme.inset }
+                                onEditingFinished: Mxu.autoAdvanceSeconds = Number(text)
+                            }
+                        }
                         SettingField { width: parent.width; label: "Uptime"; value: Mxu.diagnostics.uptime }
                         SettingField { width: parent.width; label: "Events"; value: Mxu.diagnostics.tickCount }
                         Text {

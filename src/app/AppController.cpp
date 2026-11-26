@@ -80,6 +80,14 @@ AppController::AppController(QObject* parent)
     if (!m_show.document().slides.isEmpty())
         m_showState.present(m_show.document().slides.first().id);
 
+    m_autoAdvanceTimer.setSingleShot(true);
+    connect(&m_autoAdvanceTimer, &QTimer::timeout, this, [this]() {
+        if (m_autoAdvance) {
+            next();
+            scheduleAutoAdvance();
+        }
+    });
+
     m_clock.setInterval(1000);
     connect(&m_clock, &QTimer::timeout, this, &AppController::onTick);
     m_clock.start();
@@ -104,6 +112,8 @@ void AppController::loadSettings()
         QStringLiteral(u"mxu/") + key, m_document.settings.value(key))));
     m_stageLayout = m_store.value(QStringLiteral(u"mxu/stageLayout"), m_stageLayout).toString();
     m_lyricsFontSize = m_store.value(QStringLiteral(u"mxu/lyricsFontSize"), m_lyricsFontSize).toInt();
+    m_autoAdvance = m_store.value(QStringLiteral(u"mxu/autoAdvance"), false).toBool();
+    m_autoAdvanceSeconds = m_store.value(QStringLiteral(u"mxu/autoAdvanceSeconds"), 5).toInt();
 }
 
 void AppController::persistSettings()
@@ -347,6 +357,39 @@ void AppController::setOutputCleared(bool value)
     m_outputCleared = value;
     emit outputChanged();
     m_api.broadcastState();
+}
+
+void AppController::setAutoAdvance(bool value)
+{
+    if (m_autoAdvance == value)
+        return;
+    m_autoAdvance = value;
+    m_store.setValue(QStringLiteral(u"mxu/autoAdvance"), value);
+    if (value)
+        scheduleAutoAdvance();
+    else
+        m_autoAdvanceTimer.stop();
+    emit timerChanged();
+    emit notification(value ? QStringLiteral(u"Auto-advance on") : QStringLiteral(u"Auto-advance off"));
+}
+
+void AppController::setAutoAdvanceSeconds(int value)
+{
+    value = qBound(1, value, 120);
+    if (m_autoAdvanceSeconds == value)
+        return;
+    m_autoAdvanceSeconds = value;
+    m_store.setValue(QStringLiteral(u"mxu/autoAdvanceSeconds"), value);
+    if (m_autoAdvance)
+        scheduleAutoAdvance();
+    emit timerChanged();
+}
+
+void AppController::scheduleAutoAdvance()
+{
+    if (!m_autoAdvance)
+        return;
+    m_autoAdvanceTimer.start(m_autoAdvanceSeconds * 1000);
 }
 
 void AppController::setConfidenceVisible(bool value)
@@ -614,6 +657,7 @@ void AppController::playTransition()
 
 void AppController::refreshPreview()
 {
+    scheduleAutoAdvance();
     emit previewChanged();
     emit sceneChanged();
     m_api.broadcastState();

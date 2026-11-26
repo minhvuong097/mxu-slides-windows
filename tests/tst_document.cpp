@@ -84,6 +84,11 @@ void MxuDocumentTest::controllerNavigation()
     controller.setSetting(QStringLiteral(u"ndiOutput"), false);
     QVERIFY(!controller.setting(QStringLiteral(u"ndiOutput")).toBool());
     QCOMPARE(controller.serviceTimerText(), QStringLiteral(u"2:35"));
+    controller.setAutoAdvance(true);
+    QVERIFY(controller.autoAdvance());
+    controller.setAutoAdvanceSeconds(3);
+    QCOMPARE(controller.autoAdvanceSeconds(), 3);
+    controller.setAutoAdvance(false);
 }
 
 void MxuDocumentTest::slideObjectUndoRedo()

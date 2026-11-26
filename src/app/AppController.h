@@ -68,6 +68,8 @@ class AppController : public QObject
     Q_PROPERTY(bool stageOutputVisible READ stageOutputVisible WRITE setStageOutputVisible NOTIFY outputChanged)
     Q_PROPERTY(bool outputCleared READ outputCleared WRITE setOutputCleared NOTIFY outputChanged)
     Q_PROPERTY(bool confidenceVisible READ confidenceVisible WRITE setConfidenceVisible NOTIFY outputChanged)
+    Q_PROPERTY(bool autoAdvance READ autoAdvance WRITE setAutoAdvance NOTIFY timerChanged)
+    Q_PROPERTY(int autoAdvanceSeconds READ autoAdvanceSeconds WRITE setAutoAdvanceSeconds NOTIFY timerChanged)
 
     Q_PROPERTY(QVariantList slides READ slides NOTIFY editorChanged)
     Q_PROPERTY(QVariantList slideObjects READ slideObjects NOTIFY editorChanged)
@@ -136,6 +138,10 @@ public:
     bool stageOutputVisible() const { return m_stageOutputVisible; }
     bool outputCleared() const { return m_outputCleared; }
     bool confidenceVisible() const { return m_confidenceVisible; }
+    bool autoAdvance() const { return m_autoAdvance; }
+    int autoAdvanceSeconds() const { return m_autoAdvanceSeconds; }
+    void setAutoAdvance(bool value);
+    void setAutoAdvanceSeconds(int value);
 
     QVariantList slides() const;
     QVariantList slideObjects() const;
@@ -212,6 +218,7 @@ signals:
     void screenChanged();
     void tick();
     void timersChanged();
+    void timerChanged();
     void stageChanged();
     void previewChanged();
     void apiChanged();
@@ -229,6 +236,7 @@ private slots:
 private:
     void loadSettings();
     void persistSettings();
+    void scheduleAutoAdvance();
     static QString duration(int seconds);
 
     core::Document m_document;
@@ -256,6 +264,7 @@ private:
     api::LocalApiServer m_api;
     QSettings m_store;
     QTimer m_clock;
+    QTimer m_autoAdvanceTimer;
 
     QString m_screen = QStringLiteral(u"present");
     QString m_documentPath;
@@ -269,6 +278,8 @@ private:
     bool m_stageOutputVisible = false;
     bool m_outputCleared = false;
     bool m_confidenceVisible = false;
+    bool m_autoAdvance = false;
+    int m_autoAdvanceSeconds = 5;
 };
 
 } // namespace mxu::app
