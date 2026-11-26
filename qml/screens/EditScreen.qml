@@ -58,7 +58,8 @@ Item {
                         Repeater {
                             model: Mxu.slides
                             delegate: Item {
-                                property int slideIndex: modelData.index !== undefined ? modelData.index : index
+                                id: slideRow
+                                property int slideIndex: index
                                 width: rail.width
                                 height: thumb.height + 16
                                 Rectangle {
@@ -84,6 +85,15 @@ Item {
                                     }
                                     MouseArea {
                                         anchors.fill: parent
+                                        drag.target: slideRow
+                                        drag.axis: Drag.YAxis
+                                        drag.smoothed: false
+                                        onReleased: {
+                                            const target = Math.max(0, Math.min(Mxu.slides.length - 1,
+                                                Math.round(slideRow.y / (thumb.height + 8))))
+                                            Mxu.moveSlide(index, target)
+                                            slideRow.y = index * (thumb.height + 8)
+                                        }
                                         onClicked: Mxu.selectSlide(index)
                                     }
                                 }

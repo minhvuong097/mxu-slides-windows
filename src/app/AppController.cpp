@@ -535,6 +535,19 @@ bool AppController::moveServiceItem(int from, int to)
     return true;
 }
 
+bool AppController::moveSlide(int from, int to)
+{
+    const QVariantList list = slides();
+    if (from < 0 || to < 0 || from >= list.size() || to >= list.size() || from == to)
+        return false;
+    if (!m_show.moveSlide(list.at(from).toMap().value(QStringLiteral(u"id")).toString(), to - from))
+        return false;
+    m_search.rebuild(m_document, m_show);
+    emit editorChanged();
+    emit sceneChanged();
+    return true;
+}
+
 bool AppController::openSearchResult(const QString& kind, const QString& ref)
 {
     if (kind == QStringLiteral(u"cue")) {
