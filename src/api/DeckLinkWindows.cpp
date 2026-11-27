@@ -1,11 +1,22 @@
 #include "DeckLinkWindows.h"
 
-#ifdef Q_OS_WIN
+#include <QSize>
+#include <cstring>
+
+// The native path needs the *Windows* Blackmagic DeckLink SDK headers (COM/MIDL
+// generated, CLSID_CDeckLinkIterator, BSTR strings). The headers under
+// vendor/decklink are the macOS flavour (CoreFoundation) and cannot be used
+// here, so the real backend is opt-in: configure with -DMXU_ENABLE_DECKLINK=ON
+// and -DDECKLINK_SDK_INCLUDE_DIR=<Windows SDK>/Win/include.
+#if defined(Q_OS_WIN) && defined(MXU_HAS_DECKLINK_SDK)
+#define MXU_DECKLINK_NATIVE 1
 #define INITGUID
 #include <windows.h>
 #include <objbase.h>
+#include <comdef.h>
 #include "DeckLinkAPI.h"
 #pragma comment(lib, "ole32.lib")
+#pragma comment(lib, "oleaut32.lib")
 #pragma comment(lib, "uuid.lib")
 #endif
 
@@ -24,7 +35,7 @@ DeckLinkWindows::~DeckLinkWindows()
 
 bool DeckLinkWindows::available() const
 {
-#ifdef Q_OS_WIN
+#ifdef MXU_DECKLINK_NATIVE
     return true;
 #else
     return false;
@@ -34,21 +45,22 @@ bool DeckLinkWindows::available() const
 void DeckLinkWindows::refresh()
 {
     m_devices.clear();
-#ifdef Q_OS_WIN
+#ifdef MXU_DECKLINK_NATIVE
     CoInitializeEx(nullptr, COINIT_MULTITHREADED);
     IDeckLinkIterator* iterator = nullptr;
-    if (CoCreateInstance(CLSID_DeckLinkIterator, nullptr, CLSCTX_ALL,
-                         IID_IDeckLinkIterator, reinterpret_cast<void**>(&iterator)) != S_OK)
+    if (CoCreateInstance(CLSID_CDeckLinkIterator, nullptr, CLSCTX_ALL,
+                         IID_IDeckLinkIterator, reinterpret_cast<void**>(&iterator)) != S_OK) {
+        emit changed();
         return;
+    }
     IDeckLink* device = nullptr;
     int index = 0;
     while (iterator->Next(&device) == S_OK) {
-        IDeckLinkDisplayMode* mode = nullptr;
         QString name = QStringLiteral(u"DeckLink %1").arg(index + 1);
-        if (device->GetDisplayName(&mode) == S_OK && mode) {
-            // GetDisplayName returns a string via IDeckLinkString in newer SDKs;
-            // fall back to index-based naming for compatibility.
-            mode->Release();
+        BSTR displayName = nullptr;
+        if (device->GetDisplayName(&displayName) == S_OK && displayName) {
+            name = QString::fromWCharArray(displayName);
+            SysFreeString(displayName);
         }
         m_devices.append(QVariantMap{
             { QStringLiteral(u"index"), index },
@@ -69,11 +81,11 @@ void DeckLinkWindows::refresh()
 
 bool DeckLinkWindows::start(int index)
 {
-#ifdef Q_OS_WIN
+#ifdef MXU_DECKLINK_NATIVE
     if (m_active)
         return true;
     IDeckLinkIterator* iterator = nullptr;
-    if (CoCreateInstance(CLSID_DeckLinkIterator, nullptr, CLSCTX_ALL,
+    if (CoCreateInstance(CLSID_CDeckLinkIterator, nullptr, CLSCTX_ALL,
                          IID_IDeckLinkIterator, reinterpret_cast<void**>(&iterator)) != S_OK)
         return false;
     IDeckLink* device = nullptr;
@@ -95,7 +107,7 @@ bool DeckLinkWindows::start(int index)
     if (output->EnableVideoOutput(bmdModeHD1080p2997, bmdVideoOutputFlagDefault) != S_OK) {
         output->Release();
         device->Release();
-        emit errorOccurred(QStringLiteral(u"Cannot enable DeckLink video output"));
+        emit errorOccurred(QStringLiteral(u"Cannot enable DeckLink video output (1080p29.97)"));
         return false;
     }
     m_output = output;
@@ -106,14 +118,14 @@ bool DeckLinkWindows::start(int index)
     return true;
 #else
     Q_UNUSED(index)
-    emit errorOccurred(QStringLiteral(u"DeckLink is available on Windows only"));
+    emit errorOccurred(QStringLiteral(u"DeckLink support is not built in (enable MXU_ENABLE_DECKLINK with the Windows SDK)"));
     return false;
 #endif
 }
 
 void DeckLinkWindows::stop()
 {
-#ifdef Q_OS_WIN
+#ifdef MXU_DECKLINK_NATIVE
     if (!m_output)
         return;
     auto* output = static_cast<IDeckLinkOutput*>(m_output);
@@ -132,19 +144,23 @@ void DeckLinkWindows::stop()
 
 bool DeckLinkWindows::sendFrame(const QImage& input)
 {
-#ifdef Q_OS_WIN
+#ifdef MXU_DECKLINK_NATIVE
     if (!m_output || input.isNull())
         return false;
-    const QImage frame = input.convertToFormat(QImage::Format_ARGB32);
+    // Output mode is fixed at 1080p29.97 (see start()), so always send 1920x1080.
+    const QImage frame = input.size() == QSize(1920, 1080)
+        ? input.convertToFormat(QImage::Format_ARGB32)
+        : input.scaled(1920, 1080, Qt::IgnoreAspectRatio, Qt::SmoothTransformation)
+              .convertToFormat(QImage::Format_ARGB32);
     auto* output = static_cast<IDeckLinkOutput*>(m_output);
     IDeckLinkMutableVideoFrame* videoFrame = nullptr;
     if (output->CreateVideoFrame(frame.width(), frame.height(), frame.bytesPerLine(),
                                  bmdFormat8BitBGRA, bmdFrameFlagDefault, &videoFrame) != S_OK)
         return false;
     void* bytes = nullptr;
-    if (videoFrame->GetBytes(&bytes) == S_OK)
+    if (videoFrame->GetBytes(&bytes) == S_OK && bytes)
         memcpy(bytes, frame.constBits(), static_cast<size_t>(frame.sizeInBytes()));
-    const auto result = output->ScheduleVideoFrame(videoFrame, 0, 0, 90000);
+    const HRESULT result = output->DisplayVideoFrameSync(videoFrame);
     videoFrame->Release();
     return result == S_OK;
 #else

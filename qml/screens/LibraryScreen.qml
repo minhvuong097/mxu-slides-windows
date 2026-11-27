@@ -109,14 +109,14 @@ Item {
                 RowLayout {
                     width: parent.width
                     height: 32
-                    Item { Layout.fillWidth: true; height: 1 }
+                    Item { Layout.fillWidth: true; Layout.preferredHeight: 1 }
                     Segmented {
                         id: libraryMode
                         model: ["Edit", "Present", "Stage"]
                         currentIndex: -1
                         onActivated: Mxu.setScreen(["edit", "present", "stage"][index])
                     }
-                    Item { Layout.fillWidth: true; height: 1 }
+                    Item { Layout.fillWidth: true; Layout.preferredHeight: 1 }
                     PillButton { icon: "record"; iconSize: 16; onClicked: Mxu.toggleRecording() }
                 }
 
@@ -132,7 +132,7 @@ Item {
                         Text { text: "Drive"; color: Theme.textDim; font.pixelSize: 13 }
                         Text { text: "/"; color: Theme.textDim; font.pixelSize: 13 }
                         Text { text: Mxu.libraryModel.category; color: Theme.text; font.pixelSize: 13 }
-                        Item { Layout.fillWidth: true; height: 1 }
+                        Item { Layout.fillWidth: true; Layout.preferredHeight: 1 }
                         Rectangle {
                             radius: 7; color: Theme.surface
                             implicitWidth: 62; implicitHeight: 28
@@ -236,15 +236,15 @@ Item {
                 Text { text: "INFO"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
                 RowLayout { width: parent.width
                     Text { text: "Type"; color: Theme.textDim; font.pixelSize: 12 }
-                    Item { Layout.fillWidth: true; height: 1 }
+                    Item { Layout.fillWidth: true; Layout.preferredHeight: 1 }
                     Text { text: Mxu.libraryModel.selectedItem.type; color: Theme.text; font.pixelSize: 12 } }
                 RowLayout { width: parent.width
                     Text { text: "Size"; color: Theme.textDim; font.pixelSize: 12 }
-                    Item { Layout.fillWidth: true; height: 1 }
+                    Item { Layout.fillWidth: true; Layout.preferredHeight: 1 }
                     Text { text: Mxu.libraryModel.selectedItem.size; color: Theme.text; font.pixelSize: 12 } }
                 RowLayout { width: parent.width
                     Text { text: "File"; color: Theme.textDim; font.pixelSize: 12 }
-                    Item { Layout.fillWidth: true; height: 1 }
+                    Item { Layout.fillWidth: true; Layout.preferredHeight: 1 }
                     Text { text: Mxu.libraryModel.selectedItem.fileSize; color: Theme.text; font.pixelSize: 12 } }
 
                 Text { text: "ACTIONS"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }

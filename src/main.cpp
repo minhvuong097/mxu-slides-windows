@@ -7,21 +7,25 @@
 #include <QQmlContext>
 #include <QIcon>
 #include <QCommandLineParser>
+#include <QQuickStyle>
 
 int main(int argc, char* argv[])
 {
-    qmlRegisterType<mxu::ui::ScenePaintedItem>("Mxu.Scene", 1, 0, "SceneSurface");
+    // Custom-styled controls (ComboBox/TextField backgrounds) need a style that
+    // supports customization; the native Windows styles do not.
+    QQuickStyle::setStyle(QStringLiteral(u"Basic"));
 
     QGuiApplication app(argc, argv);
+    qmlRegisterType<mxu::ui::ScenePaintedItem>("Mxu.Scene", 1, 0, "SceneSurface");
     app.setApplicationName(QStringLiteral(u"MxU Slides"));
-    app.setApplicationDisplayName(QStringLiteral(u"MxU Slides"));
+    app.setApplicationDisplayName(QStringLiteral(u"ProSlides"));
     app.setOrganizationName(QStringLiteral(u"MxU"));
     app.setOrganizationDomain(QStringLiteral(u"mxu.app"));
     app.setApplicationVersion(QStringLiteral(u"0.1.0"));
     QGuiApplication::setWindowIcon(QIcon(QStringLiteral(u":/resources/icons/appicon.ico")));
 
     QCommandLineParser parser;
-    parser.setApplicationDescription(QStringLiteral(u"MxU Slides for Windows"));
+    parser.setApplicationDescription(QStringLiteral(u"ProSlides for Windows"));
     parser.addHelpOption();
     parser.addVersionOption();
     parser.addPositionalArgument(QStringLiteral(u"document"),

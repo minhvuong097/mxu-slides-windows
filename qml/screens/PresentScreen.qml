@@ -39,19 +39,19 @@ Item {
                         anchors.fill: parent
 
                         // window dots + quick actions
-                        Row {
+                        RowLayout {
                             width: parent.width
                             height: 34
-                            anchors.leftMargin: 4
                             spacing: 0
-                            TrafficLights { anchors.verticalCenter: parent.verticalCenter; anchors.leftMargin: 4; windowRef: Window.window }
-                            Item { width: 8; height: 1 }
-                            IconButton { anchors.verticalCenter: parent.verticalCenter; icon: "sidebar"; onClicked: Mxu.toggleSidebar() }
-                            IconButton { anchors.verticalCenter: parent.verticalCenter; icon: "bell"; iconSize: 18 }
-                            IconButton { anchors.verticalCenter: parent.verticalCenter; icon: "cloud"; iconSize: 18 }
-                            Item { Layout.fillWidth: true; width: Math.max(0, serviceCard.width - 190); height: 1 }
+                            TrafficLights { Layout.alignment: Qt.AlignVCenter; Layout.leftMargin: 8; windowRef: Window.window }
+                            Item { Layout.preferredWidth: 8; Layout.preferredHeight: 1 }
+                            IconButton { Layout.alignment: Qt.AlignVCenter; icon: "sidebar"; onClicked: Mxu.toggleSidebar() }
+                            IconButton { Layout.alignment: Qt.AlignVCenter; icon: "bell"; iconSize: 18 }
+                            IconButton { Layout.alignment: Qt.AlignVCenter; icon: "cloud"; iconSize: 18 }
+                            Item { Layout.fillWidth: true; Layout.preferredHeight: 1 }
                             Text {
-                                anchors.verticalCenter: parent.verticalCenter
+                                Layout.alignment: Qt.AlignVCenter
+                                Layout.rightMargin: 10
                                 text: "Service Flow"
                                 color: Theme.textDim
                                 font.pixelSize: 11
@@ -215,7 +215,7 @@ Item {
                                 }
                                 MouseArea { anchors.fill: parent; onClicked: addItemPopup.visible = true }
                             }
-                            Item { Layout.fillWidth: true; height: 1 }
+                            Item { Layout.fillWidth: true; Layout.preferredHeight: 1 }
                             Text { text: Mxu.serviceModel.itemCount + " items"; color: Theme.textDim; font.pixelSize: 11 }
                         }
                     }
@@ -420,7 +420,7 @@ Item {
                         AppIcon { anchors.verticalCenter: parent.verticalCenter; name: "copy"; size: 17; color: Theme.textDim }
                         MiniSlider { anchors.verticalCenter: parent.verticalCenter; value: 0.1 }
                     }
-                    Item { Layout.fillWidth: true; height: 1 }
+                    Item { Layout.fillWidth: true; Layout.preferredHeight: 1 }
                     Segmented {
                         id: modeSwitch
                         model: ["Edit", "Present", "Stage"]
@@ -428,7 +428,7 @@ Item {
                         outlined: true
                         onActivated: Mxu.setScreen(["edit", "present", "stage"][index])
                     }
-                    Item { Layout.fillWidth: true; height: 1 }
+                    Item { Layout.fillWidth: true; Layout.preferredHeight: 1 }
                     Row {
                         spacing: 6
                         PillButton {
@@ -515,7 +515,7 @@ Item {
                         Text { anchors.verticalCenter: parent.verticalCenter; text: "Foreground Videos"; color: Theme.textDim; font.pixelSize: 11 }
                         AppIcon { anchors.verticalCenter: parent.verticalCenter; name: "chevronDown"; size: 11; color: Theme.textDim }
                     }
-                    Item { Layout.fillWidth: true; height: 1 }
+                    Item { Layout.fillWidth: true; Layout.preferredHeight: 1 }
                     Row {
                         spacing: 10
                         Rectangle {
@@ -546,7 +546,7 @@ Item {
                             MouseArea { anchors.fill: parent; onClicked: Mxu.previous() }
                         }
                     }
-                    Item { Layout.fillWidth: true; height: 1 }
+                    Item { Layout.fillWidth: true; Layout.preferredHeight: 1 }
                     Row {
                         Layout.preferredWidth: 150
                         layoutDirection: Qt.RightToLeft
@@ -608,7 +608,7 @@ Item {
                             width: parent.width
                             height: 22
                             Text { text: "Output Preview"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.DemiBold }
-                            Item { Layout.fillWidth: true; height: 1 }
+                            Item { Layout.fillWidth: true; Layout.preferredHeight: 1 }
                             Rectangle {
                                 radius: 7
                                 color: Theme.inset
@@ -766,7 +766,7 @@ Item {
                             width: parent.width
                             height: 20
                             Text { text: "Service Controls"; color: Theme.text; font.pixelSize: 11; font.weight: Font.DemiBold }
-                            Item { Layout.fillWidth: true; height: 1 }
+                            Item { Layout.fillWidth: true; Layout.preferredHeight: 1 }
                             AppIcon { name: "expand"; size: 12; color: Theme.textDim }
                         }
 
@@ -817,7 +817,7 @@ Item {
                             visible: root.controlTab === "timers"
                             width: parent.width
                             height: 36
-                            Item { Layout.fillWidth: true; height: 1 }
+                            Item { Layout.fillWidth: true; Layout.preferredHeight: 1 }
                             Text { text: "9:00 AM"; color: Theme.text; font.pixelSize: 11; font.weight: Font.DemiBold }
                             Text { text: Mxu.timerState; color: Theme.textDim; font.pixelSize: 11 }
                             Rectangle {

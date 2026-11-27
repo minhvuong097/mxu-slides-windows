@@ -16,7 +16,7 @@ ApplicationWindow {
     visible: true
     flags: Qt.Window | Qt.FramelessWindowHint
     color: "transparent"
-    title: "MxU Slides — " + Mxu.serviceModel.serviceName
+    title: "ProSlides — " + Mxu.serviceModel.serviceName
 
     property Component presentComponent: PresentScreen {}
     property Component editComponent: EditScreen {}
@@ -32,15 +32,14 @@ ApplicationWindow {
         border.width: 1
         clip: true
 
+        // Drag the frameless window by any empty area (native move: DPI-safe,
+        // works with Aero Snap, no cumulative-delta jitter).
         MouseArea {
             anchors.fill: parent
-            property real dragX: 0
-            property real dragY: 0
-            onPressed: { dragX = mouseX; dragY = mouseY }
-            onPositionChanged: if (mouse.buttons & Qt.LeftButton) {
-                window.x += mouseX - dragX
-                window.y += mouseY - dragY
-            }
+            acceptedButtons: Qt.LeftButton
+            onPressed: window.startSystemMove()
+            onDoubleClicked: window.visibility = window.visibility === Window.Maximized
+                                 ? Window.Windowed : Window.Maximized
         }
 
         Loader {
@@ -83,45 +82,29 @@ ApplicationWindow {
         }
     }
 
-    // edge resizing
-    MouseArea {
-        anchors.right: parent.right; anchors.top: parent.top; anchors.bottom: parent.bottom
-        width: 6; cursorShape: Qt.SizeHorCursor
-        property real lastX: 0
-        onPressed: lastX = mouseX
-        onPositionChanged: if (mouse.buttons & Qt.LeftButton)
-            window.width = Math.max(window.minimumWidth, window.width + mouseX - lastX)
+    // Edge / corner resizing through the native window manager.
+    component ResizeGrip: MouseArea {
+        required property int edges
+        acceptedButtons: Qt.LeftButton
+        hoverEnabled: true
+        onPressed: window.startSystemResize(edges)
     }
-    MouseArea {
-        anchors.left: parent.left; anchors.top: parent.top; anchors.bottom: parent.bottom
-        width: 6; cursorShape: Qt.SizeHorCursor
-        property real lastX: 0
-        onPressed: lastX = mouseX
-        onPositionChanged: if (mouse.buttons & Qt.LeftButton) {
-            const w = Math.max(window.minimumWidth, window.width + lastX - mouseX)
-            window.x += window.width - w
-            window.width = w
-        }
-    }
-    MouseArea {
-        anchors.bottom: parent.bottom; anchors.left: parent.left; anchors.right: parent.right
-        height: 6; cursorShape: Qt.SizeVerCursor
-        property real lastY: 0
-        onPressed: lastY = mouseY
-        onPositionChanged: if (mouse.buttons & Qt.LeftButton)
-            window.height = Math.max(window.minimumHeight, window.height + mouseY - lastY)
-    }
-    MouseArea {
-        anchors.top: parent.top; anchors.left: parent.left; anchors.right: parent.right
-        height: 6; cursorShape: Qt.SizeVerCursor
-        property real lastY: 0
-        onPressed: lastY = mouseY
-        onPositionChanged: if (mouse.buttons & Qt.LeftButton) {
-            const h = Math.max(window.minimumHeight, window.height + lastY - mouseY)
-            window.y += window.height - h
-            window.height = h
-        }
-    }
+    ResizeGrip { edges: Qt.RightEdge;  cursorShape: Qt.SizeHorCursor
+        anchors { right: parent.right; top: parent.top; bottom: parent.bottom; topMargin: 8; bottomMargin: 8 } width: 6 }
+    ResizeGrip { edges: Qt.LeftEdge;   cursorShape: Qt.SizeHorCursor
+        anchors { left: parent.left; top: parent.top; bottom: parent.bottom; topMargin: 8; bottomMargin: 8 } width: 6 }
+    ResizeGrip { edges: Qt.BottomEdge; cursorShape: Qt.SizeVerCursor
+        anchors { bottom: parent.bottom; left: parent.left; right: parent.right; leftMargin: 8; rightMargin: 8 } height: 6 }
+    ResizeGrip { edges: Qt.TopEdge;    cursorShape: Qt.SizeVerCursor
+        anchors { top: parent.top; left: parent.left; right: parent.right; leftMargin: 8; rightMargin: 8 } height: 6 }
+    ResizeGrip { edges: Qt.RightEdge | Qt.BottomEdge; cursorShape: Qt.SizeFDiagCursor
+        anchors { right: parent.right; bottom: parent.bottom } width: 8; height: 8 }
+    ResizeGrip { edges: Qt.LeftEdge | Qt.TopEdge;     cursorShape: Qt.SizeFDiagCursor
+        anchors { left: parent.left; top: parent.top } width: 8; height: 8 }
+    ResizeGrip { edges: Qt.RightEdge | Qt.TopEdge;    cursorShape: Qt.SizeBDiagCursor
+        anchors { right: parent.right; top: parent.top } width: 8; height: 8 }
+    ResizeGrip { edges: Qt.LeftEdge | Qt.BottomEdge;  cursorShape: Qt.SizeBDiagCursor
+        anchors { left: parent.left; bottom: parent.bottom } width: 8; height: 8 }
 
     Connections {
         target: Mxu

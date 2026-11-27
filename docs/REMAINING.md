@@ -1,6 +1,6 @@
 # Còn thiếu so với macOS MxU Slides (252k dòng)
 
-Bản Windows đã覆盖 phần lõi của 6 phase. Những hạng mục dưới đây cần SDK,
+Bản Windows đãcovers phần lõi của 6 phase. Những hạng mục dưới đây cần SDK,
 phần cứng hoặc thời gian triển khai riêng:
 
 | Hạng mục macOS | Lý do chưa làm | Cách nối tiếp |

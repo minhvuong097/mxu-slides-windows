@@ -15,7 +15,7 @@ Window {
             : Qt.application.screens[0]
     visibility: Mxu.presenting ? Window.FullScreen : Window.Hidden
     color: "black"
-    title: "MxU Slides — Output"
+    title: "ProSlides — Output"
 
     onClosing: Mxu.setPresenting(false)
 

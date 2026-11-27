@@ -124,14 +124,14 @@ Item {
                 RowLayout {
                     width: parent.width
                     height: 32
-                    Item { Layout.fillWidth: true; height: 1 }
+                    Item { Layout.fillWidth: true; Layout.preferredHeight: 1 }
                     Segmented {
                         id: editorMode
                         model: ["Edit", "Present", "Stage"]
                         currentIndex: 0
                         onActivated: Mxu.setScreen(["edit", "present", "stage"][index])
                     }
-                    Item { Layout.fillWidth: true; height: 1 }
+                    Item { Layout.fillWidth: true; Layout.preferredHeight: 1 }
                     PillButton { icon: "record"; iconSize: 16; onClicked: Mxu.toggleRecording() }
                 }
 
@@ -178,7 +178,7 @@ Item {
                             radius: 7; color: Theme.surface
                             implicitWidth: 96; implicitHeight: 26
                             Text { anchors.centerIn: parent; text: "Full ▾"; color: Theme.text; font.pixelSize: 11 }
-                            MouseArea { anchors.fill: parent; onClicked: arrangementPopup.open() }
+                            MouseArea { anchors.fill: parent; onClicked: arrangementPopup.visible = true }
                         }
                         Text { anchors.verticalCenter: parent.verticalCenter; text: "Zoom 100%"; color: Theme.textDim; font.pixelSize: 11 }
                     }
@@ -292,13 +292,13 @@ Item {
                     Text { text: "POSITION"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
                     Row {
                         width: parent.width; spacing: 6
-                        NumberField { width: (parent.width - 6) / 2; label: "X"; value: Mxu.selectedObject.x; onCommitted: Mxu.updateObject({ "x": value }) }
-                        NumberField { width: (parent.width - 6) / 2; label: "Y"; value: Mxu.selectedObject.y; onCommitted: Mxu.updateObject({ "y": value }) }
+                        NumberField { width: (parent.width - 6) / 2; label: "X"; value: Mxu.selectedObject.x ?? 0; onCommitted: Mxu.updateObject({ "x": value }) }
+                        NumberField { width: (parent.width - 6) / 2; label: "Y"; value: Mxu.selectedObject.y ?? 0; onCommitted: Mxu.updateObject({ "y": value }) }
                     }
                     Row {
                         width: parent.width; spacing: 6
-                        NumberField { width: (parent.width - 6) / 2; label: "W"; value: Mxu.selectedObject.width; onCommitted: Mxu.updateObject({ "width": value }) }
-                        NumberField { width: (parent.width - 6) / 2; label: "H"; value: Mxu.selectedObject.height; onCommitted: Mxu.updateObject({ "height": value }) }
+                        NumberField { width: (parent.width - 6) / 2; label: "W"; value: Mxu.selectedObject.width ?? 0; onCommitted: Mxu.updateObject({ "width": value }) }
+                        NumberField { width: (parent.width - 6) / 2; label: "H"; value: Mxu.selectedObject.height ?? 0; onCommitted: Mxu.updateObject({ "height": value }) }
                     }
 
                     Text { text: "TEXT"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
@@ -312,14 +312,15 @@ Item {
                         onEditingFinished: Mxu.updateObject({ "text": text })
                     }
                     ComboBox {
+                        id: fontBox
                         width: parent.width
                         model: Mxu.fontService.families
                         currentIndex: Math.max(0, model.indexOf(Mxu.selectedObject.fontName || "Segoe UI"))
-                        onActivated: Mxu.updateObject({ "fontName": currentText })
+                        onActivated: Mxu.updateObject({ "fontName": fontBox.currentText })
                         background: Rectangle { radius: 7; color: Theme.inset }
-                        contentItem: Text { text: parent.currentText; color: Theme.text; font.pixelSize: 11; verticalAlignment: Text.AlignVCenter }
+                        contentItem: Text { text: fontBox.currentText; color: Theme.text; font.pixelSize: 11; verticalAlignment: Text.AlignVCenter }
                     }
-                    NumberField { width: parent.width; label: "Size"; value: Mxu.selectedObject.fontSize; onCommitted: Mxu.updateObject({ "fontSize": value }) }
+                    NumberField { width: parent.width; label: "Size"; value: Mxu.selectedObject.fontSize ?? 0; onCommitted: Mxu.updateObject({ "fontSize": value }) }
                     TextField {
                         width: parent.width
                         text: Mxu.selectedObject.colorHex || "#FFFFFF"
@@ -349,7 +350,7 @@ Item {
                                 Text { Layout.fillWidth: true; text: modelData.reason; color: Theme.text; font.pixelSize: 10 }
                                 Text { text: modelData.at.slice(0, 10); color: Theme.textDim; font.pixelSize: 9 }
                                 Rectangle {
-                                    width: 44; height: 18; radius: 5; color: Theme.surface
+                                    Layout.preferredWidth: 44; Layout.preferredHeight: 18; radius: 5; color: Theme.surface
                                     Text { anchors.centerIn: parent; text: "Restore"; color: Theme.text; font.pixelSize: 9 }
                                     MouseArea { anchors.fill: parent; onClicked: Mxu.restoreSlideVersion(modelData.id) }
                                 }

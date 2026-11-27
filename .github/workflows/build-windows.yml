@@ -17,8 +17,8 @@ jobs:
           version: '6.12.0'
           host: windows
           target: desktop
-          arch: win64_msvc2019_64
-          modules: qtquick3d qtmultimedia qtwebsockets qtsvg
+          arch: win64_msvc2022_64
+          modules: qtmultimedia qtwebsockets qtsvg qtquickdialogs2
 
       - name: Configure
         shell: pwsh

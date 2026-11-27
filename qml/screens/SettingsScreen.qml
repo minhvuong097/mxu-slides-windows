@@ -57,7 +57,7 @@ Item {
                             anchors.rightMargin: 8
                             spacing: 9
                             Rectangle {
-                                width: 22; height: 22; radius: 6
+                                Layout.preferredWidth: 22; Layout.preferredHeight: 22; radius: 6
                                 color: modelData.color
                                 AppIcon { anchors.centerIn: parent; name: modelData.icon; size: 13; color: "white" }
                             }
@@ -81,14 +81,14 @@ Item {
                 RowLayout {
                     width: parent.width
                     height: 32
-                    Item { Layout.fillWidth: true; height: 1 }
+                    Item { Layout.fillWidth: true; Layout.preferredHeight: 1 }
                     Segmented {
                         id: settingsMode
                         model: ["Edit", "Present", "Stage"]
                         currentIndex: -1
                         onActivated: Mxu.setScreen(["edit", "present", "stage"][index])
                     }
-                    Item { Layout.fillWidth: true; height: 1 }
+                    Item { Layout.fillWidth: true; Layout.preferredHeight: 1 }
                     PillButton { icon: "record"; iconSize: 16; onClicked: Mxu.toggleRecording() }
                 }
 
@@ -206,7 +206,7 @@ Item {
                                     anchors.fill: parent; anchors.leftMargin: 8; anchors.rightMargin: 8
                                     Text { Layout.fillWidth: true; text: modelData.peer + " (" + modelData.mode + ")"; color: Theme.text; font.pixelSize: 11 }
                                     Rectangle {
-                                        width: 44; height: 20; radius: 6; color: modelData.enabled ? Theme.green : Theme.surface
+                                        Layout.preferredWidth: 44; Layout.preferredHeight: 20; radius: 6; color: modelData.enabled ? Theme.green : Theme.surface
                                         Text { anchors.centerIn: parent; text: modelData.enabled ? "On" : "Off"; color: "white"; font.pixelSize: 9 }
                                         MouseArea { anchors.fill: parent; onClicked: Mxu.serviceLinks.toggle(modelData.id) }
                                     }
@@ -294,17 +294,17 @@ Item {
                                     anchors.rightMargin: 10
                                     Text { Layout.fillWidth: true; text: modelData.name; color: Theme.text; font.pixelSize: 12 }
                                     Rectangle {
-                                        width: 26; height: 26; radius: 7; color: modelData.muted ? Theme.pink : Theme.surface
+                                        Layout.preferredWidth: 26; Layout.preferredHeight: 26; radius: 7; color: modelData.muted ? Theme.pink : Theme.surface
                                         Text { anchors.centerIn: parent; text: "M"; color: "white"; font.pixelSize: 11; font.weight: Font.Bold }
                                         MouseArea { anchors.fill: parent; onClicked: Mxu.audioService.toggleMute(modelData.id) }
                                     }
                                     Rectangle {
-                                        width: 26; height: 26; radius: 7; color: modelData.solo ? Theme.yellow : Theme.surface
+                                        Layout.preferredWidth: 26; Layout.preferredHeight: 26; radius: 7; color: modelData.solo ? Theme.yellow : Theme.surface
                                         Text { anchors.centerIn: parent; text: "S"; color: "white"; font.pixelSize: 11; font.weight: Font.Bold }
                                         MouseArea { anchors.fill: parent; onClicked: Mxu.audioService.toggleSolo(modelData.id) }
                                     }
                                     Rectangle {
-                                        width: 26; height: 26; radius: 7; color: Theme.surface
+                                        Layout.preferredWidth: 26; Layout.preferredHeight: 26; radius: 7; color: Theme.surface
                                         Text { anchors.centerIn: parent; text: modelData.playing ? "■" : "▶"; color: Theme.text; font.pixelSize: 11 }
                                         MouseArea { anchors.fill: parent; onClicked: modelData.playing ? Mxu.audioService.stop(modelData.id) : Mxu.audioService.play(modelData.id) }
                                     }
@@ -460,7 +460,7 @@ Item {
                         anchors.margins: 12
                         spacing: 8
                         Text { text: root.pane; color: Theme.text; font.pixelSize: 16; font.weight: Font.DemiBold }
-                        Text { text: "MxU Slides for Windows"; color: Theme.text; font.pixelSize: 13 }
+                        Text { text: "ProSlides for Windows"; color: Theme.text; font.pixelSize: 13 }
                         SettingField { width: parent.width; label: "Version"; value: AppVersion }
                         SettingField { width: parent.width; label: "Document"; value: "schemaVersion 161" }
                         SettingRow {
@@ -592,18 +592,18 @@ Item {
                 Text { text: "STATUS"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
                 RowLayout { width: parent.width; height: 28
                     Text { text: "Main output"; color: Theme.textDim; font.pixelSize: 12 }
-                    Item { Layout.fillWidth: true; height: 1 }
-                    Rectangle { width: 7; height: 7; radius: 4; color: Theme.green }
+                    Item { Layout.fillWidth: true; Layout.preferredHeight: 1 }
+                    Rectangle { Layout.preferredWidth: 7; Layout.preferredHeight: 7; radius: 4; color: Theme.green }
                     Text { text: "Ready"; color: Theme.green; font.pixelSize: 12; font.weight: Font.DemiBold } }
                 RowLayout { width: parent.width; height: 28
                     Text { text: "NDI"; color: Theme.textDim; font.pixelSize: 12 }
-                    Item { Layout.fillWidth: true; height: 1 }
-                    Rectangle { width: 7; height: 7; radius: 4; color: Theme.green }
+                    Item { Layout.fillWidth: true; Layout.preferredHeight: 1 }
+                    Rectangle { Layout.preferredWidth: 7; Layout.preferredHeight: 7; radius: 4; color: Theme.green }
                     Text { text: Mxu.setting("ndiOutput") ? "Sending" : "Off"; color: Mxu.setting("ndiOutput") ? Theme.green : Theme.textDim; font.pixelSize: 12; font.weight: Font.DemiBold } }
                 RowLayout { width: parent.width; height: 28
                     Text { text: "DeckLink"; color: Theme.textDim; font.pixelSize: 12 }
-                    Item { Layout.fillWidth: true; height: 1 }
-                    Rectangle { width: 7; height: 7; radius: 4; color: Theme.textFaint }
+                    Item { Layout.fillWidth: true; Layout.preferredHeight: 1 }
+                    Rectangle { Layout.preferredWidth: 7; Layout.preferredHeight: 7; radius: 4; color: Theme.textFaint }
                     Text { text: Mxu.setting("decklinkOutput") ? "Sending" : "Off"; color: Mxu.setting("decklinkOutput") ? Theme.green : Theme.textDim; font.pixelSize: 12; font.weight: Font.DemiBold } }
 
                 Rectangle {

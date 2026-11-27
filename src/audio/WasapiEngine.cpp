@@ -8,7 +8,6 @@
 #include <avrt.h>
 #include <objbase.h>
 #pragma comment(lib, "ole32.lib")
-#pragma comment(lib, "mmdevapi.lib")
 #pragma comment(lib, "avrt.lib")
 
 namespace {
@@ -91,13 +90,14 @@ bool WasapiRenderEngine::start()
     format.nChannels = 2;
     format.nSamplesPerSec = 48000;
     format.wBitsPerSample = 16;
-    format.nBlockAlign = format.nChannels * format.wBitsPerSample / 8;
+    format.nBlockAlign = static_cast<WORD>(format.nChannels * format.wBitsPerSample / 8);
     format.nAvgBytesPerSec = format.nSamplesPerSec * format.nBlockAlign;
     format.cbSize = 0;
 
     REFERENCE_TIME requested = 10000; // 10 ms
     hr = context->client->Initialize(AUDCLNT_SHAREMODE_SHARED,
-                                     AUDCLNT_STREAMFLAGS_EVENTCALLBACK,
+                                     AUDCLNT_STREAMFLAGS_EVENTCALLBACK | AUDCLNT_STREAMFLAGS_AUTOCONVERTPCM
+                                         | AUDCLNT_STREAMFLAGS_SRC_DEFAULT_QUALITY,
                                      requested, 0, &format, nullptr);
     if (FAILED(hr)) {
         emit errorOccurred(QStringLiteral(u"IAudioClient::Initialize failed"));

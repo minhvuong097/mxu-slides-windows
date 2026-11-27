@@ -63,14 +63,14 @@ Item {
                 RowLayout {
                     width: parent.width
                     height: 32
-                    Item { Layout.fillWidth: true; height: 1 }
+                    Item { Layout.fillWidth: true; Layout.preferredHeight: 1 }
                     Segmented {
                         id: stageMode
                         model: ["Edit", "Present", "Stage"]
                         currentIndex: 2
                         onActivated: Mxu.setScreen(["edit", "present", "stage"][index])
                     }
-                    Item { Layout.fillWidth: true; height: 1 }
+                    Item { Layout.fillWidth: true; Layout.preferredHeight: 1 }
                     PillButton { icon: "record"; iconSize: 16; onClicked: Mxu.toggleRecording() }
                     PillButton {
                         icon: "monitor"; text: Mxu.stageOutputVisible ? "Close Stage" : "Open Stage"
@@ -88,7 +88,7 @@ Item {
                         anchors.leftMargin: 12
                         anchors.rightMargin: 12
                         Text { text: "Stage Display — " + Mxu.stageLayout; color: Theme.text; font.pixelSize: 13; font.weight: Font.DemiBold }
-                        Item { Layout.fillWidth: true; height: 1 }
+                        Item { Layout.fillWidth: true; Layout.preferredHeight: 1 }
                         Text { text: "1920 x 1080 · Display 3"; color: Theme.textDim; font.pixelSize: 12 }
                     }
                 }
@@ -110,7 +110,7 @@ Item {
                         RowLayout {
                             width: parent.width
                             Text { text: Mxu.serviceClock; color: Theme.text; font.pixelSize: 30; font.weight: Font.Bold }
-                            Item { Layout.fillWidth: true; height: 1 }
+                            Item { Layout.fillWidth: true; Layout.preferredHeight: 1 }
                             Text { visible: Mxu.sectionTimerVisible; text: Mxu.serviceTimerText; color: Theme.green; font.pixelSize: 30; font.weight: Font.Bold }
                         }
 

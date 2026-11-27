@@ -13,7 +13,7 @@ Window {
             : Qt.application.screens[0]
     visibility: Mxu.stageOutputVisible ? Window.FullScreen : Window.Hidden
     color: "black"
-    title: "MxU Slides — Stage"
+    title: "ProSlides — Stage"
 
     onClosing: Mxu.setStageOutputVisible(false)
 

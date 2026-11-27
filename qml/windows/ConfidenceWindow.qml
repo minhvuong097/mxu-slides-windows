@@ -13,7 +13,7 @@ Window {
             : Qt.application.screens[0]
     visibility: Mxu.confidenceVisible ? Window.FullScreen : Window.Hidden
     color: "black"
-    title: "MxU Slides — Confidence"
+    title: "ProSlides — Confidence"
 
     onClosing: Mxu.setConfidenceVisible(false)
 

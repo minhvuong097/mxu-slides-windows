@@ -130,7 +130,7 @@ QString MediaService::importFile(const QString& path)
     item.category = QStringLiteral(u"Media");
     item.folder = QStringLiteral(u"Imported");
     item.type = isVideo ? QStringLiteral(u"Video") : QStringLiteral(u"Image");
-    item.fileSize = QStringLiteral(u"%1 MB").arg(info.size() / (1024 * 1024), 1, 'f', 1);
+    item.fileSize = QStringLiteral(u"%1 MB").arg(QString::number(static_cast<double>(info.size()) / (1024.0 * 1024.0), 'f', 1));
     item.from = isVideo ? QStringLiteral(u"#2d5a8f") : QStringLiteral(u"#8f2d4a");
     item.to = QStringLiteral(u"#111111");
     m_document->media.append(item);

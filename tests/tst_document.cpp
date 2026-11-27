@@ -1,6 +1,7 @@
 #include <QGuiApplication>
 #include <QtTest>
 #include <QTemporaryDir>
+#include <QFile>
 
 #include "core/Document.h"
 #include "core/ShowDocument.h"
@@ -213,6 +214,18 @@ void MxuDocumentTest::mediaAndAudio()
     QVERIFY(!id.isEmpty());
     QCOMPARE(doc.media.size(), before + 1);
     QCOMPARE(media.items().size(), before + 1);
+
+    // Regression: file size used integer division and an ambiguous QString::arg
+    // overload, so every file smaller than 1 MB (or not a whole number of MB)
+    // was reported wrongly.
+    const QString bigPath = dir.path() + QStringLiteral(u"/big.png");
+    {
+        QFile big(bigPath);
+        QVERIFY(big.open(QIODevice::WriteOnly));
+        big.write(QByteArray(1536 * 1024, 'x')); // 1.5 MB, not a decodable image
+    }
+    QVERIFY(!media.importFile(bigPath).isEmpty());
+    QCOMPARE(doc.media.last().fileSize, QStringLiteral(u"1.5 MB"));
 
     app::AudioService audio;
     const QString channel = audio.addChannel(QStringLiteral(u"Prayer"), imagePath);

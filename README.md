@@ -1,27 +1,33 @@
-# MxU Slides for Windows
+# ProSlides for Windows
 
-Bản port Windows của **MxU Slides** (macOS), viết bằng **C++20 / Qt 6**, với
-giao diện 5 màn hình theo thiết kế "macOS-style" do Claude thiết kế.
+Bản port Windows của **MxU Slides** (macOS), tên sản phẩm **ProSlides**, viết bằng **C++20 / Qt 6**, với
+giao diện 5 màn hình theo thiết kế **Service Flow** ("macOS-style", 1280×840).
 
 Repo này là một codebase mới, xây dựng từ các khái niệm và cấu trúc dữ liệu của
-`mxu-slides-main` (Swift) — không kế thừa codebase FreeShow/ProSlides.
+`mxu-slides-main` (Swift) — không kế thừa codebase FreeShow cũ.
 
 ## Yêu cầu
 
 - Windows 10/11, Visual Studio 2022 (MSVC, C++20)
 - CMake ≥ 3.25
-- Qt 6.12 (tối thiểu 6.5): Core, Gui, Qml, Quick, QuickControls2, Network,
+- Qt 6.12, kit `msvc2022_64` (tối thiểu 6.5): Core, Gui, Qml, Quick, QuickControls2, Network,
   WebSockets, Svg
 
 ## Build
 
 ```powershell
-$env:CMAKE_PREFIX_PATH = "C:\Qt\6.12.0\msvc2019_64"
+$env:CMAKE_PREFIX_PATH = "C:\Qt\6.12.0\msvc2022_64"
 python3 scripts/generate_models.py   # chỉ cần khi đổi schema/documents.json
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DMXU_BUILD_TESTS=ON
 cmake --build build --config Release
 .\build\Release\MxuSlides.exe
 ```
+
+### Tùy chọn phần cứng/SDK
+
+`-DMXU_ENABLE_DECKLINK=ON -DDECKLINK_SDK_INCLUDE_DIR=<DeckLink SDK Windows>/Win/include`
+bật output DeckLink. Thư mục `vendor/decklink` là SDK **macOS** (CoreFoundation)
+nên không dùng được trên Windows; mặc định DeckLink là stub.
 
 ## Kiến trúc
 

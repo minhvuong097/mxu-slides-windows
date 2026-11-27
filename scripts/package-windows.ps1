@@ -4,7 +4,7 @@ param(
 )
 
 if (-not $QtPath) {
-    Write-Error "Set CMAKE_PREFIX_PATH or pass -QtPath (e.g. C:\Qt\6.12.0\msvc2019_64)"
+    Write-Error "Set CMAKE_PREFIX_PATH or pass -QtPath (e.g. C:\Qt\6.12.0\msvc2022_64)"
     exit 1
 }
 

@@ -18,7 +18,7 @@ Rectangle {
         anchors.leftMargin: 8
         anchors.rightMargin: 8
         Text { text: field.label; color: Theme.textDim; font.pixelSize: 11 }
-        Item { Layout.fillWidth: true; height: 1 }
+        Item { Layout.fillWidth: true; Layout.preferredHeight: 1 }
         TextField {
             id: input
             Layout.preferredWidth: 54
