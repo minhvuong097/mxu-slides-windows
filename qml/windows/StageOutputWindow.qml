@@ -4,6 +4,8 @@ import "qrc:/qml/theme"
 import "qrc:/qml/components"
 
 // Musician stage display with clock, section timer, current/next slide and message.
+// Lower-third alerts fired at stage/audience also render here (mirrors the
+// presentation output window behaviour).
 Window {
     id: stage
     flags: Qt.Window | Qt.FramelessWindowHint
@@ -154,6 +156,30 @@ Window {
                     elide: Text.ElideRight
                 }
             }
+        }
+
+        // Lower-third alert overlay — same presentation behaviour as the
+        // audience output window; the stage musician sees the same callouts.
+        Rectangle {
+            visible: Mxu.alerts.visible &&
+                     (Mxu.alerts.active.target === "both" || Mxu.alerts.active.target === "stage")
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: 40
+            width: parent.width * 0.8
+            height: 64
+            radius: 10
+            color: Theme.pink
+            Text {
+                anchors.centerIn: parent
+                width: parent.width - 24
+                text: Mxu.alerts.active.text || ""
+                color: "white"
+                font.pixelSize: 22
+                font.weight: Font.Bold
+                elide: Text.ElideRight
+            }
+            MouseArea { anchors.fill: parent; onClicked: Mxu.alerts.dismiss() }
         }
     }
 }

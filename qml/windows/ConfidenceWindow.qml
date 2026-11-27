@@ -66,5 +66,29 @@ Window {
                 }
             }
         }
+
+        // Lower-third alert overlay — same presentation behaviour as the
+        // audience output window; confidence monitors surface the live
+        // callouts as well.
+        Rectangle {
+            visible: Mxu.alerts.visible &&
+                     (Mxu.alerts.active.target === "both" || Mxu.alerts.active.target === "stage")
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: 32
+            width: parent.width * 0.8
+            height: 56
+            radius: 10
+            color: Theme.pink
+            Text {
+                anchors.centerIn: parent
+                width: parent.width - 24
+                text: Mxu.alerts.active.text || ""
+                color: "white"
+                font.pixelSize: 20
+                font.weight: Font.Bold
+                elide: Text.ElideRight
+            }
+        }
     }
 }
