@@ -115,9 +115,9 @@ ApplicationWindow {
         }
     }
 
-    PresentationWindow { id: presentationOutput }
-    StageOutputWindow { id: stageOutput }
-    ConfidenceWindow { id: confidenceMonitor }
+    PresentationWindow { id: presentationOutput; objectName: "presentationOutput" }
+    StageOutputWindow { id: stageOutput; objectName: "stageOutput" }
+    ConfidenceWindow { id: confidenceMonitor; objectName: "confidenceMonitor" }
 
     NotesPanel {
         id: notesPanel

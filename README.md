@@ -42,6 +42,8 @@ src/api/LocalApiServer.*      REST + WebSocket, token scopes (port 6980/6981)
 qml/theme/                    Theme + Icons (QtQuick.Shapes)
 qml/components/               Card, Segmented, CueCard, Checkerboard, ...
 qml/screens/                  Present, Edit, Stage, Library, Settings
+qml/windows/                   Output windows: Presentation/Stage/Confidence + operator
+                               windows Notes/Timeline/QuickSearch (Mac parity)
 ```
 
 ## Local API

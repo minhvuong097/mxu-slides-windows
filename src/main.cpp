@@ -13,6 +13,7 @@
 #include <QDir>
 #include <QEventLoop>
 #include <QImage>
+#include <QSettings>
 #include <QTimer>
 
 int main(int argc, char* argv[])
@@ -62,6 +63,65 @@ int main(int argc, char* argv[])
     const auto args = parser.positionalArguments();
     if (!args.isEmpty())
         controller.openDocument(args.first());
+
+    // -- Output window state persistence ---------------------------------
+    // The audience / stage / confidence output windows remember their geometry
+    // and maximized flag in QSettings so the operator's window layout survives
+    // an app restart. The --screenshots path runs against a throw-away window
+    // rect, so persistence wiring is only installed for real launches.
+    if (parser.value(screenshotsOption).isEmpty()) {
+        QSettings outputWindowStore;
+        const auto saveOutputWindowState = [&outputWindowStore](QQuickWindow* w) {
+            QVariantMap state;
+            state[QStringLiteral(u"x")] = w->x();
+            state[QStringLiteral(u"y")] = w->y();
+            state[QStringLiteral(u"width")] = w->width();
+            state[QStringLiteral(u"height")] = w->height();
+            state[QStringLiteral(u"maximized")] = w->windowState() == Qt::WindowMaximized;
+            outputWindowStore.setValue(QStringLiteral(u"mxu/windows/") + w->objectName(), state);
+        };
+        const auto restoreOutputWindowState = [&outputWindowStore](QQuickWindow* w,
+                                                                    const QString& key) {
+            const QVariantMap state = outputWindowStore.value(key).toMap();
+            if (state.isEmpty())
+                return;
+            const int x = state.value(QStringLiteral(u"x")).toInt();
+            const int y = state.value(QStringLiteral(u"y")).toInt();
+            const int width = state.value(QStringLiteral(u"width")).toInt();
+            const int height = state.value(QStringLiteral(u"height")).toInt();
+            if (width > 0 && height > 0)
+                w->setGeometry(x, y, width, height);
+            if (state.value(QStringLiteral(u"maximized")).toBool())
+                w->showMaximized();
+        };
+        const auto wireOutputWindow = [&saveOutputWindowState, &restoreOutputWindowState](QQuickWindow* w,
+                                                                                            const QString& key) {
+            QObject::connect(w, &QWindow::visibleChanged, w, [&restoreOutputWindowState, w, key](bool visible) {
+                if (visible)
+                    restoreOutputWindowState(w, key);
+            });
+            QObject::connect(w, &QWindow::widthChanged, w, [&saveOutputWindowState, w](int) { saveOutputWindowState(w); });
+            QObject::connect(w, &QWindow::heightChanged, w, [&saveOutputWindowState, w](int) { saveOutputWindowState(w); });
+            QObject::connect(w, &QWindow::xChanged, w, [&saveOutputWindowState, w](int) { saveOutputWindowState(w); });
+            QObject::connect(w, &QWindow::yChanged, w, [&saveOutputWindowState, w](int) { saveOutputWindowState(w); });
+            QObject::connect(w, &QWindow::windowStateChanged, w, [&saveOutputWindowState, w](Qt::WindowState) {
+                saveOutputWindowState(w);
+            });
+        };
+
+        const auto* shellWindow = qobject_cast<QQuickWindow*>(engine.rootObjects().first());
+        const auto outputWindows = shellWindow ? shellWindow->findChildren<QQuickWindow*>() : QList<QQuickWindow*>();
+        for (QQuickWindow* w : outputWindows) {
+            const QString name = w->objectName();
+            if (name == QStringLiteral(u"presentationOutput")) {
+                wireOutputWindow(w, QStringLiteral(u"mxu/windows/presentation"));
+            } else if (name == QStringLiteral(u"stageOutput")) {
+                wireOutputWindow(w, QStringLiteral(u"mxu/windows/stage"));
+            } else if (name == QStringLiteral(u"confidenceMonitor")) {
+                wireOutputWindow(w, QStringLiteral(u"mxu/windows/confidence"));
+            }
+        }
+    }
 
     // `--screenshots <dir>`: render every screen to a PNG so the UI can be
     // compared with the Claude mockup without driving the window by hand.
