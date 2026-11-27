@@ -121,26 +121,37 @@ ApplicationWindow {
 
     NotesPanel {
         id: notesPanel
-        anchors.centerIn: parent
+        x: 380
+        y: 160
+        width: 420
+        height: 460
+        visible: false
         onCloseRequested: hide()
     }
 
     TimelinePanel {
         id: timelinePanel
-        anchors.centerIn: parent
+        x: 140
+        y: 240
+        width: 900
+        height: 300
+        visible: false
         onCloseRequested: hide()
     }
 
     QuickSearch {
         id: quickSearch
-        anchors.centerIn: parent
-        z: 10
+        x: 270
+        y: 180
+        width: 640
+        height: 420
+        visible: false
         onCloseRequested: hide()
     }
 
-    Shortcut { sequence: "Ctrl+K"; onActivated: quickSearch.open() }
-    Shortcut { sequence: "Ctrl+T"; onActivated: timelinePanel.open() }
-    Shortcut { sequence: "F8"; onActivated: notesPanel.open() }
+    Shortcut { sequence: "Ctrl+K"; context: Qt.ShortcutContext.Application; onActivated: quickSearch.open() }
+    Shortcut { sequence: "Ctrl+T"; context: Qt.ShortcutContext.Application; onActivated: timelinePanel.open() }
+    Shortcut { sequence: "F8"; context: Qt.ShortcutContext.Application; onActivated: notesPanel.open() }
     Shortcut { sequence: "F5"; onActivated: Mxu.togglePresenting() }
     Shortcut { sequence: "F6"; onActivated: Mxu.toggleStageOutput() }
     Shortcut { sequence: "F7"; onActivated: Mxu.toggleConfidence() }
