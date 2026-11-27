@@ -367,10 +367,22 @@ void AppController::setPresenting(bool value)
 {
     if (m_presenting == value)
         return;
+    if (value) {
+        // Remember the operator screen so presenting/stop keeps the shell from
+        // snapping to a different tab while the audience window owns the stage.
+        m_screenBeforePresenting = m_screen;
+    }
     m_presenting = value;
     emit outputChanged();
     emit notification(m_presenting ? QStringLiteral(u"Presentation output started")
                                    : QStringLiteral(u"Presentation output stopped"));
+    if (!m_presenting) {
+        const QString restored = m_screenBeforePresenting;
+        if (!restored.isEmpty()) {
+            m_screen = restored;
+            emit screenChanged();
+        }
+    }
     m_api.broadcastState();
 }
 

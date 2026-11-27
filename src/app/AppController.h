@@ -412,6 +412,7 @@ private:
     bool m_confidenceVisible = false;
     bool m_autoAdvance = false;
     int m_autoAdvanceSeconds = 5;
+    QString m_screenBeforePresenting;
 };
 
 } // namespace mxu::app

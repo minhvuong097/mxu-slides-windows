@@ -13,7 +13,9 @@ ApplicationWindow {
     height: 840
     minimumWidth: 1100
     minimumHeight: 700
-    visible: true
+    // The operator shell steps aside while the audience output window owns the
+    // stage; it comes back when presenting stops.
+    visible: !Mxu.presenting
     flags: Qt.Window | Qt.FramelessWindowHint
     color: "transparent"
     title: "ProSlides — " + Mxu.serviceModel.serviceName
@@ -152,9 +154,9 @@ ApplicationWindow {
     Shortcut { sequence: "Ctrl+K"; context: Qt.ShortcutContext.Application; onActivated: quickSearch.open() }
     Shortcut { sequence: "Ctrl+T"; context: Qt.ShortcutContext.Application; onActivated: timelinePanel.open() }
     Shortcut { sequence: "F8"; context: Qt.ShortcutContext.Application; onActivated: notesPanel.open() }
-    Shortcut { sequence: "F5"; onActivated: Mxu.togglePresenting() }
-    Shortcut { sequence: "F6"; onActivated: Mxu.toggleStageOutput() }
-    Shortcut { sequence: "F7"; onActivated: Mxu.toggleConfidence() }
+    Shortcut { sequence: "F5"; context: Qt.ShortcutContext.Application; onActivated: Mxu.togglePresenting() }
+    Shortcut { sequence: "F6"; context: Qt.ShortcutContext.Application; onActivated: Mxu.toggleStageOutput() }
+    Shortcut { sequence: "F7"; context: Qt.ShortcutContext.Application; onActivated: Mxu.toggleConfidence() }
     Shortcut { sequence: "Right"; onActivated: Mxu.next() }
     Shortcut { sequence: "Space"; onActivated: Mxu.next() }
     Shortcut { sequence: "Left"; onActivated: Mxu.previous() }
