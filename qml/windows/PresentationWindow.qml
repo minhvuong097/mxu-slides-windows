@@ -19,6 +19,28 @@ Window {
 
     onClosing: Mxu.setPresenting(false)
 
+    // Presenter countdown — mirrors the Mac TimerBoard countdown / countdownToTime
+    // modes rendered over the audience output.
+    function formatCountdown() {
+        const timers = Mxu.timerBoard.timers || []
+        const running = []
+        for (let i = 0; i < timers.length; ++i) {
+            const timer = timers[i] || {}
+            const mode = timer.mode ? timer.mode.toString() : ""
+            if ((mode === "countdown" || mode === "countdownToTime") && timer.running)
+                running.push(timer)
+        }
+        if (running.length === 0)
+            return ""
+        const timer = running[0] || {}
+        const totalSeconds = Math.max(0, timer.remaining || 0)
+        const minutes = Math.floor(totalSeconds / 60)
+        const seconds = Math.floor(totalSeconds % 60)
+        const mm = minutes < 10 ? "0" + minutes : "" + minutes
+        const ss = seconds < 10 ? "0" + seconds : "" + seconds
+        return mm + ":" + ss
+    }
+
     Rectangle {
         anchors.fill: parent
         color: "black"
@@ -98,6 +120,30 @@ Window {
                 elide: Text.ElideRight
             }
             MouseArea { anchors.fill: parent; onClicked: Mxu.alerts.dismiss() }
+        }
+
+        Text {
+            id: countdownText
+            anchors.top: parent.top
+            anchors.topMargin: 104
+            anchors.horizontalCenter: parent.horizontalCenter
+            visible: formatCountdown().length > 0
+            text: formatCountdown()
+            color: Theme.yellow
+            font.pixelSize: 64
+            font.weight: Font.Bold
+        }
+
+        Text {
+            id: slideCounter
+            anchors.top: parent.top
+            anchors.topMargin: 24
+            anchors.right: parent.right
+            anchors.rightMargin: 32
+            text: Mxu.currentSlideIndex + 1 + " / " + Mxu.slides.length + " - " + Mxu.currentSlideName
+            color: Theme.textDim
+            font.pixelSize: 22
+            font.weight: Font.DemiBold
         }
     }
 }
