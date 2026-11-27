@@ -35,6 +35,25 @@ jobs:
         shell: pwsh
         run: ctest --test-dir build -C Release --output-on-failure
 
+      - name: Render the five screens (UI check)
+        shell: pwsh
+        continue-on-error: true
+        env:
+          QT_QUICK_BACKEND: software
+        run: |
+          New-Item -ItemType Directory -Force -Path ui-shots | Out-Null
+          $p = Start-Process -FilePath "build/Release/MxuSlides.exe" `
+            -ArgumentList "--screenshots","ui-shots" -PassThru -Wait
+          Write-Host "exit code: $($p.ExitCode)"
+          Get-ChildItem ui-shots
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ProSlides-UI-screenshots
+          path: ui-shots/
+          if-no-files-found: warn
+
       - uses: actions/upload-artifact@v4
         with:
           name: MxuSlides-Windows

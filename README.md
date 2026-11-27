@@ -76,3 +76,8 @@ CI: `.github/workflows/build-windows.yml` build & test với Qt 6.12 trên Windo
 
 Mã nguồn macOS MxU Slides dùng PolyForm Shield License 1.0.0. Hãy xác nhận
 bạn có quyền chuyển đổi nền tảng trước khi phân phối bản port này.
+
+
+## UI check
+
+Run `MxuSlides.exe --screenshots out` to render the five screens, then compare with `docs/ui-reference/` (see `docs/UI-PARITY.md`).

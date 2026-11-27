@@ -8,6 +8,12 @@
 #include <QIcon>
 #include <QCommandLineParser>
 #include <QQuickStyle>
+#include <QQuickWindow>
+#include <QCommandLineOption>
+#include <QDir>
+#include <QEventLoop>
+#include <QImage>
+#include <QTimer>
 
 int main(int argc, char* argv[])
 {
@@ -31,6 +37,12 @@ int main(int argc, char* argv[])
     parser.addPositionalArgument(QStringLiteral(u"document"),
                                  QStringLiteral(u"Optional .mxuslides document"),
                                  QStringLiteral(u"[document]"));
+    const QCommandLineOption screenshotsOption(
+        QStringLiteral(u"screenshots"),
+        QStringLiteral(u"Render the five screens (present, edit, stage, settings, library) "
+                       u"to PNG files in <dir> and exit."),
+        QStringLiteral(u"dir"));
+    parser.addOption(screenshotsOption);
     parser.process(app);
 
     mxu::app::AppController controller;
@@ -50,6 +62,38 @@ int main(int argc, char* argv[])
     const auto args = parser.positionalArguments();
     if (!args.isEmpty())
         controller.openDocument(args.first());
+
+    // `--screenshots <dir>`: render every screen to a PNG so the UI can be
+    // compared with the Claude mockup without driving the window by hand.
+    const QString shotDir = parser.value(screenshotsOption);
+    if (!shotDir.isEmpty()) {
+        QDir().mkpath(shotDir);
+        auto* window = qobject_cast<QQuickWindow*>(engine.rootObjects().first());
+        if (!window)
+            return -2;
+        window->resize(1280, 840);
+        const auto wait = [](int ms) {
+            QEventLoop loop;
+            QTimer::singleShot(ms, &loop, &QEventLoop::quit);
+            loop.exec();
+        };
+        const QStringList screens{QStringLiteral(u"present"), QStringLiteral(u"edit"),
+                                  QStringLiteral(u"stage"), QStringLiteral(u"settings"),
+                                  QStringLiteral(u"library")};
+        wait(1200);
+        int index = 1;
+        for (const QString& name : screens) {
+            controller.setScreen(name);
+            wait(700);
+            const QImage image = window->grabWindow();
+            const QString file = QDir(shotDir).filePath(
+                QStringLiteral("%1-%2.png").arg(index, 2, 10, QLatin1Char('0')).arg(name));
+            if (image.isNull() || !image.save(file))
+                return -3;
+            ++index;
+        }
+        return 0;
+    }
 
     return app.exec();
 }

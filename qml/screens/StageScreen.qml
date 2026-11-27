@@ -32,16 +32,16 @@ Item {
                     Item { width: 8; height: 1 }
                     IconButton { anchors.verticalCenter: parent.verticalCenter; icon: "sidebar"; onClicked: Mxu.toggleSidebar() }
                 }
-                Text { anchors.left: parent.left; anchors.leftMargin: 6; text: "Stage Layouts"; color: Theme.text; font.pixelSize: 13; font.weight: Font.DemiBold }
+                Text { anchors.left: parent.left; anchors.leftMargin: 6; text: "Stage Layouts"; color: Theme.text; font.pixelSize: 12; font.weight: Font.DemiBold }
 
                 Repeater {
                     model: ["Lyrics + Next", "Chords", "Timer only", "Message wall"]
                     delegate: Rectangle {
                         width: parent.width
-                        height: 36
+                        height: 30
                         radius: 7
                         color: Mxu.stageLayout === modelData ? Theme.hover : "transparent"
-                        Text { anchors.left: parent.left; anchors.leftMargin: 10; anchors.verticalCenter: parent.verticalCenter; text: modelData; color: Theme.text; font.pixelSize: 14 }
+                        Text { anchors.left: parent.left; anchors.leftMargin: 10; anchors.verticalCenter: parent.verticalCenter; text: modelData; color: Theme.text; font.pixelSize: 12 }
                         MouseArea { anchors.fill: parent; onClicked: Mxu.setStageLayout(modelData) }
                     }
                 }
@@ -87,7 +87,7 @@ Item {
                         anchors.fill: parent
                         anchors.leftMargin: 12
                         anchors.rightMargin: 12
-                        Text { text: "Stage Display — " + Mxu.stageLayout; color: Theme.text; font.pixelSize: 13; font.weight: Font.DemiBold }
+                        Text { text: "Stage Display — " + Mxu.stageLayout; color: Theme.text; font.pixelSize: 12; font.weight: Font.DemiBold }
                         Item { Layout.fillWidth: true; Layout.preferredHeight: 1 }
                         Text { text: "1920 x 1080 · Display 3"; color: Theme.textDim; font.pixelSize: 12 }
                     }
@@ -187,7 +187,7 @@ Item {
                                 width: parent.width - 28
                                 text: "Message: " + Mxu.stageMessage
                                 color: "white"
-                                font.pixelSize: 13
+                                font.pixelSize: 12
                                 font.weight: Font.DemiBold
                                 elide: Text.ElideRight
                             }
@@ -214,7 +214,7 @@ Item {
                     width: parent.width
                     spacing: 2
 
-                    Text { text: "Stage Settings"; color: Theme.text; font.pixelSize: 13; font.weight: Font.DemiBold }
+                    Text { text: "Stage Settings"; color: Theme.text; font.pixelSize: 12; font.weight: Font.DemiBold }
 
                     Text { text: "DISPLAY"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
                     SettingField { width: parent.width; label: "Output"; value: "Display 3" }

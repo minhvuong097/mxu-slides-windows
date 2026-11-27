@@ -43,7 +43,7 @@ Item {
                     anchors.leftMargin: 4
                     text: "Amazing Grace"
                     color: Theme.text
-                    font.pixelSize: 13
+                    font.pixelSize: 12
                     font.weight: Font.DemiBold
                 }
 
@@ -287,7 +287,7 @@ Item {
                     width: parent.width
                     spacing: 6
 
-                    Text { text: "Inspector"; color: Theme.text; font.pixelSize: 13; font.weight: Font.DemiBold }
+                    Text { text: "Inspector"; color: Theme.text; font.pixelSize: 12; font.weight: Font.DemiBold }
 
                     Text { text: "POSITION"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
                     Row {
@@ -435,7 +435,7 @@ Item {
             anchors.fill: parent
             anchors.margins: 12
             spacing: 6
-            Text { text: "Arrangement"; color: Theme.text; font.pixelSize: 13; font.weight: Font.DemiBold }
+            Text { text: "Arrangement"; color: Theme.text; font.pixelSize: 12; font.weight: Font.DemiBold }
             Repeater {
                 model: Mxu.arrangements.arrangements
                 delegate: Rectangle {

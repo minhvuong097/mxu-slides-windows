@@ -837,11 +837,11 @@ Item {
                             }
                         }
 
-                        Text { visible: root.controlTab === "timers"; text: "Pre-Service Preroll"; color: Theme.text; font.pixelSize: 11; font.weight: Font.DemiBold }
+                        Text { visible: root.controlTab === "timers"; text: "Pre-Service Preroll"; color: Theme.text; font.pixelSize: 12; font.weight: Font.Bold }
                         Row {
                             visible: root.controlTab === "timers"
                             spacing: 8
-                            Text { text: Mxu.serviceTimerText; color: Theme.text; font.pixelSize: 30; font.weight: Font.DemiBold }
+                            Text { text: Mxu.serviceTimerText; color: Theme.text; font.pixelSize: 16; font.weight: Font.Bold }
                             Text { anchors.verticalCenter: parent.verticalCenter; text: Mxu.serviceTimerDelta; color: Theme.textDim; font.pixelSize: 11 }
                         }
 
@@ -857,14 +857,27 @@ Item {
                             }
                         }
 
-                        Text {
+                        Row {
                             visible: root.controlTab === "timers"
                             width: parent.width
-                            text: "Preview only: a run of this plan from now. Nothing is saved, and the real service starts fresh."
-                            color: Theme.textDim
-                            font.pixelSize: 10
-                            wrapMode: Text.WordWrap
-                            lineHeight: 1.35
+                            spacing: 10
+                            Text {
+                                width: parent.width - clearTimerButton.width - parent.spacing
+                                text: "Preview only: a run of this plan from now. Nothing is saved, and the real service starts fresh."
+                                color: Theme.textDim
+                                font.pixelSize: 10
+                                wrapMode: Text.WordWrap
+                                lineHeight: 1.35
+                            }
+                            Rectangle {
+                                id: clearTimerButton
+                                width: 56
+                                height: 26
+                                radius: 8
+                                color: Theme.startButton
+                                Text { anchors.centerIn: parent; text: "Clear"; color: Theme.text; font.pixelSize: 11; font.weight: Font.DemiBold }
+                                MouseArea { anchors.fill: parent; onClicked: Mxu.resetTimer() }
+                            }
                         }
 
                         Rectangle {

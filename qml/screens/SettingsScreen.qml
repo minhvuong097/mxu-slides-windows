@@ -33,7 +33,7 @@ Item {
                     Item { width: 8; height: 1 }
                     IconButton { anchors.verticalCenter: parent.verticalCenter; icon: "sidebar"; onClicked: Mxu.toggleSidebar() }
                 }
-                Text { anchors.left: parent.left; anchors.leftMargin: 6; text: "Settings"; color: Theme.text; font.pixelSize: 13; font.weight: Font.DemiBold }
+                Text { anchors.left: parent.left; anchors.leftMargin: 6; text: "Settings"; color: Theme.text; font.pixelSize: 12; font.weight: Font.DemiBold }
 
                 Repeater {
                     model: [
@@ -460,7 +460,7 @@ Item {
                         anchors.margins: 12
                         spacing: 8
                         Text { text: root.pane; color: Theme.text; font.pixelSize: 16; font.weight: Font.DemiBold }
-                        Text { text: "ProSlides for Windows"; color: Theme.text; font.pixelSize: 13 }
+                        Text { text: "ProSlides for Windows"; color: Theme.text; font.pixelSize: 12 }
                         SettingField { width: parent.width; label: "Version"; value: AppVersion }
                         SettingField { width: parent.width; label: "Document"; value: "schemaVersion 161" }
                         SettingRow {
@@ -574,7 +574,7 @@ Item {
                 Row {
                     spacing: 6
                     AppIcon { anchors.verticalCenter: parent.verticalCenter; name: "eye"; size: 14; color: Theme.textDim }
-                    Text { anchors.verticalCenter: parent.verticalCenter; text: "Preview"; color: Theme.text; font.pixelSize: 13; font.weight: Font.DemiBold }
+                    Text { anchors.verticalCenter: parent.verticalCenter; text: "Preview"; color: Theme.text; font.pixelSize: 12; font.weight: Font.DemiBold }
                 }
 
                 Rectangle {
@@ -586,7 +586,7 @@ Item {
                         GradientStop { position: 0; color: "#3b3b52" }
                         GradientStop { position: 0.7; color: "black" }
                     }
-                    Text { anchors.centerIn: parent; text: "PROSLIDES"; color: Theme.text; font.pixelSize: 14; font.weight: Font.Bold; font.letterSpacing: 0.56 }
+                    Text { anchors.centerIn: parent; text: "PROSLIDES"; color: Theme.text; font.pixelSize: 12; font.weight: Font.Bold; font.letterSpacing: 0.48 }
                 }
 
                 Text { text: "STATUS"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }

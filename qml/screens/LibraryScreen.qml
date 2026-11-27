@@ -64,10 +64,10 @@ Item {
                     model: Mxu.libraryModel.categories
                     delegate: Rectangle {
                         width: parent.width
-                        height: 34
+                        height: 30
                         radius: 7
                         color: Mxu.libraryModel.category === modelData ? Theme.hover : "transparent"
-                        Text { anchors.left: parent.left; anchors.leftMargin: 10; anchors.verticalCenter: parent.verticalCenter; text: modelData; color: Theme.text; font.pixelSize: 14 }
+                        Text { anchors.left: parent.left; anchors.leftMargin: 10; anchors.verticalCenter: parent.verticalCenter; text: modelData; color: Theme.text; font.pixelSize: 12 }
                         MouseArea { anchors.fill: parent; onClicked: Mxu.libraryModel.category = modelData }
                     }
                 }
@@ -78,10 +78,10 @@ Item {
                     model: Mxu.libraryModel.folders
                     delegate: Rectangle {
                         width: parent.width
-                        height: 34
+                        height: 30
                         radius: 7
                         color: "transparent"
-                        Text { anchors.left: parent.left; anchors.leftMargin: 10; anchors.verticalCenter: parent.verticalCenter; text: modelData; color: Theme.text; font.pixelSize: 14 }
+                        Text { anchors.left: parent.left; anchors.leftMargin: 10; anchors.verticalCenter: parent.verticalCenter; text: modelData; color: Theme.text; font.pixelSize: 12 }
                     }
                 }
 
@@ -129,9 +129,9 @@ Item {
                         anchors.fill: parent
                         anchors.leftMargin: 12
                         anchors.rightMargin: 12
-                        Text { text: "Drive"; color: Theme.textDim; font.pixelSize: 13 }
-                        Text { text: "/"; color: Theme.textDim; font.pixelSize: 13 }
-                        Text { text: Mxu.libraryModel.category; color: Theme.text; font.pixelSize: 13 }
+                        Text { text: "Drive"; color: Theme.textDim; font.pixelSize: 12 }
+                        Text { text: "/"; color: Theme.textDim; font.pixelSize: 12 }
+                        Text { text: Mxu.libraryModel.category; color: Theme.text; font.pixelSize: 12 }
                         Item { Layout.fillWidth: true; Layout.preferredHeight: 1 }
                         Rectangle {
                             radius: 7; color: Theme.surface
@@ -217,7 +217,7 @@ Item {
                 anchors.margins: 12
                 spacing: 6
 
-                Text { text: "Details"; color: Theme.text; font.pixelSize: 13; font.weight: Font.DemiBold }
+                Text { text: "Details"; color: Theme.text; font.pixelSize: 12; font.weight: Font.DemiBold }
 
                 Rectangle {
                     width: parent.width
@@ -231,7 +231,7 @@ Item {
                         GradientStop { position: 1; color: Mxu.libraryModel.selectedItem.to || "#111" }
                     }
                 }
-                Text { text: Mxu.libraryModel.selectedItem.name; color: Theme.text; font.pixelSize: 13; font.weight: Font.DemiBold }
+                Text { text: Mxu.libraryModel.selectedItem.name; color: Theme.text; font.pixelSize: 12; font.weight: Font.DemiBold }
 
                 Text { text: "INFO"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
                 RowLayout { width: parent.width
