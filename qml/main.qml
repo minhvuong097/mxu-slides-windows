@@ -121,6 +121,7 @@ ApplicationWindow {
     StageOutputWindow { id: stageOutput; objectName: "stageOutput" }
     ConfidenceWindow { id: confidenceMonitor; objectName: "confidenceMonitor" }
     PreviewWindow { id: previewWindow }
+    ModuleWindow { id: moduleWindow }
 
     NotesPanel {
         id: notesPanel
@@ -156,6 +157,7 @@ ApplicationWindow {
     Shortcut { sequence: "Ctrl+T"; context: Qt.ShortcutContext.Application; onActivated: timelinePanel.open() }
     Shortcut { sequence: "F8"; context: Qt.ShortcutContext.Application; onActivated: notesPanel.open() }
     Shortcut { sequence: "F9"; context: Qt.ShortcutContext.Application; onActivated: previewWindow.visible = !previewWindow.visible }
+    Shortcut { sequence: "F11"; context: Qt.ShortcutContext.Application; onActivated: moduleWindow.visible = !moduleWindow.visible }
     Shortcut { sequence: "F5"; context: Qt.ShortcutContext.Application; onActivated: Mxu.togglePresenting() }
     Shortcut { sequence: "F6"; context: Qt.ShortcutContext.Application; onActivated: Mxu.toggleStageOutput() }
     Shortcut { sequence: "F7"; context: Qt.ShortcutContext.Application; onActivated: Mxu.toggleConfidence() }
