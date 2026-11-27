@@ -689,7 +689,12 @@ void MxuDocumentTest::styleRuns()
 {
     app::AppController controller;
     QVERIFY(controller.addStyleRun(0, 0, 5, QStringLiteral(u"#ffd60a")));
-    QVERIFY(!controller.property("renderLayers").toList().isEmpty());
+    const QVariantList layers = controller.property("renderLayers").toList();
+    QVERIFY(!layers.isEmpty());
+    const QVariantList items = layers.first().toMap().value(QStringLiteral(u"items")).toList();
+    QVERIFY(!items.isEmpty());
+    QVERIFY(items.first().toMap().value(QStringLiteral(u"richText")).toString()
+                .contains(QStringLiteral(u"<span")));
 }
 
 int main(int argc, char** argv)

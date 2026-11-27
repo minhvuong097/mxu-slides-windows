@@ -54,11 +54,12 @@ AppController::AppController(QObject* parent)
 {
     m_document = core::Document::demo();
     seedSlides(m_show, m_document);
-    if (!m_show.document().slides.isEmpty()) {
-        const auto& first = m_show.document().slides.first();
-        m_show.selectSlide(first.id);
-        if (!first.objects.isEmpty())
-            m_show.selectObject(first.objects.first().id);
+    for (const auto& slide : m_show.document().slides) {
+        if (slide.objects.isEmpty())
+            continue;
+        m_show.selectSlide(slide.id);
+        m_show.selectObject(slide.objects.first().id);
+        break;
     }
     m_service.setDocument(&m_document);
     m_cues.setDocument(&m_document);
