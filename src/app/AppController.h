@@ -254,6 +254,7 @@ public:
     void setOutputMaskMode(const QString& value);
     void setOutputMaskShape(const QString& value);
     Q_INVOKABLE QString addSlideAction(const QString& kind, const QString& target);
+    Q_INVOKABLE bool addStyleRun(int line, int column, int length, const QString& colorHex);
     Q_INVOKABLE bool fireSlideAction(const QString& id);
     QObject* ndiSender() { return &m_ndi; }
     QObject* deckLinkOutput() { return &m_decklink; }

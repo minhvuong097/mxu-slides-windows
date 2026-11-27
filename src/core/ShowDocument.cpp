@@ -213,6 +213,23 @@ bool ShowDocument::updateObject(const QString& slideId, const QString& objectId,
         object->textStyle->colorHex = patch.value(QStringLiteral(u"colorHex")).toString();
     if (patch.contains(QStringLiteral(u"fontName")))
         object->textStyle->fontName = patch.value(QStringLiteral(u"fontName")).toString();
+    if (patch.contains(QStringLiteral(u"styleRun"))) {
+        const QVariantMap runMap = patch.value(QStringLiteral(u"styleRun")).toMap();
+        model::TextStyleRun run;
+        run.line = runMap.value(QStringLiteral(u"line")).toInt();
+        run.column = runMap.value(QStringLiteral(u"column")).toInt();
+        run.length = runMap.value(QStringLiteral(u"length")).toInt();
+        if (runMap.contains(QStringLiteral(u"colorHex")))
+            run.colorHex = runMap.value(QStringLiteral(u"colorHex")).toString();
+        if (runMap.contains(QStringLiteral(u"underline")))
+            run.underline = runMap.value(QStringLiteral(u"underline")).toBool();
+        if (runMap.contains(QStringLiteral(u"fontSize")))
+            run.fontSize = runMap.value(QStringLiteral(u"fontSize")).toDouble();
+        if (!object->styleRuns)
+            object->styleRuns = QVector<model::TextStyleRun>();
+        object->styleRuns->append(run);
+    }
+
     if (patch.contains(QStringLiteral(u"animationSeconds"))) {
         model::AnimationStep step;
         step.id = makeId();

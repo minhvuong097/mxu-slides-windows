@@ -78,6 +78,7 @@ private slots:
     void automergeAndWav();
     void wasapiStub();
     void sdkBackends();
+    void styleRuns();
 };
 
 void MxuDocumentTest::demoMatchesServiceFlow()
@@ -682,6 +683,13 @@ void MxuDocumentTest::sdkBackends()
     QVERIFY(!decklink.available());
     QVERIFY(!decklink.start(0));
 #endif
+}
+
+void MxuDocumentTest::styleRuns()
+{
+    app::AppController controller;
+    QVERIFY(controller.addStyleRun(0, 0, 5, QStringLiteral(u"#ffd60a")));
+    QVERIFY(!controller.property("renderLayers").toList().isEmpty());
 }
 
 int main(int argc, char** argv)

@@ -320,6 +320,11 @@ Item {
                         background: Rectangle { radius: 7; color: Theme.inset }
                         contentItem: Text { text: fontBox.currentText; color: Theme.text; font.pixelSize: 11; verticalAlignment: Text.AlignVCenter }
                     }
+                    Rectangle {
+                        width: 130; height: 24; radius: 7; color: Theme.surface
+                        Text { anchors.centerIn: parent; text: "+ Highlight 5 chars"; color: Theme.text; font.pixelSize: 10 }
+                        MouseArea { anchors.fill: parent; onClicked: Mxu.addStyleRun(0, 0, 5, "#ffd60a") }
+                    }
                     NumberField { width: parent.width; label: "Size"; value: Mxu.selectedObject.fontSize ?? 0; onCommitted: Mxu.updateObject({ "fontSize": value }) }
                     TextField {
                         width: parent.width

@@ -54,6 +54,12 @@ AppController::AppController(QObject* parent)
 {
     m_document = core::Document::demo();
     seedSlides(m_show, m_document);
+    if (!m_show.document().slides.isEmpty()) {
+        const auto& first = m_show.document().slides.first();
+        m_show.selectSlide(first.id);
+        if (!first.objects.isEmpty())
+            m_show.selectObject(first.objects.first().id);
+    }
     m_service.setDocument(&m_document);
     m_cues.setDocument(&m_document);
     m_library.setDocument(&m_document);
@@ -873,6 +879,24 @@ void AppController::refreshPreview()
 QVariantList AppController::search(const QString& query) const
 {
     return m_search.search(query);
+}
+
+bool AppController::addStyleRun(int line, int column, int length, const QString& colorHex)
+{
+    if (length <= 0 || column < 0 || line < 0)
+        return false;
+    const bool ok = m_show.updateObject(m_show.selectedSlide(), m_show.selectedObject(),
+                                        QVariantMap{ { QStringLiteral(u"styleRun"), QVariantMap{
+                                            { QStringLiteral(u"line"), line },
+                                            { QStringLiteral(u"column"), column },
+                                            { QStringLiteral(u"length"), length },
+                                            { QStringLiteral(u"colorHex"), colorHex },
+                                        } } });
+    if (ok) {
+        emit sceneChanged();
+        emit notification(QStringLiteral(u"Style run added"));
+    }
+    return ok;
 }
 
 bool AppController::addServiceItem(const QString& name, int section)
