@@ -288,7 +288,7 @@ Window {
                             anchors.rightMargin: 12
                             spacing: 8
                             Column {
-                                width: parent.width - 140
+                                width: parent.width - 180
                                 Text {
                                     text: modelData.name
                                     color: Theme.text
@@ -333,6 +333,17 @@ Window {
                                 MouseArea {
                                     anchors.fill: parent
                                     onClicked: Mxu.audioService.toggleSolo(modelData.id)
+                                }
+                            }
+                            Rectangle {
+                                width: 28
+                                height: 28
+                                radius: 8
+                                color: Theme.surface
+                                Text { anchors.centerIn: parent; text: "✕"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold }
+                                MouseArea {
+                                    anchors.fill: parent
+                                    onClicked: Mxu.audioService.removeChannel(modelData.id)
                                 }
                             }
                         }
@@ -466,7 +477,7 @@ Window {
                             anchors.rightMargin: 12
                             spacing: 8
                             Column {
-                                width: parent.width - 140
+                                width: parent.width - 244
                                 Text {
                                     text: modelData.name
                                     color: Theme.text
@@ -483,6 +494,17 @@ Window {
                             MiniSlider {
                                 anchors.verticalCenter: parent.verticalCenter
                                 value: modelData.volume
+                            }
+                            Rectangle {
+                                width: 40
+                                height: 28
+                                radius: 8
+                                color: Theme.accent
+                                Text { anchors.centerIn: parent; text: modelData.playing ? "Stop" : "Play"; color: "white"; font.pixelSize: 11; font.weight: Font.Bold }
+                                MouseArea {
+                                    anchors.fill: parent
+                                    onClicked: modelData.playing ? Mxu.audioService.stop(modelData.id) : Mxu.audioService.play(modelData.id)
+                                }
                             }
                             Rectangle {
                                 width: 28
@@ -504,6 +526,17 @@ Window {
                                 MouseArea {
                                     anchors.fill: parent
                                     onClicked: Mxu.audioService.toggleSolo(modelData.id)
+                                }
+                            }
+                            Rectangle {
+                                width: 28
+                                height: 28
+                                radius: 8
+                                color: Theme.surface
+                                Text { anchors.centerIn: parent; text: "✕"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold }
+                                MouseArea {
+                                    anchors.fill: parent
+                                    onClicked: Mxu.audioService.removeChannel(modelData.id)
                                 }
                             }
                         }
