@@ -215,9 +215,16 @@ Window {
                         anchors.rightMargin: 12
                         spacing: 8
                         Column {
-                            width: parent.width - 140
+                            width: parent.width - 200
                             Text { text: "Crossfade"; color: Theme.text; font.pixelSize: 13; font.weight: Font.Bold }
                             Text { text: "From " + (Mxu.audioChannels[0] ? Mxu.audioChannels[0].name : "") + " → " + (Mxu.audioChannels[1] ? Mxu.audioChannels[1].name : ""); color: Theme.textDim; font.pixelSize: 11; elide: Text.ElideRight }
+                        }
+                        NumberField {
+                            id: crossfadeDuration
+                            label: "Sec"
+                            width: 64
+                            value: 5
+                            onCommitted: Mxu.audioService.crossfade(Mxu.audioChannels[0].id, Mxu.audioChannels[1].id, crossfadeDuration.value)
                         }
                         Rectangle {
                             width: 90
@@ -225,7 +232,7 @@ Window {
                             radius: 8
                             color: Theme.accent
                             Text { anchors.centerIn: parent; text: "Fire"; color: "white"; font.pixelSize: 11; font.weight: Font.Bold }
-                            MouseArea { anchors.fill: parent; onClicked: Mxu.audioService.crossfade(Mxu.audioChannels[0].id, Mxu.audioChannels[1].id, 5.0) }
+                            MouseArea { anchors.fill: parent; onClicked: Mxu.audioService.crossfade(Mxu.audioChannels[0].id, Mxu.audioChannels[1].id, crossfadeDuration.value) }
                         }
                     }
                 }
