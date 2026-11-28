@@ -12,6 +12,37 @@ Item {
     property real zoom: 1.0
     property real scale: 0.3333  // 1920x1080 document -> 640x360 canvas
 
+    readonly property var animationKinds: ["In", "Out", "Emphasis", "Morph"]
+    readonly property var animationEffects: ["Fade", "Move", "Scale", "Wipe", "Blur", "Burn", "Glitch", "Draw", "Type", "Pulse", "Color"]
+    readonly property var animationTriggers: ["OnClick", "WithPrevious", "AfterPrevious", "OnDismiss"]
+    readonly property var blendModes: ["normal", "multiply", "screen", "add"]
+    readonly property var transitionKinds: ["cut", "dissolve", "fadeBlack", "fadeWhite", "fadeColor", "blurDissolve", "filmBurn"]
+    readonly property var shapeKinds: ["Rectangle", "RoundedRectangle", "Ellipse", "Path"]
+
+    function animationSteps() {
+        return (Mxu.selectedObject.animationSteps || []).map(function (step) {
+            return Object.assign({}, step)
+        })
+    }
+
+    function setAnimationStep(index, key, value) {
+        const steps = animationSteps()
+        if (index < 0 || index >= steps.length)
+            return
+        steps[index][key] = value
+        Mxu.updateObject({ "animationSteps": steps })
+    }
+
+    function addAnimationStep() {
+        const steps = animationSteps()
+        steps.push({ "kind": "In", "animation": "Fade", "trigger": "OnClick", "durationSeconds": 0.4, "delaySeconds": 0 })
+        Mxu.updateObject({ "animationSteps": steps })
+    }
+
+    function removeAnimationStep(id) {
+        Mxu.updateObject({ "animationSteps": animationSteps().filter(function (step) { return step.id !== id }) })
+    }
+
     Row {
         anchors.fill: parent
         anchors.margins: 10
@@ -320,10 +351,42 @@ Item {
                         background: Rectangle { radius: 7; color: Theme.inset }
                         contentItem: Text { text: fontBox.currentText; color: Theme.text; font.pixelSize: 11; verticalAlignment: Text.AlignVCenter }
                     }
-                    Rectangle {
-                        width: 130; height: 24; radius: 7; color: Theme.surface
-                        Text { anchors.centerIn: parent; text: "+ Highlight 5 chars"; color: Theme.text; font.pixelSize: 10 }
-                        MouseArea { anchors.fill: parent; onClicked: Mxu.addStyleRun(0, 0, 5, "#ffd60a") }
+                    Text { text: "STYLE RUNS"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
+                    Row {
+                        width: parent.width; spacing: 6
+                        NumberField { id: runLine; width: 52; label: "Line"; value: 0 }
+                        NumberField { id: runColumn; width: 56; label: "Col"; value: 0 }
+                        NumberField { id: runLength; width: 56; label: "Len"; value: 5 }
+                    }
+                    Row {
+                        width: parent.width; spacing: 6
+                        TextField {
+                            id: runColor
+                            width: parent.width - 92
+                            text: "#ffd60a"
+                            color: Theme.text
+                            font.pixelSize: 11
+                            background: Rectangle { radius: 7; color: Theme.inset }
+                        }
+                        Rectangle {
+                            width: 86; height: 24; radius: 7; color: Theme.surface
+                            Text { anchors.centerIn: parent; text: "+ Add run"; color: Theme.text; font.pixelSize: 10 }
+                            MouseArea {
+                                anchors.fill: parent
+                                onClicked: Mxu.addStyleRun(runLine.value, runColumn.value, runLength.value, runColor.text)
+                            }
+                        }
+                    }
+                    Repeater {
+                        model: Mxu.selectedObject.styleRuns || []
+                        delegate: Rectangle {
+                            width: parent.width; height: 22; radius: 6; color: Theme.inset
+                            RowLayout {
+                                anchors.fill: parent; anchors.leftMargin: 6; anchors.rightMargin: 6
+                                Rectangle { Layout.preferredWidth: 10; Layout.preferredHeight: 10; radius: 2; color: modelData.colorHex || Theme.text }
+                                Text { Layout.fillWidth: true; text: "L" + modelData.line + " C" + modelData.column + " ×" + modelData.length; color: Theme.textDim; font.pixelSize: 10 }
+                            }
+                        }
                     }
                     NumberField { width: parent.width; label: "Size"; value: Mxu.selectedObject.fontSize ?? 0; onCommitted: Mxu.updateObject({ "fontSize": value }) }
                     TextField {
@@ -336,14 +399,164 @@ Item {
                     }
 
                     Text { text: "FILL AND STROKE"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
-                    SettingField { width: parent.width; label: "Fill"; value: "None" }
-                    SettingField { width: parent.width; label: "Stroke"; value: "0 px" }
+                    TextField {
+                        width: parent.width
+                        placeholderText: "Fill #RRGGBB"
+                        text: Mxu.selectedObject.fillColor || ""
+                        color: Theme.text
+                        font.pixelSize: 11
+                        background: Rectangle { radius: 7; color: Theme.inset }
+                        onEditingFinished: Mxu.updateObject({ "fillColor": text })
+                    }
+                    Row {
+                        width: parent.width; spacing: 6
+                        TextField {
+                            id: strokeColor
+                            width: parent.width - 66
+                            placeholderText: "Stroke #RRGGBB"
+                            text: Mxu.selectedObject.strokeColor || ""
+                            color: Theme.text
+                            font.pixelSize: 11
+                            background: Rectangle { radius: 7; color: Theme.inset }
+                            onEditingFinished: Mxu.updateObject({ "strokeColor": text })
+                        }
+                        NumberField {
+                            width: 60; label: "px"; value: Mxu.selectedObject.strokeWidth || 0
+                            onCommitted: Mxu.updateObject({ "strokeWidth": value })
+                        }
+                    }
+                    TextField {
+                        width: parent.width
+                        placeholderText: "Shadow #RRGGBB"
+                        text: Mxu.selectedObject.shadowColor || ""
+                        color: Theme.text
+                        font.pixelSize: 11
+                        background: Rectangle { radius: 7; color: Theme.inset }
+                        onEditingFinished: Mxu.updateObject({ "shadowColor": text })
+                    }
+                    Row {
+                        width: parent.width; spacing: 6
+                        Repeater {
+                            model: ["#ffffff", "#ffd60a", "#ff453a", "#30d158", "#0a84ff", "#bf5af2"]
+                            delegate: Rectangle {
+                                width: 26; height: 20; radius: 5; color: modelData
+                                border.color: Theme.border; border.width: 1
+                                MouseArea { anchors.fill: parent; onClicked: Mxu.updateObject({ "fillColor": modelData }) }
+                            }
+                        }
+                    }
+
+                    Text { text: "OBJECT"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
+                    Row {
+                        width: parent.width; spacing: 6
+                        NumberField { width: (parent.width - 6) / 2; label: "Opacity"; value: Mxu.selectedObject.opacity ?? 1; onCommitted: Mxu.updateObject({ "opacity": value }) }
+                        NumberField { width: (parent.width - 6) / 2; label: "Rotate"; value: Mxu.selectedObject.rotationDegrees ?? 0; onCommitted: Mxu.updateObject({ "rotationDegrees": value }) }
+                    }
+                    ComboBox {
+                        id: blendBox
+                        width: parent.width
+                        model: root.blendModes
+                        currentIndex: Math.max(0, model.indexOf(Mxu.selectedObject.blendMode || "normal"))
+                        onActivated: Mxu.updateObject({ "blendMode": blendBox.currentText })
+                        background: Rectangle { radius: 7; color: Theme.inset }
+                        contentItem: Text { text: blendBox.currentText; color: Theme.text; font.pixelSize: 11; verticalAlignment: Text.AlignVCenter }
+                    }
+                    ComboBox {
+                        id: shapeBox
+                        width: parent.width
+                        model: root.shapeKinds
+                        currentIndex: model.indexOf(Mxu.selectedObject.shapeKind || "")
+                        onActivated: Mxu.updateObject({ "shapeKind": shapeBox.currentText })
+                        background: Rectangle { radius: 7; color: Theme.inset }
+                        contentItem: Text { text: shapeBox.currentIndex >= 0 ? shapeBox.currentText : "Shape"; color: Theme.text; font.pixelSize: 11; verticalAlignment: Text.AlignVCenter }
+                    }
+                    TextField {
+                        width: parent.width
+                        placeholderText: "Group id"
+                        text: Mxu.selectedObject.groupId || ""
+                        color: Theme.text
+                        font.pixelSize: 11
+                        background: Rectangle { radius: 7; color: Theme.inset }
+                        onEditingFinished: Mxu.updateObject({ "groupId": text })
+                    }
 
                     Text { text: "ANIMATION"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
-                    NumberField { width: parent.width; label: "Fade in"; value: 0.4; onCommitted: Mxu.updateObject({ "animationSeconds": value }) }
+                    Repeater {
+                        model: Mxu.selectedObject.animationSteps || []
+                        delegate: Rectangle {
+                            width: parent.width
+                            height: 104
+                            radius: 8
+                            color: Theme.inset
+                            Column {
+                                anchors.fill: parent
+                                anchors.margins: 6
+                                spacing: 3
+                                Row {
+                                    width: parent.width; spacing: 4
+                                    ComboBox {
+                                        id: kindBox; width: (parent.width - 8) / 3
+                                        model: root.animationKinds
+                                        currentIndex: Math.max(0, model.indexOf(modelData.kind))
+                                        onActivated: root.setAnimationStep(index, "kind", kindBox.currentText)
+                                        background: Rectangle { radius: 6; color: Theme.surface }
+                                        contentItem: Text { text: kindBox.currentText; color: Theme.text; font.pixelSize: 10; verticalAlignment: Text.AlignVCenter }
+                                    }
+                                    ComboBox {
+                                        id: triggerBox; width: (parent.width - 8) / 3
+                                        model: root.animationTriggers
+                                        currentIndex: Math.max(0, model.indexOf(modelData.trigger))
+                                        onActivated: root.setAnimationStep(index, "trigger", triggerBox.currentText)
+                                        background: Rectangle { radius: 6; color: Theme.surface }
+                                        contentItem: Text { text: triggerBox.currentText; color: Theme.text; font.pixelSize: 9; verticalAlignment: Text.AlignVCenter }
+                                    }
+                                    Rectangle {
+                                        width: (parent.width - 8) / 3; height: 24; radius: 6; color: Theme.surface
+                                        Text { anchors.centerIn: parent; text: "✕ Remove"; color: Theme.textDim; font.pixelSize: 10 }
+                                        MouseArea { anchors.fill: parent; onClicked: root.removeAnimationStep(modelData.id) }
+                                    }
+                                }
+                                ComboBox {
+                                    id: effectBox; width: parent.width
+                                    model: root.animationEffects
+                                    currentIndex: Math.max(0, model.indexOf(modelData.animation))
+                                    onActivated: root.setAnimationStep(index, "animation", effectBox.currentText)
+                                    background: Rectangle { radius: 6; color: Theme.surface }
+                                    contentItem: Text { text: effectBox.currentText; color: Theme.text; font.pixelSize: 10; verticalAlignment: Text.AlignVCenter }
+                                }
+                                Row {
+                                    width: parent.width; spacing: 4
+                                    NumberField { width: (parent.width - 4) / 2; label: "Sec"; value: modelData.durationSeconds; onCommitted: root.setAnimationStep(index, "durationSeconds", value) }
+                                    NumberField { width: (parent.width - 4) / 2; label: "Delay"; value: modelData.delaySeconds; onCommitted: root.setAnimationStep(index, "delaySeconds", value) }
+                                }
+                            }
+                        }
+                    }
+                    Rectangle {
+                        width: 120; height: 24; radius: 7; color: Theme.surface
+                        Text { anchors.centerIn: parent; text: "+ Animation"; color: Theme.text; font.pixelSize: 10 }
+                        MouseArea { anchors.fill: parent; onClicked: root.addAnimationStep() }
+                    }
 
                     Text { text: "TRANSITION"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
-                    SettingField { width: parent.width; label: "Dissolve"; value: "0.6 s" }
+                    ComboBox {
+                        id: transitionBox
+                        width: parent.width
+                        model: root.transitionKinds
+                        currentIndex: Math.max(0, model.indexOf(Mxu.transitionKind))
+                        onActivated: Mxu.transitionKind = transitionBox.currentText
+                        background: Rectangle { radius: 7; color: Theme.inset }
+                        contentItem: Text { text: transitionBox.currentText; color: Theme.text; font.pixelSize: 11; verticalAlignment: Text.AlignVCenter }
+                    }
+                    Row {
+                        width: parent.width; spacing: 6
+                        NumberField { width: 78; label: "Sec"; value: Mxu.transitionDuration; onCommitted: Mxu.transitionDuration = value }
+                        Rectangle {
+                            width: 80; height: 24; radius: 7; color: Theme.accent
+                            Text { anchors.centerIn: parent; text: "Preview"; color: "white"; font.pixelSize: 10; font.weight: Font.Bold }
+                            MouseArea { anchors.fill: parent; onClicked: Mxu.playTransition() }
+                        }
+                    }
 
                     Text { text: "VERSIONS"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
                     Repeater {
@@ -385,26 +598,61 @@ Item {
                             }
                         }
                     }
-                    Row { spacing: 6
+                    Grid {
+                        width: parent.width; columns: 2; spacing: 6
                         Rectangle {
-                            width: 120; height: 26; radius: 7; color: Theme.surface
+                            width: (parent.width - 6) / 2; height: 26; radius: 7; color: Theme.surface
                             Text { anchors.centerIn: parent; text: "+ Advance"; color: Theme.text; font.pixelSize: 10 }
                             MouseArea { anchors.fill: parent; onClicked: Mxu.addSlideAction("advance", "") }
                         }
                         Rectangle {
-                            width: 120; height: 26; radius: 7; color: Theme.surface
+                            width: (parent.width - 6) / 2; height: 26; radius: 7; color: Theme.surface
                             Text { anchors.centerIn: parent; text: "+ Fire alert"; color: Theme.text; font.pixelSize: 10 }
                             MouseArea { anchors.fill: parent; onClicked: Mxu.addSlideAction("fireAlert", "Please wrap up") }
                         }
+                        Rectangle {
+                            width: (parent.width - 6) / 2; height: 26; radius: 7; color: Theme.surface
+                            Text { anchors.centerIn: parent; text: "+ Clear layer"; color: Theme.text; font.pixelSize: 10 }
+                            MouseArea { anchors.fill: parent; onClicked: Mxu.addSlideAction("clearLayer", "slide") }
+                        }
+                        Rectangle {
+                            width: (parent.width - 6) / 2; height: 26; radius: 7; color: Theme.surface
+                            Text { anchors.centerIn: parent; text: "+ Restore"; color: Theme.text; font.pixelSize: 10 }
+                            MouseArea { anchors.fill: parent; onClicked: Mxu.addSlideAction("restore", "") }
+                        }
+                        Rectangle {
+                            width: (parent.width - 6) / 2; height: 26; radius: 7; color: Theme.surface
+                            Text { anchors.centerIn: parent; text: "+ Timer"; color: Theme.text; font.pixelSize: 10 }
+                            MouseArea { anchors.fill: parent; onClicked: Mxu.addSlideAction("timerStart", "section") }
+                        }
+                        Rectangle {
+                            width: (parent.width - 6) / 2; height: 26; radius: 7; color: Theme.surface
+                            Text { anchors.centerIn: parent; text: "+ Combo"; color: Theme.text; font.pixelSize: 10 }
+                            MouseArea { anchors.fill: parent; onClicked: Mxu.addSlideAction("combo", "wrapUp") }
+                        }
                     }
 
-                    Text { text: "LAYER"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
+                    Text { text: "VISIBILITY"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
                     Row {
                         width: parent.width; spacing: 6
-                        Rectangle { width: (parent.width - 6) / 2; height: 28; radius: 7; color: Theme.surface
-                            Text { anchors.centerIn: parent; text: "Group"; color: Theme.text; font.pixelSize: 11 } }
-                        Rectangle { width: (parent.width - 6) / 2; height: 28; radius: 7; color: Theme.surface
-                            Text { anchors.centerIn: parent; text: "Bring forward"; color: Theme.text; font.pixelSize: 11 } }
+                        Rectangle {
+                            width: 86; height: 26; radius: 7
+                            color: Mxu.selectedObject.hidden ? Theme.pink : Theme.surface
+                            Text { anchors.centerIn: parent; text: Mxu.selectedObject.hidden ? "Hidden" : "Visible"; color: "white"; font.pixelSize: 10 }
+                            MouseArea { anchors.fill: parent; onClicked: Mxu.updateObject({ "hidden": !Mxu.selectedObject.hidden }) }
+                        }
+                        NumberField {
+                            width: 100; label: "Radius"; value: Mxu.selectedObject.cornerRadius || 0
+                            onCommitted: Mxu.updateObject({ "cornerRadius": value })
+                        }
+                        Rectangle {
+                            width: 92; height: 26; radius: 7; color: Theme.surface
+                            Text { anchors.centerIn: parent; text: "Reset xform"; color: Theme.text; font.pixelSize: 10 }
+                            MouseArea {
+                                anchors.fill: parent
+                                onClicked: Mxu.updateObject({ "x": 0, "y": 0, "rotationDegrees": 0, "opacity": 1 })
+                            }
+                        }
                     }
                 }
             }

@@ -239,6 +239,83 @@ bool ShowDocument::updateObject(const QString& slideId, const QString& objectId,
         step.durationSeconds = patch.value(QStringLiteral(u"animationSeconds")).toDouble();
         object->animationSteps = QVector<model::AnimationStep>{ step };
     }
+
+    // Deep object editing (Mac SlideObjectInspector parity).
+    auto optionalNumber = [&patch](const QString& key, std::optional<double>& target) {
+        if (patch.contains(key))
+            target = patch.value(key).toDouble();
+    };
+    auto optionalString = [&patch](const QString& key, std::optional<QString>& target) {
+        if (patch.contains(key))
+            target = patch.value(key).toString();
+    };
+    auto optionalBool = [&patch](const QString& key, std::optional<bool>& target) {
+        if (patch.contains(key))
+            target = patch.value(key).toBool();
+    };
+    optionalNumber(QStringLiteral(u"rotationDegrees"), object->rotationDegrees);
+    optionalNumber(QStringLiteral(u"opacity"), object->opacity);
+    optionalNumber(QStringLiteral(u"cornerRadius"), object->cornerRadius);
+    optionalNumber(QStringLiteral(u"tilt"), object->tilt);
+    optionalNumber(QStringLiteral(u"swing"), object->swing);
+    optionalBool(QStringLiteral(u"hidden"), object->hidden);
+    optionalBool(QStringLiteral(u"flipHorizontal"), object->flipHorizontal);
+    optionalBool(QStringLiteral(u"flipVertical"), object->flipVertical);
+    optionalString(QStringLiteral(u"groupId"), object->groupId);
+    optionalString(QStringLiteral(u"mediaId"), object->mediaId);
+    if (patch.contains(QStringLiteral(u"blendMode")))
+        object->blendMode = model::BlendModeFromString(patch.value(QStringLiteral(u"blendMode")).toString());
+    if (patch.contains(QStringLiteral(u"shapeKind")))
+        object->shapeKind = model::ShapeKindFromString(patch.value(QStringLiteral(u"shapeKind")).toString());
+
+    if (patch.contains(QStringLiteral(u"fillColor"))) {
+        const QString color = patch.value(QStringLiteral(u"fillColor")).toString();
+        if (!object->fill)
+            object->fill = model::ObjectFill{ model::FillKind::Solid, color };
+        else
+            object->fill->colorHex = color;
+    }
+    if (patch.contains(QStringLiteral(u"strokeColor")) || patch.contains(QStringLiteral(u"strokeWidth"))) {
+        const QString color = patch.contains(QStringLiteral(u"strokeColor"))
+                              ? patch.value(QStringLiteral(u"strokeColor")).toString()
+                              : (object->stroke ? object->stroke->colorHex : QStringLiteral(u"#FFFFFF"));
+        const double width = patch.contains(QStringLiteral(u"strokeWidth"))
+                             ? patch.value(QStringLiteral(u"strokeWidth")).toDouble()
+                             : (object->stroke ? object->stroke->width : 0.0);
+        object->stroke = model::ObjectStroke{ color, width };
+    }
+    if (patch.contains(QStringLiteral(u"shadowColor")) || patch.contains(QStringLiteral(u"shadowBlur"))
+        || patch.contains(QStringLiteral(u"shadowOffsetX")) || patch.contains(QStringLiteral(u"shadowOffsetY"))) {
+        model::ObjectShadow shadow = object->shadow.value_or(model::ObjectShadow{});
+        if (patch.contains(QStringLiteral(u"shadowColor")))
+            shadow.colorHex = patch.value(QStringLiteral(u"shadowColor")).toString();
+        if (patch.contains(QStringLiteral(u"shadowBlur")))
+            shadow.blurRadius = patch.value(QStringLiteral(u"shadowBlur")).toDouble();
+        if (patch.contains(QStringLiteral(u"shadowOffsetX")))
+            shadow.offsetX = patch.value(QStringLiteral(u"shadowOffsetX")).toDouble();
+        if (patch.contains(QStringLiteral(u"shadowOffsetY")))
+            shadow.offsetY = patch.value(QStringLiteral(u"shadowOffsetY")).toDouble();
+        object->shadow = shadow;
+    }
+
+    // Multiple animation steps with explicit kind / effect / trigger.
+    if (patch.contains(QStringLiteral(u"animationSteps"))) {
+        QVector<model::AnimationStep> steps;
+        for (const QVariant& value : patch.value(QStringLiteral(u"animationSteps")).toList()) {
+            const QVariantMap map = value.toMap();
+            model::AnimationStep step;
+            step.id = map.value(QStringLiteral(u"id")).toString().isEmpty()
+                      ? makeId() : map.value(QStringLiteral(u"id")).toString();
+            step.kind = model::AnimationKindFromString(map.value(QStringLiteral(u"kind")).toString());
+            step.animation = model::StepAnimationFromString(map.value(QStringLiteral(u"animation")).toString());
+            step.trigger = model::AnimationTriggerFromString(map.value(QStringLiteral(u"trigger")).toString());
+            step.durationSeconds = map.value(QStringLiteral(u"durationSeconds")).toDouble();
+            if (map.contains(QStringLiteral(u"delaySeconds")))
+                step.delaySeconds = map.value(QStringLiteral(u"delaySeconds")).toDouble();
+            steps.append(step);
+        }
+        object->animationSteps = steps;
+    }
     return true;
 }
 
@@ -391,6 +468,41 @@ QVariantList ShowDocument::objectsForQml(const QString& slideId) const
     return result;
 }
 
+static QVariantList styleRunsForQml(const std::optional<QVector<model::TextStyleRun>>& runs)
+{
+    QVariantList result;
+    if (!runs)
+        return result;
+    for (const auto& run : *runs) {
+        result.append(QVariantMap{
+            { QStringLiteral(u"line"), run.line },
+            { QStringLiteral(u"column"), run.column },
+            { QStringLiteral(u"length"), run.length },
+            { QStringLiteral(u"colorHex"), run.colorHex.value_or(QString()) },
+            { QStringLiteral(u"fontSize"), run.fontSize.value_or(0.0) },
+        });
+    }
+    return result;
+}
+
+static QVariantList animationStepsForQml(const std::optional<QVector<model::AnimationStep>>& steps)
+{
+    QVariantList result;
+    if (!steps)
+        return result;
+    for (const auto& step : *steps) {
+        result.append(QVariantMap{
+            { QStringLiteral(u"id"), step.id },
+            { QStringLiteral(u"kind"), model::toString(step.kind) },
+            { QStringLiteral(u"animation"), model::toString(step.animation) },
+            { QStringLiteral(u"trigger"), model::toString(step.trigger) },
+            { QStringLiteral(u"durationSeconds"), step.durationSeconds },
+            { QStringLiteral(u"delaySeconds"), step.delaySeconds.value_or(0.0) },
+        });
+    }
+    return result;
+}
+
 QVariantMap ShowDocument::objectForQml(const QString& objectId) const
 {
     for (const auto& slide : m_document.slides) {
@@ -399,16 +511,34 @@ QVariantMap ShowDocument::objectForQml(const QString& objectId) const
                 continue;
             return QVariantMap{
                 { QStringLiteral(u"id"), object.id },
+                { QStringLiteral(u"objectKind"), model::toString(object.objectKind) },
+                { QStringLiteral(u"name"), object.name },
                 { QStringLiteral(u"text"), object.text },
                 { QStringLiteral(u"x"), object.x.value_or(0) },
                 { QStringLiteral(u"y"), object.y.value_or(0) },
                 { QStringLiteral(u"width"), object.width.value_or(0) },
                 { QStringLiteral(u"height"), object.height.value_or(0) },
+                { QStringLiteral(u"rotationDegrees"), object.rotationDegrees.value_or(0) },
+                { QStringLiteral(u"hidden"), object.hidden.value_or(false) },
+                { QStringLiteral(u"opacity"), object.opacity.value_or(1.0) },
+                { QStringLiteral(u"blendMode"), model::toString(object.blendMode.value_or(model::BlendMode::Normal)) },
+                { QStringLiteral(u"groupId"), object.groupId.value_or(QString()) },
+                { QStringLiteral(u"shapeKind"), object.shapeKind ? model::toString(*object.shapeKind) : QString() },
+                { QStringLiteral(u"cornerRadius"), object.cornerRadius.value_or(0) },
+                { QStringLiteral(u"fillColor"), object.fill && object.fill->colorHex
+                                                    ? *object.fill->colorHex : QString() },
+                { QStringLiteral(u"strokeColor"), object.stroke ? object.stroke->colorHex : QString() },
+                { QStringLiteral(u"strokeWidth"), object.stroke ? object.stroke->width : 0.0 },
+                { QStringLiteral(u"shadowColor"), object.shadow ? object.shadow->colorHex : QString() },
+                { QStringLiteral(u"shadowBlur"), object.shadow ? object.shadow->blurRadius : 0.0 },
+                { QStringLiteral(u"mediaId"), object.mediaId.value_or(QString()) },
                 { QStringLiteral(u"fontSize"), object.textStyle ? object.textStyle->fontSize.value_or(22) : 22 },
                 { QStringLiteral(u"colorHex"), object.textStyle && object.textStyle->colorHex
                                                    ? *object.textStyle->colorHex : QStringLiteral(u"#FFFFFF") },
                 { QStringLiteral(u"fontName"), object.textStyle && object.textStyle->fontName
                                                    ? *object.textStyle->fontName : QStringLiteral(u"Segoe UI") },
+                { QStringLiteral(u"styleRuns"), styleRunsForQml(object.styleRuns) },
+                { QStringLiteral(u"animationSteps"), animationStepsForQml(object.animationSteps) },
             };
         }
     }
