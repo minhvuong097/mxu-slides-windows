@@ -20,6 +20,7 @@
 #include "SlideActionRouter.h"
 #include "TimerBoardService.h"
 #include "MediaService.h"
+#include "ThemeService.h"
 #include "WaveformService.h"
 #include "Models.h"
 #include "ImportLedgerService.h"
@@ -59,7 +60,7 @@ class AppController : public QObject
     Q_OBJECT
 
     Q_PROPERTY(QString screen READ screen WRITE setScreen NOTIFY screenChanged)
-    Q_PROPERTY(QString accent READ accent CONSTANT)
+    Q_PROPERTY(QString accent READ accent NOTIFY themeChanged)
     Q_PROPERTY(QObject* serviceModel READ serviceModel CONSTANT)
     Q_PROPERTY(QObject* cueModel READ cueModel CONSTANT)
     Q_PROPERTY(QObject* libraryModel READ libraryModel CONSTANT)
@@ -114,6 +115,7 @@ class AppController : public QObject
     Q_PROPERTY(QObject* showState READ showState CONSTANT)
     Q_PROPERTY(QObject* mediaService READ mediaService CONSTANT)
     Q_PROPERTY(QObject* waveformService READ waveformService CONSTANT)
+    Q_PROPERTY(QObject* themeService READ themeService CONSTANT)
     Q_PROPERTY(QObject* audioService READ audioService CONSTANT)
     Q_PROPERTY(QObject* outputs READ outputs CONSTANT)
     Q_PROPERTY(QObject* outputPresets READ outputPresets CONSTANT)
@@ -164,7 +166,7 @@ public:
     ~AppController() override;
 
     QString screen() const { return m_screen; }
-    QString accent() const { return QStringLiteral(u"#0a84ff"); }
+    QString accent() const { return m_theme.color(QStringLiteral(u"accent")); }
     QObject* serviceModel() { return &m_service; }
     QObject* cueModel() { return &m_cues; }
     QObject* libraryModel() { return &m_library; }
@@ -221,6 +223,7 @@ public:
     QObject* showState() { return &m_showState; }
     QObject* mediaService() { return &m_media; }
     QObject* waveformService() { return &m_waveform; }
+    QObject* themeService() { return &m_theme; }
     QObject* audioService() { return &m_audio; }
     QVariantList audioChannels() const;
     QObject* outputs() { return &m_outputs; }
@@ -338,6 +341,7 @@ signals:
     void stageChanged();
     void previewChanged();
     void apiChanged();
+    void themeChanged();
     void documentChanged();
     void outputChanged();
     void editorChanged();
@@ -364,6 +368,7 @@ private:
     core::ShowState m_showState;
     MediaService m_media;
     WaveformService m_waveform;
+    ThemeService m_theme;
     AudioService m_audio;
     OutputManager m_outputs;
     OutputPresetService m_outputPresets;

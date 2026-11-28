@@ -77,6 +77,9 @@ ApplicationWindow {
             ToolButton { text: ""; icon: "keyboard"; onClicked: midiMap.open() }
             ToolButton { text: ""; icon: "info"; onClicked: feedbackWindow.open() }
             ToolButton { text: ""; icon: "remote"; onClicked: followWindow.open() }
+            ToolButton { text: ""; icon: "shape"; onClicked: themeDesigner.open() }
+            ToolButton { text: ""; icon: "newFolder"; onClicked: importActivity.open() }
+            ToolButton { text: ""; icon: "ndi"; onClicked: hardwareOutputs.open() }
         }
 
         Rectangle {
@@ -154,6 +157,9 @@ ApplicationWindow {
     MidiMapWindow { id: midiMap }
     FeedbackWindow { id: feedbackWindow }
     FollowWindow { id: followWindow }
+    ThemeDesignerWindow { id: themeDesigner }
+    ImportActivityWindow { id: importActivity }
+    HardwareOutputsWindow { id: hardwareOutputs }
 
     NotesPanel {
         id: notesPanel
@@ -201,6 +207,9 @@ ApplicationWindow {
     Shortcut { sequence: "Ctrl+Shift+K"; context: Qt.ShortcutContext.Application; onActivated: midiMap.open() }
     Shortcut { sequence: "Ctrl+Shift+F"; context: Qt.ShortcutContext.Application; onActivated: feedbackWindow.open() }
     Shortcut { sequence: "Ctrl+Shift+P"; context: Qt.ShortcutContext.Application; onActivated: followWindow.open() }
+    Shortcut { sequence: "Ctrl+Shift+T"; context: Qt.ShortcutContext.Application; onActivated: themeDesigner.open() }
+    Shortcut { sequence: "Ctrl+Shift+I"; context: Qt.ShortcutContext.Application; onActivated: importActivity.open() }
+    Shortcut { sequence: "Ctrl+Shift+N"; context: Qt.ShortcutContext.Application; onActivated: hardwareOutputs.open() }
     Shortcut { sequence: "Ctrl+T"; context: Qt.ShortcutContext.Application; onActivated: timelinePanel.open() }
     Shortcut { sequence: "F10"; context: Qt.ShortcutContext.Application; onActivated: animationTimeline.open() }
     Shortcut { sequence: "F8"; context: Qt.ShortcutContext.Application; onActivated: notesPanel.open() }

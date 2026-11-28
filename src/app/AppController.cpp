@@ -72,6 +72,7 @@ AppController::AppController(QObject* parent)
     connect(&m_arrangements, &ArrangementService::slideRequested, this, &AppController::selectSlide);
     connect(&m_arrangements, &ArrangementService::notification, this, &AppController::notification);
     connect(&m_backups, &BackupService::notification, this, &AppController::notification);
+    connect(&m_theme, &ThemeService::changed, this, &AppController::themeChanged);
     m_actionRouter.attach(this);
     connect(&m_actionRouter, &SlideActionRouter::notification, this, &AppController::notification);
     connect(&m_serviceVersions, &ServiceVersionService::notification, this, &AppController::notification);

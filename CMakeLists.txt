@@ -87,6 +87,8 @@ qt_add_library(mxu_shell STATIC
     src/app/MediaService.cpp
     src/app/WaveformService.h
     src/app/WaveformService.cpp
+    src/app/ThemeService.h
+    src/app/ThemeService.cpp
     src/app/AudioService.h
     src/app/AudioService.cpp
     src/app/OutputManager.h
