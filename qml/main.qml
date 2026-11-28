@@ -123,6 +123,7 @@ ApplicationWindow {
     PreviewWindow { id: previewWindow }
     ModuleWindow { id: moduleWindow }
     ServiceControlsWindow { id: serviceControlsWindow }
+    LibraryWindow { id: libraryWindow }
 
     NotesPanel {
         id: notesPanel
@@ -155,6 +156,7 @@ ApplicationWindow {
     }
 
     Shortcut { sequence: "Ctrl+K"; context: Qt.ShortcutContext.Application; onActivated: quickSearch.open() }
+    Shortcut { sequence: "Ctrl+L"; context: Qt.ShortcutContext.Application; onActivated: libraryWindow.visible = !libraryWindow.visible }
     Shortcut { sequence: "Ctrl+T"; context: Qt.ShortcutContext.Application; onActivated: timelinePanel.open() }
     Shortcut { sequence: "F8"; context: Qt.ShortcutContext.Application; onActivated: notesPanel.open() }
     Shortcut { sequence: "F9"; context: Qt.ShortcutContext.Application; onActivated: previewWindow.visible = !previewWindow.visible }
