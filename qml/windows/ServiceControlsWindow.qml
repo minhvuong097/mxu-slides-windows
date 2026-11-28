@@ -51,6 +51,7 @@ Window {
                 Repeater {
                     model: [
                         "timers",
+                        "track",
                         "alerts",
                         "combos",
                         "confidence",
@@ -86,6 +87,7 @@ Window {
                 anchors.bottom: parent.bottom
                 width: parent.width
                 sourceComponent: module === "timers" ? timersModule
+                                 : module === "track" ? trackingModule
                                  : module === "audio" ? audioModule
                                  : module === "alerts" ? alertsModule
                                  : module === "combos" ? combosModule
@@ -458,6 +460,88 @@ Window {
                         Rectangle { width: 70; height: 26; radius: 7; color: Mxu.audioService.fadeCurve === "sCurve" ? Theme.accent : Theme.surface
                             Text { anchors.centerIn: parent; text: "S-curve"; color: "white"; font.pixelSize: 10 }
                             MouseArea { anchors.fill: parent; onClicked: Mxu.audioService.fadeCurve = "sCurve" } }
+                    }
+                }
+            }
+        }
+    }
+
+    Component {
+        id: trackingModule
+        Rectangle {
+            width: moduleLoader.width
+            height: moduleLoader.height
+            color: "transparent"
+            Column {
+                anchors.fill: parent
+                anchors.margins: 0
+                spacing: 8
+                Rectangle {
+                    width: parent.width
+                    height: 64
+                    radius: 10
+                    color: "#2c2c30"
+                    Column {
+                        anchors.fill: parent
+                        anchors.margins: 12
+                        spacing: 4
+                        Text { text: Mxu.currentServiceItem; color: Theme.text; font.pixelSize: 16; font.weight: Font.Bold; elide: Text.ElideRight }
+                        Text { text: "Item " + Mxu.serviceModel.currentItemIndex + " of " + Mxu.serviceModel.itemCount; color: Theme.textDim; font.pixelSize: 11 }
+                        Text { text: Mxu.serviceTimerText; color: Theme.green; font.pixelSize: 24; font.weight: Font.Bold; horizontalAlignment: Text.AlignCenter }
+                    }
+                }
+                Rectangle {
+                    width: parent.width
+                    height: 56
+                    radius: 10
+                    color: "#2c2c30"
+                    Row {
+                        anchors.fill: parent
+                        anchors.leftMargin: 12
+                        anchors.rightMargin: 12
+                        spacing: 8
+                        Column {
+                            width: parent.width - 110
+                            Text { text: "NEXT"; color: Theme.textDim; font.pixelSize: 10; font.weight: Font.Bold }
+                            Text { text: Mxu.nextServiceItem; color: Theme.text; font.pixelSize: 13; font.weight: Font.Bold; elide: Text.ElideRight }
+                        }
+                        Rectangle {
+                            width: 40
+                            height: 28
+                            radius: 8
+                            color: Theme.accent
+                            Text { anchors.centerIn: parent; text: "Next"; color: "white"; font.pixelSize: 11; font.weight: Font.Bold }
+                            MouseArea { anchors.fill: parent; onClicked: Mxu.serviceModel.nextItem() }
+                        }
+                        Rectangle {
+                            width: 40
+                            height: 28
+                            radius: 8
+                            color: Theme.surface
+                            Text { anchors.centerIn: parent; text: "Prev"; color: Theme.text; font.pixelSize: 11; font.weight: Font.Bold }
+                            MouseArea { anchors.fill: parent; onClicked: Mxu.serviceModel.previousItem() }
+                        }
+                    }
+                }
+                Repeater {
+                    model: Mxu.timerRows
+                    delegate: Rectangle {
+                        width: parent.width
+                        height: 48
+                        radius: 10
+                        color: "#2c2c30"
+                        Row {
+                            anchors.fill: parent
+                            anchors.leftMargin: 12
+                            anchors.rightMargin: 12
+                            spacing: 8
+                            Column {
+                                width: parent.width - 110
+                                Text { text: modelData.label; color: Theme.text; font.pixelSize: 12; font.weight: Font.Bold; elide: Text.ElideRight }
+                                Text { text: modelData.value; color: Theme.textDim; font.pixelSize: 11; elide: Text.ElideRight }
+                            }
+                            Text { text: modelData.delta; color: Theme.textFaint; font.pixelSize: 11; elide: Text.ElideRight }
+                        }
                     }
                 }
             }
