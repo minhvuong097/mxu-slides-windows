@@ -31,6 +31,7 @@
         <file>qml/theme/Theme.qml</file>
         <file>qml/theme/qmldir</file>
         <file>qml/windows/PresentationWindow.qml</file>
+        <file>qml/windows/SchedulerWindow.qml</file>
         <file>qml/windows/StageOutputWindow.qml</file>
         <file>qml/windows/ConfidenceWindow.qml</file>
         <file>qml/windows/EngineWindow.qml</file>

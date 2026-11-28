@@ -6,6 +6,20 @@
 
 namespace mxu::app {
 
+namespace {
+void recordHistory(QVariantList& history, const QString& name, const QString& action, const QString& source)
+{
+    history.prepend(QVariantMap{
+        { QStringLiteral(u"at"), QTime::currentTime().toString(QStringLiteral(u"hh:mm:ss")) },
+        { QStringLiteral(u"name"), name },
+        { QStringLiteral(u"action"), action },
+        { QStringLiteral(u"source"), source },
+    });
+    while (history.size() > 200)
+        history.removeLast();
+}
+} // namespace
+
 AutomationService::AutomationService(QObject* parent)
     : QObject(parent)
 {
@@ -49,17 +63,20 @@ bool AutomationService::midiAvailable() const
 
 QVariantList AutomationService::triggers() const { return m_triggers; }
 QVariantList AutomationService::schedules() const { return m_schedules; }
+QVariantList AutomationService::history() const { return m_history; }
 
 void AutomationService::load()
 {
     m_triggers = m_store.value(QStringLiteral(u"mxu/triggers")).toList();
     m_schedules = m_store.value(QStringLiteral(u"mxu/schedules")).toList();
+    m_history = m_store.value(QStringLiteral(u"mxu/scheduleHistory")).toList();
 }
 
 void AutomationService::save()
 {
     m_store.setValue(QStringLiteral(u"mxu/triggers"), m_triggers);
     m_store.setValue(QStringLiteral(u"mxu/schedules"), m_schedules);
+    m_store.setValue(QStringLiteral(u"mxu/scheduleHistory"), m_history);
     m_store.sync();
 }
 
@@ -131,6 +148,7 @@ bool AutomationService::addSchedule(const QString& name, const QString& time, co
         { QStringLiteral(u"time"), time },
         { QStringLiteral(u"action"), action },
         { QStringLiteral(u"fired"), false },
+        { QStringLiteral(u"enabled"), true },
     });
     save();
     emit changed();
@@ -150,6 +168,63 @@ bool AutomationService::removeSchedule(const QString& id)
     return false;
 }
 
+bool AutomationService::setScheduleEnabled(const QString& id, bool enabled)
+{
+    for (qsizetype i = 0; i < m_schedules.size(); ++i) {
+        QVariantMap schedule = m_schedules.at(i).toMap();
+        if (schedule.value(QStringLiteral(u"id")).toString() != id)
+            continue;
+        schedule.insert(QStringLiteral(u"enabled"), enabled);
+        m_schedules[i] = schedule;
+        save();
+        emit changed();
+        return true;
+    }
+    return false;
+}
+
+bool AutomationService::resetSchedule(const QString& id)
+{
+    for (qsizetype i = 0; i < m_schedules.size(); ++i) {
+        QVariantMap schedule = m_schedules.at(i).toMap();
+        if (schedule.value(QStringLiteral(u"id")).toString() != id)
+            continue;
+        schedule.insert(QStringLiteral(u"fired"), false);
+        m_schedules[i] = schedule;
+        save();
+        emit changed();
+        return true;
+    }
+    return false;
+}
+
+bool AutomationService::fireSchedule(const QString& id)
+{
+    for (qsizetype i = 0; i < m_schedules.size(); ++i) {
+        QVariantMap schedule = m_schedules.at(i).toMap();
+        if (schedule.value(QStringLiteral(u"id")).toString() != id)
+            continue;
+        const QString action = schedule.value(QStringLiteral(u"action")).toString();
+        fire(action);
+        recordHistory(m_history, schedule.value(QStringLiteral(u"name")).toString(), action,
+                      QStringLiteral(u"manual"));
+        schedule.insert(QStringLiteral(u"fired"), true);
+        m_schedules[i] = schedule;
+        save();
+        emit changed();
+        return true;
+    }
+    return false;
+}
+
+bool AutomationService::clearHistory()
+{
+    m_history.clear();
+    save();
+    emit changed();
+    return true;
+}
+
 void AutomationService::tick()
 {
     ++m_frames;
@@ -159,11 +234,15 @@ void AutomationService::tick()
     for (qsizetype i = 0; i < m_schedules.size(); ++i) {
         QVariantMap schedule = m_schedules.at(i).toMap();
         if (schedule.value(QStringLiteral(u"fired")).toBool()
+            || !schedule.value(QStringLiteral(u"enabled"), true).toBool()
             || schedule.value(QStringLiteral(u"time")).toString() != now)
             continue;
         schedule.insert(QStringLiteral(u"fired"), true);
         m_schedules[i] = schedule;
-        fire(schedule.value(QStringLiteral(u"action")).toString());
+        const QString action = schedule.value(QStringLiteral(u"action")).toString();
+        fire(action);
+        recordHistory(m_history, schedule.value(QStringLiteral(u"name")).toString(), action,
+                      QStringLiteral(u"scheduled"));
         save();
         emit changed();
     }

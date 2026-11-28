@@ -70,6 +70,7 @@ ApplicationWindow {
             ToolButton { text: ""; icon: "video"; onClicked: previewWindow.visible = !previewWindow.visible }
             ToolButton { text: ""; icon: "bolt"; onClicked: engineWindow.visible = !engineWindow.visible }
             ToolButton { text: ""; icon: "timer"; onClicked: animationTimeline.open() }
+            ToolButton { text: ""; icon: "clock"; onClicked: schedulerWindow.visible = !schedulerWindow.visible }
         }
 
         Rectangle {
@@ -142,6 +143,7 @@ ApplicationWindow {
     LibraryWindow { id: libraryWindow }
     ScreenConfigurationWindow { id: screenConfiguration }
     EngineWindow { id: engineWindow }
+    SchedulerWindow { id: schedulerWindow }
 
     NotesPanel {
         id: notesPanel
@@ -184,6 +186,7 @@ ApplicationWindow {
     Shortcut { sequence: "Ctrl+L"; context: Qt.ShortcutContext.Application; onActivated: libraryWindow.visible = !libraryWindow.visible }
     Shortcut { sequence: "Ctrl+Shift+O"; context: Qt.ShortcutContext.Application; onActivated: screenConfiguration.visible = !screenConfiguration.visible }
     Shortcut { sequence: "Ctrl+Shift+E"; context: Qt.ShortcutContext.Application; onActivated: engineWindow.visible = !engineWindow.visible }
+    Shortcut { sequence: "Ctrl+Shift+S"; context: Qt.ShortcutContext.Application; onActivated: schedulerWindow.visible = !schedulerWindow.visible }
     Shortcut { sequence: "Ctrl+T"; context: Qt.ShortcutContext.Application; onActivated: timelinePanel.open() }
     Shortcut { sequence: "F10"; context: Qt.ShortcutContext.Application; onActivated: animationTimeline.open() }
     Shortcut { sequence: "F8"; context: Qt.ShortcutContext.Application; onActivated: notesPanel.open() }

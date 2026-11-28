@@ -27,6 +27,7 @@ class AutomationService : public QObject
     Q_PROPERTY(QObject* timecodeDecoder READ timecodeDecoder CONSTANT)
     Q_PROPERTY(QVariantList triggers READ triggers NOTIFY changed)
     Q_PROPERTY(QVariantList schedules READ schedules NOTIFY changed)
+    Q_PROPERTY(QVariantList history READ history NOTIFY changed)
 
 public:
     explicit AutomationService(QObject* parent = nullptr);
@@ -39,6 +40,7 @@ public:
     QObject* timecodeDecoder() { return &m_timecode; }
     QVariantList triggers() const;
     QVariantList schedules() const;
+    QVariantList history() const;
 
 public slots:
     bool fire(const QString& action);
@@ -47,6 +49,10 @@ public slots:
     bool removeTrigger(const QString& id);
     bool addSchedule(const QString& name, const QString& time, const QString& action);
     bool removeSchedule(const QString& id);
+    bool setScheduleEnabled(const QString& id, bool enabled);
+    bool resetSchedule(const QString& id);
+    bool fireSchedule(const QString& id);
+    bool clearHistory();
 
 signals:
     void changed();
@@ -65,6 +71,7 @@ private:
     AppController* m_controller = nullptr;
     QVariantList m_triggers;
     QVariantList m_schedules;
+    QVariantList m_history;
     QTimer m_timer;
     int m_frames = 0;
 };
