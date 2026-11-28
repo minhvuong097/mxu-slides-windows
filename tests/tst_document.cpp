@@ -2,6 +2,7 @@
 #include <QtTest>
 #include <QTemporaryDir>
 #include <QFile>
+#include <QSettings>
 
 #include "core/Document.h"
 #include "core/ShowDocument.h"
@@ -370,6 +371,8 @@ void MxuDocumentTest::searchSyncDiagnostics()
 
 void MxuDocumentTest::timelineBasic()
 {
+    // Timeline cues are persisted; isolate the test from previous runs.
+    QSettings().remove(QStringLiteral(u"mxu/timelineCues"));
     app::TimelineService timeline;
     QVERIFY(timeline.cues().size() >= 4);
     QCOMPARE(timeline.lanes().size(), 3);

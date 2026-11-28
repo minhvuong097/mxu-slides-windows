@@ -77,7 +77,17 @@ QJsonArray mediaToJson(const QVector<MediaItem>& media)
                                    { QStringLiteral(u"size"), m.size },
                                    { QStringLiteral(u"fileSize"), m.fileSize },
                                    { QStringLiteral(u"from"), m.from },
-                                   { QStringLiteral(u"to"), m.to } });
+                                   { QStringLiteral(u"to"), m.to },
+                                   { QStringLiteral(u"classification"), m.classification },
+                                   { QStringLiteral(u"sourcePath"), m.sourcePath },
+                                   { QStringLiteral(u"note"), m.note },
+                                   { QStringLiteral(u"favorite"), m.favorite },
+                                   { QStringLiteral(u"loops"), m.loops },
+                                   { QStringLiteral(u"missing"), m.missing },
+                                   { QStringLiteral(u"inPoint"), m.inPoint },
+                                   { QStringLiteral(u"outPoint"), m.outPoint },
+                                   { QStringLiteral(u"playRate"), m.playRate },
+                                   { QStringLiteral(u"durationSeconds"), m.durationSeconds } });
     return result;
 }
 
@@ -156,7 +166,17 @@ QVector<MediaItem> mediaFromJson(const QJsonArray& array)
                         o.value(QStringLiteral(u"size")).toString(),
                         o.value(QStringLiteral(u"fileSize")).toString(),
                         o.value(QStringLiteral(u"from")).toString(),
-                        o.value(QStringLiteral(u"to")).toString() });
+                        o.value(QStringLiteral(u"to")).toString(),
+                        o.value(QStringLiteral(u"classification")).toString(QStringLiteral(u"media")),
+                        o.value(QStringLiteral(u"sourcePath")).toString(),
+                        o.value(QStringLiteral(u"note")).toString(),
+                        o.value(QStringLiteral(u"favorite")).toBool(),
+                        o.value(QStringLiteral(u"loops")).toBool(),
+                        o.value(QStringLiteral(u"missing")).toBool(),
+                        o.value(QStringLiteral(u"inPoint")).toDouble(),
+                        o.value(QStringLiteral(u"outPoint")).toDouble(),
+                        o.value(QStringLiteral(u"playRate")).toDouble(1.0),
+                        o.value(QStringLiteral(u"durationSeconds")).toDouble() });
     }
     return result;
 }

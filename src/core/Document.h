@@ -74,6 +74,18 @@ struct MediaItem
     QString fileSize;
     QString from;
     QString to;
+
+    // Deep media editor fields (Mac MediaEditorView parity).
+    QString classification = QStringLiteral(u"media");
+    QString sourcePath;
+    QString note;
+    bool favorite = false;
+    bool loops = false;
+    bool missing = false;
+    double inPoint = 0;
+    double outPoint = 0;
+    double playRate = 1.0;
+    double durationSeconds = 0;
 };
 
 class Document

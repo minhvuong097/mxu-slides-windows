@@ -197,6 +197,63 @@ bool MediaService::removeMedia(int index)
     return true;
 }
 
+void MediaService::setSelectedIndex(int index)
+{
+    if (index < 0 || (m_document && index >= m_document->media.size()))
+        return;
+    if (m_selectedIndex == index)
+        return;
+    m_selectedIndex = index;
+    emit changed();
+}
+
+bool MediaService::updateMedia(int index, const QVariantMap& patch)
+{
+    if (!m_document || index < 0 || index >= m_document->media.size())
+        return false;
+    core::MediaItem& item = m_document->media[index];
+    if (patch.contains(QStringLiteral(u"name"))) item.name = patch.value(QStringLiteral(u"name")).toString();
+    if (patch.contains(QStringLiteral(u"classification")))
+        item.classification = patch.value(QStringLiteral(u"classification")).toString();
+    if (patch.contains(QStringLiteral(u"folder"))) item.folder = patch.value(QStringLiteral(u"folder")).toString();
+    if (patch.contains(QStringLiteral(u"note"))) item.note = patch.value(QStringLiteral(u"note")).toString();
+    if (patch.contains(QStringLiteral(u"favorite"))) item.favorite = patch.value(QStringLiteral(u"favorite")).toBool();
+    if (patch.contains(QStringLiteral(u"loops"))) item.loops = patch.value(QStringLiteral(u"loops")).toBool();
+    if (patch.contains(QStringLiteral(u"missing"))) item.missing = patch.value(QStringLiteral(u"missing")).toBool();
+    if (patch.contains(QStringLiteral(u"inPoint"))) item.inPoint = patch.value(QStringLiteral(u"inPoint")).toDouble();
+    if (patch.contains(QStringLiteral(u"outPoint"))) item.outPoint = patch.value(QStringLiteral(u"outPoint")).toDouble();
+    if (patch.contains(QStringLiteral(u"playRate"))) item.playRate = patch.value(QStringLiteral(u"playRate")).toDouble();
+    refresh();
+    return true;
+}
+
+bool MediaService::toggleFavorite(int index)
+{
+    if (!m_document || index < 0 || index >= m_document->media.size())
+        return false;
+    core::MediaItem& item = m_document->media[index];
+    item.favorite = !item.favorite;
+    refresh();
+    return true;
+}
+
+bool MediaService::locateMedia(int index, const QString& path)
+{
+    if (!m_document || index < 0 || index >= m_document->media.size() || path.isEmpty())
+        return false;
+    core::MediaItem& item = m_document->media[index];
+    item.sourcePath = path;
+    item.missing = false;
+    const QFileInfo info(path);
+    m_paths[QString::number(index)] = path;
+    const bool video = item.type.contains(QStringLiteral(u"video"), Qt::CaseInsensitive)
+                       || info.suffix().compare(QStringLiteral(u"mp4"), Qt::CaseInsensitive) == 0;
+    m_thumbnails[QString::number(index)] = thumbnailFor(QString::number(index), path, video);
+    refresh();
+    emit notification(QStringLiteral(u"Located %1").arg(item.name));
+    return true;
+}
+
 void MediaService::refresh()
 {
     m_items.clear();
@@ -215,6 +272,16 @@ void MediaService::refresh()
             { QStringLiteral(u"fileSize"), item.fileSize },
             { QStringLiteral(u"from"), item.from },
             { QStringLiteral(u"to"), item.to },
+            { QStringLiteral(u"classification"), item.classification },
+            { QStringLiteral(u"sourcePath"), item.sourcePath },
+            { QStringLiteral(u"note"), item.note },
+            { QStringLiteral(u"favorite"), item.favorite },
+            { QStringLiteral(u"loops"), item.loops },
+            { QStringLiteral(u"missing"), item.missing },
+            { QStringLiteral(u"inPoint"), item.inPoint },
+            { QStringLiteral(u"outPoint"), item.outPoint },
+            { QStringLiteral(u"playRate"), item.playRate },
+            { QStringLiteral(u"durationSeconds"), item.durationSeconds },
             { QStringLiteral(u"index"), static_cast<int>(i) },
         });
     }

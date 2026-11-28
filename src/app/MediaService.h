@@ -8,6 +8,7 @@
 #include <QVideoSink>
 #include <QString>
 #include <QVariantList>
+#include <QVariantMap>
 
 namespace mxu::app {
 
@@ -22,6 +23,7 @@ class MediaService : public QObject
     Q_PROPERTY(QVariantList items READ items NOTIFY changed)
     Q_PROPERTY(QString status READ status NOTIFY changed)
     Q_PROPERTY(QString backgroundUrl READ backgroundUrl NOTIFY changed)
+    Q_PROPERTY(int selectedIndex READ selectedIndex WRITE setSelectedIndex NOTIFY changed)
 
 public:
     explicit MediaService(QObject* parent = nullptr);
@@ -31,6 +33,8 @@ public:
     QVariantList items() const;
     QString status() const { return m_status; }
     QString backgroundUrl() const;
+    int selectedIndex() const { return m_selectedIndex; }
+    void setSelectedIndex(int index);
 
 public slots:
     QString importFile(const QString& path);
@@ -38,6 +42,9 @@ public slots:
     bool setBackground(const QString& id);
     bool addToServiceFlow(const QString& id);
     bool removeMedia(int index);
+    bool updateMedia(int index, const QVariantMap& patch);
+    bool toggleFavorite(int index);
+    bool locateMedia(int index, const QString& path);
 
 signals:
     void changed();
@@ -56,6 +63,7 @@ private:
     QHash<QString, QString> m_paths;
     ImportLedgerService* m_ledger = nullptr;
     QString m_background;
+    int m_selectedIndex = 0;
     QString m_status = QStringLiteral(u"Ready");
 };
 

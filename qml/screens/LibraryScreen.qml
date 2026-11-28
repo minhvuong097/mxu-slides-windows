@@ -10,6 +10,7 @@ import "qrc:/qml/components"
 Item {
     id: root
     property int gridColumns: 4
+    signal editMediaRequested(int index)
 
     Row {
         anchors.fill: parent
@@ -248,6 +249,11 @@ Item {
                     Text { text: Mxu.libraryModel.selectedItem.fileSize; color: Theme.text; font.pixelSize: 12 } }
 
                 Text { text: "ACTIONS"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
+                Rectangle {
+                    width: parent.width; height: 30; radius: 9; color: Theme.surface
+                    Text { anchors.centerIn: parent; text: "Open in Media Editor"; color: Theme.text; font.pixelSize: 11; font.weight: Font.DemiBold }
+                    MouseArea { anchors.fill: parent; onClicked: root.editMediaRequested(Mxu.libraryModel.selectedIndex) }
+                }
                 Rectangle {
                     width: parent.width; height: 30; radius: 9; color: Mxu.accent
                     Text { anchors.centerIn: parent; text: "Add to Service Flow"; color: "white"; font.pixelSize: 12; font.weight: Font.DemiBold }

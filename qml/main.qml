@@ -23,7 +23,9 @@ ApplicationWindow {
     property Component presentComponent: PresentScreen {}
     property Component editComponent: EditScreen {}
     property Component stageComponent: StageScreen {}
-    property Component libraryComponent: LibraryScreen {}
+    property Component libraryComponent: LibraryScreen {
+        onEditMediaRequested: mediaEditor.open(index)
+    }
     property Component settingsComponent: SettingsScreen {}
 
     Rectangle {
@@ -71,6 +73,7 @@ ApplicationWindow {
             ToolButton { text: ""; icon: "bolt"; onClicked: engineWindow.visible = !engineWindow.visible }
             ToolButton { text: ""; icon: "timer"; onClicked: animationTimeline.open() }
             ToolButton { text: ""; icon: "clock"; onClicked: schedulerWindow.visible = !schedulerWindow.visible }
+            ToolButton { text: ""; icon: "image"; onClicked: mediaEditor.open(-1) }
         }
 
         Rectangle {
@@ -144,6 +147,7 @@ ApplicationWindow {
     ScreenConfigurationWindow { id: screenConfiguration }
     EngineWindow { id: engineWindow }
     SchedulerWindow { id: schedulerWindow }
+    MediaEditorWindow { id: mediaEditor }
 
     NotesPanel {
         id: notesPanel
@@ -187,6 +191,7 @@ ApplicationWindow {
     Shortcut { sequence: "Ctrl+Shift+O"; context: Qt.ShortcutContext.Application; onActivated: screenConfiguration.visible = !screenConfiguration.visible }
     Shortcut { sequence: "Ctrl+Shift+E"; context: Qt.ShortcutContext.Application; onActivated: engineWindow.visible = !engineWindow.visible }
     Shortcut { sequence: "Ctrl+Shift+S"; context: Qt.ShortcutContext.Application; onActivated: schedulerWindow.visible = !schedulerWindow.visible }
+    Shortcut { sequence: "Ctrl+Shift+M"; context: Qt.ShortcutContext.Application; onActivated: mediaEditor.open(-1) }
     Shortcut { sequence: "Ctrl+T"; context: Qt.ShortcutContext.Application; onActivated: timelinePanel.open() }
     Shortcut { sequence: "F10"; context: Qt.ShortcutContext.Application; onActivated: animationTimeline.open() }
     Shortcut { sequence: "F8"; context: Qt.ShortcutContext.Application; onActivated: notesPanel.open() }
