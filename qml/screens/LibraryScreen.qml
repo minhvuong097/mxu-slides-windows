@@ -213,10 +213,16 @@ Item {
             height: parent.height
             radius: 10
             color: Theme.card
-            Column {
+            Flickable {
                 anchors.fill: parent
                 anchors.margins: 12
-                spacing: 6
+                contentWidth: width
+                contentHeight: detailColumn.implicitHeight
+                clip: true
+                Column {
+                    id: detailColumn
+                    width: parent.width
+                    spacing: 6
 
                 Text { text: "Details"; color: Theme.text; font.pixelSize: 12; font.weight: Font.DemiBold }
 
@@ -269,8 +275,113 @@ Item {
                     Text { anchors.centerIn: parent; text: "Remove"; color: Theme.pink; font.pixelSize: 11 }
                     MouseArea { anchors.fill: parent; onClicked: Mxu.mediaService.removeMedia(Mxu.libraryModel.selectedIndex) }
                 }
+
+                Text { text: "SLIDES FROM TEXT"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
+                Rectangle {
+                    width: parent.width; height: 30; radius: 9; color: Theme.surface
+                    Text { anchors.centerIn: parent; text: "Import lyrics → slides"; color: Theme.text; font.pixelSize: 11 }
+                    MouseArea { anchors.fill: parent; onClicked: lyricsPopup.open() }
+                }
+
+                Text { text: "BACKUP"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
+                Rectangle {
+                    width: parent.width; height: 28; radius: 9; color: Theme.surface
+                    Text { anchors.centerIn: parent; text: "Create backup"; color: Theme.text; font.pixelSize: 10 }
+                    MouseArea { anchors.fill: parent; onClicked: Mxu.createBackup("Library") }
+                }
+                Rectangle {
+                    width: parent.width; height: 28; radius: 9; color: Theme.surface
+                    Text { anchors.centerIn: parent; text: "Restore latest backup"; color: Theme.text; font.pixelSize: 10 }
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            const backups = Mxu.backupService.backups
+                            if (backups.length > 0)
+                                Mxu.restoreBackup(backups[0].id)
+                        }
+                    }
+                }
+                Rectangle {
+                    width: parent.width; height: 28; radius: 9; color: Theme.surface
+                    Text { anchors.centerIn: parent; text: "Export bundle…"; color: Theme.text; font.pixelSize: 10 }
+                    MouseArea { anchors.fill: parent; onClicked: bundleSaveDialog.open() }
+                }
+                Rectangle {
+                    width: parent.width; height: 28; radius: 9; color: Theme.surface
+                    Text { anchors.centerIn: parent; text: "Import bundle…"; color: Theme.text; font.pixelSize: 10 }
+                    MouseArea { anchors.fill: parent; onClicked: bundleOpenDialog.open() }
+                }
+                Text {
+                    width: parent.width
+                    text: "Backups: " + Mxu.backupService.backups.length
+                    color: Theme.textFaint; font.pixelSize: 10
+                }
+                }
             }
         }
+    }
+
+    Popup {
+        id: lyricsPopup
+        anchors.centerIn: parent
+        width: 520
+        height: 320
+        modal: true
+        closePolicy: Popup.CloseOnEscape
+        background: Rectangle { color: Theme.card; radius: 12; border.color: Theme.border; border.width: 1 }
+        Column {
+            anchors.fill: parent
+            anchors.margins: 14
+            spacing: 8
+            Text { text: "Import lyrics → slides"; color: Theme.text; font.pixelSize: 14; font.weight: Font.DemiBold }
+            Text { text: "Blank lines start a new slide."; color: Theme.textDim; font.pixelSize: 10 }
+            TextArea {
+                id: lyricsText
+                width: parent.width
+                height: 190
+                placeholderText: "Paste lyrics or a sermon outline…"
+                color: Theme.text
+                font.pixelSize: 12
+                background: Rectangle { radius: 8; color: Theme.inset }
+            }
+            Row {
+                spacing: 8
+                Rectangle {
+                    width: 110; height: 28; radius: 7; color: Theme.accent
+                    Text { anchors.centerIn: parent; text: "Create slides"; color: "white"; font.pixelSize: 10; font.weight: Font.Bold }
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            const count = Mxu.importLyrics(lyricsText.text)
+                            Mxu.setScreen("edit")
+                            lyricsPopup.close()
+                            lyricsText.text = ""
+                        }
+                    }
+                }
+                Rectangle {
+                    width: 80; height: 28; radius: 7; color: Theme.surface
+                    Text { anchors.centerIn: parent; text: "Cancel"; color: Theme.text; font.pixelSize: 10 }
+                    MouseArea { anchors.fill: parent; onClicked: lyricsPopup.close() }
+                }
+            }
+        }
+    }
+
+    FileDialog {
+        id: bundleSaveDialog
+        title: "Export backup bundle"
+        fileMode: FileDialog.SaveFile
+        defaultSuffix: "mxubackup"
+        nameFilters: ["MxU backup (*.mxubackup)"]
+        onAccepted: Mxu.exportBackupBundle(selectedFile.toString())
+    }
+
+    FileDialog {
+        id: bundleOpenDialog
+        title: "Import backup bundle"
+        nameFilters: ["MxU backup (*.mxubackup)"]
+        onAccepted: Mxu.importBackupBundle(selectedFile.toString())
     }
 
     FolderDialog {

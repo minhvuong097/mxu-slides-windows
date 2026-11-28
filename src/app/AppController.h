@@ -281,6 +281,10 @@ public:
     Q_INVOKABLE void setSetting(const QString& key, const QVariant& value);
     Q_INVOKABLE bool exportDiagnostics(const QString& path) const;
     Q_INVOKABLE bool submitFeedback(const QString& category, const QString& message);
+    Q_INVOKABLE QString createBackup(const QString& label);
+    Q_INVOKABLE bool restoreBackup(const QString& id);
+    Q_INVOKABLE bool exportBackupBundle(const QString& path) const;
+    Q_INVOKABLE bool importBackupBundle(const QString& path);
 
 public slots:
     void setScreen(const QString& value);

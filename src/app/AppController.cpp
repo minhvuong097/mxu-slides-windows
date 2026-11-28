@@ -726,6 +726,69 @@ bool AppController::saveDocument(const QString& path)
     return true;
 }
 
+QString AppController::createBackup(const QString& label)
+{
+    const QString id = m_backups.createBackup(m_document, label.isEmpty() ? QStringLiteral(u"Manual") : label);
+    if (!id.isEmpty())
+        emit notification(QStringLiteral(u"Backup created"));
+    return id;
+}
+
+bool AppController::restoreBackup(const QString& id)
+{
+    if (!m_backups.restore(id, &m_document))
+        return false;
+    seedSlides(m_show, m_document);
+    m_service.setDocument(&m_document);
+    m_cues.setDocument(&m_document);
+    m_library.setDocument(&m_document);
+    m_media.setDocument(&m_document);
+    m_notes.setDocument(&m_document);
+    m_arrangements.setDocument(&m_document);
+    m_search.rebuild(m_document, m_show);
+    emit documentChanged();
+    emit editorChanged();
+    emit notification(QStringLiteral(u"Backup restored"));
+    return true;
+}
+
+bool AppController::exportBackupBundle(const QString& path) const
+{
+    if (path.isEmpty())
+        return false;
+    QFile file(path);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate))
+        return false;
+    file.write(m_document.toJson());
+    return file.flush();
+}
+
+bool AppController::importBackupBundle(const QString& path)
+{
+    QFile file(path);
+    if (!file.open(QIODevice::ReadOnly))
+        return false;
+    QString error;
+    const core::Document loaded = core::Document::fromJson(file.readAll(), &error);
+    if (!error.isEmpty()) {
+        emit notification(error);
+        return false;
+    }
+    m_document = loaded;
+    seedSlides(m_show, m_document);
+    m_service.setDocument(&m_document);
+    m_cues.setDocument(&m_document);
+    m_library.setDocument(&m_document);
+    m_media.setDocument(&m_document);
+    m_notes.setDocument(&m_document);
+    m_arrangements.setDocument(&m_document);
+    m_search.rebuild(m_document, m_show);
+    emit documentChanged();
+    emit editorChanged();
+    emit notification(QStringLiteral(u"Bundle imported"));
+    return true;
+}
+
 bool AppController::openDocument(const QString& path)
 {
     QString error;
