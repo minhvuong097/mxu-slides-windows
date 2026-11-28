@@ -7,6 +7,8 @@
 
 namespace mxu::core {
 
+static QVariantList animationStepsForQml(const std::optional<QVector<model::AnimationStep>>& steps);
+
 namespace {
 QString makeId()
 {
@@ -463,6 +465,8 @@ QVariantList ShowDocument::objectsForQml(const QString& slideId) const
             { QStringLiteral(u"fontName"), object.textStyle && object.textStyle->fontName
                                                ? *object.textStyle->fontName : QStringLiteral(u"Segoe UI") },
             { QStringLiteral(u"selected"), object.id == m_selectedObject },
+            { QStringLiteral(u"name"), object.name },
+            { QStringLiteral(u"animationSteps"), animationStepsForQml(object.animationSteps) },
         });
     }
     return result;

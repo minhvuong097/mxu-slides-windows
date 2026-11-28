@@ -3,6 +3,7 @@
         <file>qml/main.qml</file>
         <file>qml/Mxu/Scene/qmldir</file>
         <file>qml/Mxu/Scene/SceneSurface.qml</file>
+        <file>qml/components/AnimationTimelinePanel.qml</file>
         <file>qml/components/AppIcon.qml</file>
         <file>qml/components/Checkerboard.qml</file>
         <file>qml/components/CueCard.qml</file>
