@@ -14,6 +14,7 @@ LocalApiServer::LocalApiServer(QObject* parent)
     : QObject(parent)
     , m_events(QStringLiteral(u"MxU Slides Local API"), QWebSocketServer::NonSecureMode)
 {
+    m_lanEnabled = m_store.value(QStringLiteral(u"mxu/api/lanEnabled"), false).toBool();
     loadTokens();
     connect(&m_http, &QTcpServer::newConnection, this, &LocalApiServer::onNewConnection);
     connect(&m_events, &QWebSocketServer::newConnection, this, &LocalApiServer::onNewWebSocket);
@@ -26,7 +27,59 @@ LocalApiServer::~LocalApiServer()
 
 QString LocalApiServer::address() const
 {
-    return m_running ? QStringLiteral(u"http://127.0.0.1:%1").arg(m_port) : QString();
+    if (!m_running)
+        return QString();
+    return QStringLiteral(u"http://%1:%2")
+        .arg(m_lanEnabled ? QStringLiteral(u"0.0.0.0") : QStringLiteral(u"127.0.0.1"))
+        .arg(m_port);
+}
+
+void LocalApiServer::setLanEnabled(bool value)
+{
+    if (m_lanEnabled == value)
+        return;
+    const bool wasRunning = m_running;
+    if (wasRunning)
+        stop();
+    m_lanEnabled = value;
+    m_store.setValue(QStringLiteral(u"mxu/api/lanEnabled"), value);
+    m_store.sync();
+    if (wasRunning)
+        start();
+    emit stateChanged();
+}
+
+QString LocalApiServer::addToken(const QString& scope)
+{
+    QString internal = scope.trimmed().toLower();
+    if (internal == QStringLiteral(u"watch")) internal = QStringLiteral(u"status");
+    else if (internal == QStringLiteral(u"operate")) internal = QStringLiteral(u"control");
+    else if (internal == QStringLiteral(u"manage")) internal = QStringLiteral(u"admin");
+    if (internal != QStringLiteral(u"status") && internal != QStringLiteral(u"control")
+        && internal != QStringLiteral(u"admin"))
+        return QString();
+    const QString value = QUuid::createUuid().toString(QUuid::WithoutBraces);
+    m_tokens.append({ value, { internal } });
+    saveTokens();
+    emit tokenChanged();
+    return value;
+}
+
+bool LocalApiServer::removeToken(const QString& value)
+{
+    if (m_tokens.size() <= 1)
+        return false;
+    for (qsizetype i = 0; i < m_tokens.size(); ++i) {
+        if (m_tokens.at(i).value != value)
+            continue;
+        m_tokens.removeAt(i);
+        if (m_token == value)
+            m_token = m_tokens.first().value;
+        saveTokens();
+        emit tokenChanged();
+        return true;
+    }
+    return false;
 }
 
 void LocalApiServer::setPort(quint16 value)
@@ -78,11 +131,11 @@ bool LocalApiServer::start()
 {
     if (m_running)
         return true;
-    if (!m_http.listen(QHostAddress::LocalHost, m_port)) {
+    if (!m_http.listen(m_lanEnabled ? QHostAddress::Any : QHostAddress::LocalHost, m_port)) {
         emit errorOccurred(m_http.errorString());
         return false;
     }
-    if (!m_events.listen(QHostAddress::LocalHost, m_port + 1)) {
+    if (!m_events.listen(m_lanEnabled ? QHostAddress::Any : QHostAddress::LocalHost, m_port + 1)) {
         const QString error = m_events.errorString();
         m_http.close();
         emit errorOccurred(error);

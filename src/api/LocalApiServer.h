@@ -27,6 +27,8 @@ class LocalApiServer : public QObject
     Q_PROPERTY(quint16 port READ port WRITE setPort NOTIFY stateChanged)
     Q_PROPERTY(QString token READ token NOTIFY tokenChanged)
     Q_PROPERTY(QString address READ address NOTIFY stateChanged)
+    Q_PROPERTY(QVariantList tokens READ tokens NOTIFY tokenChanged)
+    Q_PROPERTY(bool lanEnabled READ lanEnabled WRITE setLanEnabled NOTIFY stateChanged)
 
 public:
     explicit LocalApiServer(QObject* parent = nullptr);
@@ -43,6 +45,10 @@ public:
     void stop();
     void regenerateToken();
     QVariantList tokens() const;
+    bool lanEnabled() const { return m_lanEnabled; }
+    void setLanEnabled(bool value);
+    Q_INVOKABLE QString addToken(const QString& scope);
+    Q_INVOKABLE bool removeToken(const QString& value);
 
     void broadcastState();
 
@@ -77,6 +83,7 @@ private:
     QVector<Token> m_tokens;
     QString m_token;
     quint16 m_port = 6980;
+    bool m_lanEnabled = false;
     bool m_running = false;
     mxu::app::AppController* m_controller = nullptr;
 };

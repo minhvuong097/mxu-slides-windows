@@ -89,6 +89,7 @@ class AppController : public QObject
 
     Q_PROPERTY(bool localApiEnabled READ localApiEnabled WRITE setLocalApiEnabled NOTIFY apiChanged)
     Q_PROPERTY(QString localApiToken READ localApiToken NOTIFY apiChanged)
+    Q_PROPERTY(QObject* localApi READ localApi CONSTANT)
     Q_PROPERTY(QString documentPath READ documentPath NOTIFY documentChanged)
 
     Q_PROPERTY(bool presenting READ presenting WRITE setPresenting NOTIFY outputChanged)
@@ -192,6 +193,7 @@ public:
 
     bool localApiEnabled() const;
     QString localApiToken() const;
+    QObject* localApi() { return &m_api; }
     QString documentPath() const { return m_documentPath; }
 
     bool presenting() const { return m_presenting; }

@@ -9,6 +9,7 @@ import "qrc:/qml/components"
 Item {
     id: root
     property string pane: "Outputs"
+    property string lastIssuedKey: ""
 
     Row {
         anchors.fill: parent
@@ -195,8 +196,18 @@ Item {
                             checked: Mxu.localApiEnabled
                             onToggled: Mxu.setLocalApiEnabled(value)
                         }
-                        SettingField { width: parent.width; label: "Address"; value: Mxu.localApiEnabled ? "http://127.0.0.1:6980" : "Off" }
-                        SettingField { width: parent.width; label: "WebSocket"; value: "ws://127.0.0.1:6981" }
+                        SettingField { width: parent.width; label: "Address"; value: Mxu.localApi.address || "Off" }
+                        SettingField { width: parent.width; label: "WebSocket"; value: Mxu.localApi.address ? Mxu.localApi.address.replace("http", "ws") + "/v1/ws" : "Off" }
+                        Row {
+                            width: parent.width; spacing: 6
+                            NumberField { width: 110; label: "Port"; value: Mxu.localApi.port; onCommitted: Mxu.localApi.port = value }
+                            SettingRow {
+                                width: parent.width - 116; label: "Allow LAN"; toggle: true
+                                checked: Mxu.localApi.lanEnabled
+                                onToggled: Mxu.localApi.lanEnabled = value
+                            }
+                        }
+                        Text { text: "Docs: /openapi.json · keys: Watch / Operate / Manage"; color: Theme.textFaint; font.pixelSize: 9; wrapMode: Text.WordWrap; width: parent.width }
                         Text { text: "FOLLOW LINKS"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
                         Repeater {
                             model: Mxu.serviceLinks.rules
@@ -245,6 +256,38 @@ Item {
                             width: 180; height: 30; radius: 9; color: Theme.accent
                             Text { anchors.centerIn: parent; text: "Regenerate token"; color: "white"; font.pixelSize: 12; font.weight: Font.DemiBold }
                             MouseArea { anchors.fill: parent; onClicked: Mxu.regenerateLocalApiToken() }
+                        }
+                        Text { text: "SCOPED KEYS"; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 0.66 }
+                        Repeater {
+                            model: Mxu.localApi.tokens
+                            delegate: Rectangle {
+                                width: parent.width; height: 26; radius: 6; color: Theme.inset
+                                RowLayout {
+                                    anchors.fill: parent; anchors.leftMargin: 8; anchors.rightMargin: 8
+                                    Text { Layout.fillWidth: true; text: (modelData.scopes[0] || "admin") + " · " + modelData.value; color: Theme.text; font.pixelSize: 10; elide: Text.ElideMiddle }
+                                    Rectangle {
+                                        Layout.preferredWidth: 44; Layout.preferredHeight: 18; radius: 5; color: Theme.surface
+                                        Text { anchors.centerIn: parent; text: "Revoke"; color: Theme.text; font.pixelSize: 9 }
+                                        MouseArea { anchors.fill: parent; onClicked: Mxu.localApi.removeToken(modelData.value) }
+                                    }
+                                }
+                            }
+                        }
+                        Row { spacing: 6
+                            Repeater {
+                                model: ["watch", "operate", "manage"]
+                                delegate: Rectangle {
+                                    width: 86; height: 26; radius: 7; color: Theme.surface
+                                    Text { anchors.centerIn: parent; text: "+ " + modelData; color: Theme.text; font.pixelSize: 10 }
+                                    MouseArea { anchors.fill: parent; onClicked: root.lastIssuedKey = Mxu.localApi.addToken(modelData) }
+                                }
+                            }
+                        }
+                        Text {
+                            width: parent.width
+                            visible: root.lastIssuedKey !== ""
+                            text: "New key: " + root.lastIssuedKey
+                            color: Theme.green; font.pixelSize: 9; wrapMode: Text.WordWrap
                         }
                     }
                 Rectangle {
