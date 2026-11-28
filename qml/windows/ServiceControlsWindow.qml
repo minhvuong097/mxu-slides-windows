@@ -2,10 +2,11 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Window
 import "qrc:/qml/theme"
+import "qrc:/qml/components"
 
 // Operator service controls window (Mac ServiceControlsWindow): module rail
-// over the selected module surface. Kickoff hosts module surfaces for the
-// Timers, Alerts, Combos, Confidence, Outputs and Timecode modules.
+// over the selected module surface. Module surfaces: timers / audio / alerts /
+// combos / mixer / confidence / outputs / timecode.
 Window {
     id: serviceControls
     width: 420
@@ -54,7 +55,9 @@ Window {
                         "combos",
                         "confidence",
                         "outputs",
-                        "timecode"
+                        "timecode",
+                        "audio",
+                        "mixer"
                     ]
                     delegate: Rectangle {
                         id: railItem
@@ -83,8 +86,10 @@ Window {
                 anchors.bottom: parent.bottom
                 width: parent.width
                 sourceComponent: module === "timers" ? timersModule
+                                 : module === "audio" ? audioModule
                                  : module === "alerts" ? alertsModule
                                  : module === "combos" ? combosModule
+                                 : module === "mixer" ? mixerModule
                                  : module === "confidence" ? confidenceModule
                                  : module === "outputs" ? outputsModule
                                  : module === "timecode" ? timecodeModule
@@ -257,6 +262,155 @@ Window {
     }
 
     Component {
+        id: audioModule
+        Rectangle {
+            width: moduleLoader.width
+            height: moduleLoader.height
+            color: "transparent"
+            Column {
+                anchors.fill: parent
+                anchors.margins: 0
+                spacing: 8
+                Repeater {
+                    model: Mxu.audioChannels
+                    delegate: Rectangle {
+                        id: row
+                        width: parent.width
+                        height: 56
+                        radius: 10
+                        color: "#2c2c30"
+                        Row {
+                            anchors.fill: parent
+                            anchors.leftMargin: 12
+                            anchors.rightMargin: 12
+                            spacing: 8
+                            Column {
+                                width: parent.width - 140
+                                Text {
+                                    text: modelData.name
+                                    color: Theme.text
+                                    font.pixelSize: 13
+                                    font.weight: Font.Bold
+                                    elide: Text.ElideRight
+                                }
+                                Text {
+                                    text: (modelData.playing ? "Playing" : "Ready") + (modelData.muted ? " · Muted" : "")
+                                    color: Theme.textDim
+                                    font.pixelSize: 11
+                                }
+                            }
+                            Rectangle {
+                                width: 40
+                                height: 28
+                                radius: 8
+                                color: Theme.accent
+                                Text { anchors.centerIn: parent; text: modelData.playing ? "Stop" : "Play"; color: "white"; font.pixelSize: 11; font.weight: Font.Bold }
+                                MouseArea {
+                                    anchors.fill: parent
+                                    onClicked: modelData.playing ? Mxu.audioService.stop(modelData.id) : Mxu.audioService.play(modelData.id)
+                                }
+                            }
+                            Rectangle {
+                                width: 28
+                                height: 28
+                                radius: 8
+                                color: modelData.muted ? Theme.pink : Theme.surface
+                                Text { anchors.centerIn: parent; text: "M"; color: "white"; font.pixelSize: 11; font.weight: Font.Bold }
+                                MouseArea {
+                                    anchors.fill: parent
+                                    onClicked: Mxu.audioService.toggleMute(modelData.id)
+                                }
+                            }
+                            Rectangle {
+                                width: 28
+                                height: 28
+                                radius: 8
+                                color: modelData.solo ? Theme.yellow : Theme.surface
+                                Text { anchors.centerIn: parent; text: "S"; color: "white"; font.pixelSize: 11; font.weight: Font.Bold }
+                                MouseArea {
+                                    anchors.fill: parent
+                                    onClicked: Mxu.audioService.toggleSolo(modelData.id)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    Component {
+        id: mixerModule
+        Rectangle {
+            width: moduleLoader.width
+            height: moduleLoader.height
+            color: "transparent"
+            Column {
+                anchors.fill: parent
+                anchors.margins: 0
+                spacing: 8
+                Repeater {
+                    model: Mxu.audioChannels
+                    delegate: Rectangle {
+                        id: row
+                        width: parent.width
+                        height: 60
+                        radius: 10
+                        color: "#2c2c30"
+                        Row {
+                            anchors.fill: parent
+                            anchors.leftMargin: 12
+                            anchors.rightMargin: 12
+                            spacing: 8
+                            Column {
+                                width: parent.width - 140
+                                Text {
+                                    text: modelData.name
+                                    color: Theme.text
+                                    font.pixelSize: 13
+                                    font.weight: Font.Bold
+                                    elide: Text.ElideRight
+                                }
+                                Text {
+                                    text: "Vol " + Math.round(modelData.volume * 100) + "%"
+                                    color: Theme.textDim
+                                    font.pixelSize: 11
+                                }
+                            }
+                            MiniSlider {
+                                anchors.verticalCenter: parent.verticalCenter
+                                value: modelData.volume
+                            }
+                            Rectangle {
+                                width: 28
+                                height: 28
+                                radius: 8
+                                color: modelData.muted ? Theme.pink : Theme.surface
+                                Text { anchors.centerIn: parent; text: "M"; color: "white"; font.pixelSize: 11; font.weight: Font.Bold }
+                                MouseArea {
+                                    anchors.fill: parent
+                                    onClicked: Mxu.audioService.toggleMute(modelData.id)
+                                }
+                            }
+                            Rectangle {
+                                width: 28
+                                height: 28
+                                radius: 8
+                                color: modelData.solo ? Theme.yellow : Theme.surface
+                                Text { anchors.centerIn: parent; text: "S"; color: "white"; font.pixelSize: 11; font.weight: Font.Bold }
+                                MouseArea {
+                                    anchors.fill: parent
+                                    onClicked: Mxu.audioService.toggleSolo(modelData.id)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    Component {
         id: confidenceModule
         Rectangle {
             width: moduleLoader.width
@@ -294,6 +448,38 @@ Window {
                 anchors.fill: parent
                 anchors.margins: 0
                 spacing: 8
+                Text { text: "SCREENS"; width: parent.width; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold }
+                Repeater {
+                    model: Mxu.outputs.screens
+                    delegate: Rectangle {
+                        id: row
+                        width: parent.width
+                        height: 48
+                        radius: 10
+                        color: "#2c2c30"
+                        Row {
+                            anchors.fill: parent
+                            anchors.leftMargin: 12
+                            anchors.rightMargin: 12
+                            spacing: 8
+                            Column {
+                                width: parent.width - 100
+                                Text { text: modelData.name; color: Theme.text; font.pixelSize: 13; font.weight: Font.Bold; elide: Text.ElideRight }
+                                Text { text: modelData.geometry; color: Theme.textDim; font.pixelSize: 11; elide: Text.ElideRight }
+                            }
+                            Rectangle {
+                                width: 90
+                                height: 26
+                                radius: 8
+                                color: Theme.accent
+                                Text { anchors.centerIn: parent; text: "Stage"; color: "white"; font.pixelSize: 11; font.weight: Font.Bold }
+                                MouseArea { anchors.fill: parent; onClicked: Mxu.outputs.assign("stage", modelData.index) }
+                            }
+                        }
+                    }
+                }
+                Rectangle { width: parent.width; height: 1; color: "#333" }
+                Text { text: "PRESETS"; width: parent.width; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold }
                 Repeater {
                     model: Mxu.outputPresets.presets
                     delegate: Rectangle {
