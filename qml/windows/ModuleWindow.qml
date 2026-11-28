@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Dialogs
 import QtQuick.Window
 import "qrc:/qml/theme"
 import "qrc:/qml/components"
@@ -262,6 +263,19 @@ Window {
                             Text { anchors.centerIn: parent; text: "Stop All"; color: Theme.text; font.pixelSize: 11; font.weight: Font.Bold }
                             MouseArea { anchors.fill: parent; onClicked: Mxu.audioService.stopAll() }
                         }
+                        Rectangle {
+                            width: 90
+                            height: 28
+                            radius: 8
+                            color: Theme.surface
+                            Text { anchors.centerIn: parent; text: "Add"; color: Theme.text; font.pixelSize: 11; font.weight: Font.Bold }
+                            MouseArea { anchors.fill: parent; onClicked: addChannelDialog.open() }
+                        }
+                    }
+                    FileDialog {
+                        id: addChannelDialog
+                        title: "Select audio file"
+                        onAccepted: Mxu.audioService.addChannel("", acceptedUrl.toString())
                     }
                 }
             }
