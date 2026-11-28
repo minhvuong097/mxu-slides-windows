@@ -190,6 +190,17 @@ Window {
                         onClicked: { Mxu.timeline.removeCue(panel.selectedCueId); panel.selectedCueId = "" }
                     }
                 }
+                Rectangle {
+                    width: 96; height: 26; radius: 6; color: Theme.accent
+                    Text { anchors.centerIn: parent; text: "Decode WAV"; color: "white"; font.pixelSize: 9; font.weight: Font.Bold }
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            if (panel.selectedCue.source && Mxu.waveform.decode(panel.selectedCue.source))
+                                Mxu.timeline.setCueProp(panel.selectedCueId, "waveform", Mxu.waveform.peaks)
+                        }
+                    }
+                }
             }
 
             Rectangle { width: parent.width; height: 1; color: "#333" }

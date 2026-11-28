@@ -204,8 +204,24 @@ Window {
                 FileDialog {
                     id: locateDialog
                     title: "Locate media file"
-                    onAccepted: Mxu.mediaService.locateMedia(Mxu.mediaService.selectedIndex, selectedFile.toString())
+                    onAccepted: {
+                        Mxu.mediaService.locateMedia(Mxu.mediaService.selectedIndex, selectedFile.toString())
+                        Mxu.waveform.decode(selectedFile.toString())
+                    }
                 }
+                Row {
+                    width: parent.width; spacing: 2; height: 30
+                    clip: true
+                    Repeater {
+                        model: Mxu.waveform.peaks
+                        delegate: Rectangle {
+                            width: 3; height: Math.max(2, modelData * 28)
+                            anchors.verticalCenter: parent.verticalCenter
+                            color: Theme.accent
+                        }
+                    }
+                }
+                Text { text: Mxu.waveform.status; color: Theme.textDim; font.pixelSize: 9 }
 
                 Rectangle {
                     width: 120; height: 28; radius: 7; color: "#3a2326"

@@ -15,6 +15,7 @@
 #include "api/FfmpegEncoder.h"
 #include "api/DeckLinkWindows.h"
 #include "core/SyncLedger.h"
+#include "core/AutomergeCompat.h"
 #include "app/AppController.h"
 #include "app/AudioService.h"
 #include "app/BackupService.h"
@@ -59,6 +60,7 @@ private slots:
     void automationNotesAndImports();
     void searchSyncDiagnostics();
     void timelineBasic();
+    void crdtConvergence();
     void searchNavigation();
     void slideExport();
     void backupsAndFonts();
@@ -386,6 +388,28 @@ void MxuDocumentTest::timelineBasic()
     timeline.pause();
     QVERIFY(!timeline.playing());
     QVERIFY(timeline.removeCue(id));
+}
+
+void MxuDocumentTest::crdtConvergence()
+{
+    core::AutomergeCompat a;
+    core::AutomergeCompat b;
+
+    a.setLocalValue(QStringLiteral(u"title"), QStringLiteral(u"Alpha"));
+    b.importChanges(a.exportChanges());
+    QCOMPARE(b.localValue(QStringLiteral(u"title")).toString(), QStringLiteral(u"Alpha"));
+    a.setLocalValue(QStringLiteral(u"title"), QStringLiteral(u"Local edit"));
+    b.setLocalValue(QStringLiteral(u"title"), QStringLiteral(u"Remote edit"));
+
+    QVERIFY(a.importChanges(b.exportChanges()) > 0);
+    QVERIFY(b.importChanges(a.exportChanges()) > 0);
+    QCOMPARE(a.documentState().value(QStringLiteral(u"title")),
+             b.documentState().value(QStringLiteral(u"title")));
+    QVERIFY(a.conflicts(QStringLiteral(u"title")).size() >= 2);
+
+    const QVariantMap before = a.documentState();
+    a.importChanges(b.exportChanges());
+    QCOMPARE(a.documentState(), before);
 }
 
 void MxuDocumentTest::searchNavigation()

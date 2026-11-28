@@ -29,6 +29,7 @@ public:
     Q_INVOKABLE QByteArray exportChanges() const;
     Q_INVOKABLE int importChanges(const QByteArray& envelope);
     Q_INVOKABLE QVariantMap documentState() const;
+    Q_INVOKABLE QVariantList conflicts(const QString& key) const;
     Q_INVOKABLE void setLocalValue(const QString& key, const QVariant& value);
     Q_INVOKABLE QVariant localValue(const QString& key) const;
 
@@ -42,6 +43,7 @@ signals:
 
 private:
     QJsonObject m_state;
+    QJsonObject m_fields;   // key -> { values:[{device,counter,value}], vector:{device:counter} }
     QVector<QString> m_peers;
     SyncLedger m_ledger;
     int m_applied = 0;

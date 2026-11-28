@@ -149,7 +149,7 @@ bool TimelineService::setCueProp(const QString& id, const QString& key, const QV
 {
     static const QStringList editable{ QStringLiteral(u"name"), QStringLiteral(u"source"),
         QStringLiteral(u"color"), QStringLiteral(u"fadeInMs"), QStringLiteral(u"fadeOutMs"),
-        QStringLiteral(u"volume"), QStringLiteral(u"tags") };
+        QStringLiteral(u"volume"), QStringLiteral(u"tags"), QStringLiteral(u"waveform") };
     if (!editable.contains(key))
         return false;
     for (qsizetype i = 0; i < m_cues.size(); ++i) {

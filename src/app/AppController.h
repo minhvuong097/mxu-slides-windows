@@ -20,6 +20,7 @@
 #include "SlideActionRouter.h"
 #include "TimerBoardService.h"
 #include "MediaService.h"
+#include "WaveformService.h"
 #include "Models.h"
 #include "ImportLedgerService.h"
 #include "NotesService.h"
@@ -112,6 +113,7 @@ class AppController : public QObject
     Q_PROPERTY(QObject* transition READ transition CONSTANT)
     Q_PROPERTY(QObject* showState READ showState CONSTANT)
     Q_PROPERTY(QObject* mediaService READ mediaService CONSTANT)
+    Q_PROPERTY(QObject* waveformService READ waveformService CONSTANT)
     Q_PROPERTY(QObject* audioService READ audioService CONSTANT)
     Q_PROPERTY(QObject* outputs READ outputs CONSTANT)
     Q_PROPERTY(QObject* outputPresets READ outputPresets CONSTANT)
@@ -218,6 +220,7 @@ public:
     QObject* transition() { return &m_transition; }
     QObject* showState() { return &m_showState; }
     QObject* mediaService() { return &m_media; }
+    QObject* waveformService() { return &m_waveform; }
     QObject* audioService() { return &m_audio; }
     QVariantList audioChannels() const;
     QObject* outputs() { return &m_outputs; }
@@ -360,6 +363,7 @@ private:
     core::SceneTransitionEngine m_transition;
     core::ShowState m_showState;
     MediaService m_media;
+    WaveformService m_waveform;
     AudioService m_audio;
     OutputManager m_outputs;
     OutputPresetService m_outputPresets;
