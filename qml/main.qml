@@ -56,6 +56,20 @@ ApplicationWindow {
             }
         }
 
+        // Operator window launcher (Mac AppShell pop-out parity).
+        Row {
+            id: windowLauncher
+            anchors.top: parent.top
+            anchors.topMargin: 10
+            anchors.horizontalCenter: parent.horizontalCenter
+            spacing: 6
+            ToolButton { text: ""; icon: "layers"; onClicked: moduleWindow.visible = !moduleWindow.visible }
+            ToolButton { text: ""; icon: "sliders"; onClicked: serviceControlsWindow.visible = !serviceControlsWindow.visible }
+            ToolButton { text: ""; icon: "monitor"; onClicked: screenConfiguration.visible = !screenConfiguration.visible }
+            ToolButton { text: ""; icon: "folder"; onClicked: libraryWindow.visible = !libraryWindow.visible }
+            ToolButton { text: ""; icon: "video"; onClicked: previewWindow.visible = !previewWindow.visible }
+        }
+
         Rectangle {
             id: toast
             anchors.bottom: parent.bottom
