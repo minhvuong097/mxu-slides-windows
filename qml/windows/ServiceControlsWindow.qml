@@ -396,6 +396,34 @@ Window {
                         }
                     }
                 }
+                Rectangle {
+                    width: parent.width
+                    height: 48
+                    radius: 10
+                    color: "#2c2c30"
+                    Row {
+                        anchors.fill: parent
+                        anchors.leftMargin: 12
+                        anchors.rightMargin: 12
+                        spacing: 8
+                        Rectangle {
+                            width: 90
+                            height: 28
+                            radius: 8
+                            color: Theme.accent
+                            Text { anchors.centerIn: parent; text: "Play All"; color: "white"; font.pixelSize: 11; font.weight: Font.Bold }
+                            MouseArea { anchors.fill: parent; onClicked: Mxu.audioService.playAll() }
+                        }
+                        Rectangle {
+                            width: 90
+                            height: 28
+                            radius: 8
+                            color: Theme.surface
+                            Text { anchors.centerIn: parent; text: "Stop All"; color: Theme.text; font.pixelSize: 11; font.weight: Font.Bold }
+                            MouseArea { anchors.fill: parent; onClicked: Mxu.audioService.stopAll() }
+                        }
+                    }
+                }
             }
         }
     }
