@@ -204,6 +204,31 @@ Window {
                         }
                     }
                 }
+                Rectangle {
+                    width: parent.width
+                    height: 64
+                    radius: 10
+                    color: "#2c2c30"
+                    Row {
+                        anchors.fill: parent
+                        anchors.leftMargin: 12
+                        anchors.rightMargin: 12
+                        spacing: 8
+                        Column {
+                            width: parent.width - 140
+                            Text { text: "Crossfade"; color: Theme.text; font.pixelSize: 13; font.weight: Font.Bold }
+                            Text { text: "From " + (Mxu.audioChannels[0] ? Mxu.audioChannels[0].name : "") + " → " + (Mxu.audioChannels[1] ? Mxu.audioChannels[1].name : ""); color: Theme.textDim; font.pixelSize: 11; elide: Text.ElideRight }
+                        }
+                        Rectangle {
+                            width: 90
+                            height: 28
+                            radius: 8
+                            color: Theme.accent
+                            Text { anchors.centerIn: parent; text: "Fire"; color: "white"; font.pixelSize: 11; font.weight: Font.Bold }
+                            MouseArea { anchors.fill: parent; onClicked: Mxu.audioService.crossfade(Mxu.audioChannels[0].id, Mxu.audioChannels[1].id, 5.0) }
+                        }
+                    }
+                }
             }
         }
     }
