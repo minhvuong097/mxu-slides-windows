@@ -610,7 +610,7 @@ Window {
                         anchors.rightMargin: 12
                         spacing: 8
                         Column {
-                            width: parent.width - 110
+                            width: parent.width - 170
                             Text { text: "NEXT"; color: Theme.textDim; font.pixelSize: 10; font.weight: Font.Bold }
                             Text { text: Mxu.nextServiceItem; color: Theme.text; font.pixelSize: 13; font.weight: Font.Bold; elide: Text.ElideRight }
                         }
@@ -629,6 +629,20 @@ Window {
                             color: Theme.surface
                             Text { anchors.centerIn: parent; text: "Prev"; color: Theme.text; font.pixelSize: 11; font.weight: Font.Bold }
                             MouseArea { anchors.fill: parent; onClicked: Mxu.serviceModel.previousItem() }
+                        }
+                        Rectangle {
+                            width: 60
+                            height: 28
+                            radius: 8
+                            color: Theme.accent
+                            Text { anchors.centerIn: parent; text: "Fire"; color: "white"; font.pixelSize: 11; font.weight: Font.Bold }
+                            MouseArea {
+                                anchors.fill: parent
+                                onClicked: {
+                                    LocalTiming.fire(Mxu.currentServiceItem)
+                                    Mxu.serviceModel.nextItem()
+                                }
+                            }
                         }
                     }
                 }
@@ -652,6 +666,115 @@ Window {
                             Text { text: modelData.delta; color: Theme.textFaint; font.pixelSize: 11; elide: Text.ElideRight }
                         }
                     }
+                }
+                Rectangle {
+                    width: parent.width
+                    height: 52
+                    radius: 10
+                    color: "#2c2c30"
+                    Row {
+                        anchors.fill: parent
+                        anchors.leftMargin: 12
+                        anchors.rightMargin: 12
+                        spacing: 8
+                        Column {
+                            width: parent.width - 72
+                            Text { text: "LOCAL TIMING"; color: Theme.textDim; font.pixelSize: 10; font.weight: Font.Bold }
+                            Text {
+                                text: LocalTiming.active ? "Elapsed " + LocalTiming.elapsedText + " · " + LocalTiming.fireCount + " fires" : "Not started"
+                                color: LocalTiming.active ? Theme.green : Theme.textFaint
+                                font.pixelSize: 12
+                            }
+                        }
+                        Rectangle {
+                            width: 60
+                            height: 26
+                            radius: 7
+                            color: Theme.surface
+                            Text { anchors.centerIn: parent; text: "Clear"; color: Theme.text; font.pixelSize: 10 }
+                            MouseArea { anchors.fill: parent; onClicked: LocalTiming.clear() }
+                        }
+                    }
+                }
+                Text {
+                    visible: !LocalTiming.active && Mxu.serviceModel.itemCount === 0
+                    text: "Select a service to track it."
+                    color: Theme.textFaint
+                    font.pixelSize: 11
+                }
+                Text {
+                    visible: !LocalTiming.active && Mxu.serviceModel.itemCount > 0
+                    text: "Fire the first item to start tracking."
+                    color: Theme.textFaint
+                    font.pixelSize: 11
+                }
+                Text {
+                    visible: LocalTiming.active
+                    width: parent.width
+                    text: "Timed locally on this PC from your fires."
+                    color: Theme.textDim
+                    font.pixelSize: 11
+                    wrapMode: Text.WordWrap
+                }
+                Repeater {
+                    model: LocalTiming.fires
+                    delegate: Rectangle {
+                        width: parent.width
+                        height: 34
+                        radius: 8
+                        color: "#2c2c30"
+                        Row {
+                            anchors.fill: parent
+                            anchors.leftMargin: 12
+                            anchors.rightMargin: 12
+                            spacing: 8
+                            Text { width: parent.width - 80; text: modelData.name; color: Theme.text; font.pixelSize: 11; elide: Text.ElideRight }
+                            Text { text: LocalTiming.stamp(modelData.at - LocalTiming.firstFireMs); color: Theme.textDim; font.pixelSize: 11 }
+                        }
+                    }
+                }
+                Text {
+                    visible: Mxu.currentSlideActions.length > 0
+                    text: "SLIDE ACTIONS"
+                    color: Theme.textDim
+                    font.pixelSize: 10
+                    font.weight: Font.Bold
+                }
+                Repeater {
+                    model: Mxu.currentSlideActions
+                    delegate: Rectangle {
+                        width: parent.width
+                        height: 40
+                        radius: 8
+                        color: "#2c2c30"
+                        Row {
+                            anchors.fill: parent
+                            anchors.leftMargin: 12
+                            anchors.rightMargin: 12
+                            spacing: 8
+                            Text { width: parent.width - 90; text: modelData.kind; color: Theme.text; font.pixelSize: 11; elide: Text.ElideRight }
+                            Rectangle {
+                                width: 60
+                                height: 24
+                                radius: 7
+                                color: Theme.accent
+                                Text { anchors.centerIn: parent; text: "Fire"; color: "white"; font.pixelSize: 10; font.weight: Font.Bold }
+                                MouseArea {
+                                    anchors.fill: parent
+                                    onClicked: {
+                                        Mxu.fireSlideAction(modelData.id)
+                                        LocalTiming.fire(modelData.kind)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                Timer {
+                    interval: 1000
+                    repeat: true
+                    running: LocalTiming.active
+                    onTriggered: LocalTiming.tick()
                 }
             }
         }

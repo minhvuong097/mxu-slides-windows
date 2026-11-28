@@ -26,6 +26,7 @@
         <file>qml/components/ToolButton.qml</file>
         <file>qml/components/TrafficLights.qml</file>
         <file>qml/theme/Icons.qml</file>
+        <file>qml/theme/LocalTiming.qml</file>
         <file>qml/theme/Theme.qml</file>
         <file>qml/theme/qmldir</file>
         <file>qml/windows/PresentationWindow.qml</file>
