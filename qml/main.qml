@@ -74,6 +74,8 @@ ApplicationWindow {
             ToolButton { text: ""; icon: "timer"; onClicked: animationTimeline.open() }
             ToolButton { text: ""; icon: "clock"; onClicked: schedulerWindow.visible = !schedulerWindow.visible }
             ToolButton { text: ""; icon: "image"; onClicked: mediaEditor.open(-1) }
+            ToolButton { text: ""; icon: "keyboard"; onClicked: midiMap.open() }
+            ToolButton { text: ""; icon: "info"; onClicked: feedbackWindow.open() }
         }
 
         Rectangle {
@@ -148,6 +150,8 @@ ApplicationWindow {
     EngineWindow { id: engineWindow }
     SchedulerWindow { id: schedulerWindow }
     MediaEditorWindow { id: mediaEditor }
+    MidiMapWindow { id: midiMap }
+    FeedbackWindow { id: feedbackWindow }
 
     NotesPanel {
         id: notesPanel
@@ -192,6 +196,8 @@ ApplicationWindow {
     Shortcut { sequence: "Ctrl+Shift+E"; context: Qt.ShortcutContext.Application; onActivated: engineWindow.visible = !engineWindow.visible }
     Shortcut { sequence: "Ctrl+Shift+S"; context: Qt.ShortcutContext.Application; onActivated: schedulerWindow.visible = !schedulerWindow.visible }
     Shortcut { sequence: "Ctrl+Shift+M"; context: Qt.ShortcutContext.Application; onActivated: mediaEditor.open(-1) }
+    Shortcut { sequence: "Ctrl+Shift+K"; context: Qt.ShortcutContext.Application; onActivated: midiMap.open() }
+    Shortcut { sequence: "Ctrl+Shift+F"; context: Qt.ShortcutContext.Application; onActivated: feedbackWindow.open() }
     Shortcut { sequence: "Ctrl+T"; context: Qt.ShortcutContext.Application; onActivated: timelinePanel.open() }
     Shortcut { sequence: "F10"; context: Qt.ShortcutContext.Application; onActivated: animationTimeline.open() }
     Shortcut { sequence: "F8"; context: Qt.ShortcutContext.Application; onActivated: notesPanel.open() }

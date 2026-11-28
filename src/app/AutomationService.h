@@ -28,6 +28,7 @@ class AutomationService : public QObject
     Q_PROPERTY(QVariantList triggers READ triggers NOTIFY changed)
     Q_PROPERTY(QVariantList schedules READ schedules NOTIFY changed)
     Q_PROPERTY(QVariantList history READ history NOTIFY changed)
+    Q_PROPERTY(int midiChannel READ midiChannel WRITE setMidiChannel NOTIFY changed)
 
 public:
     explicit AutomationService(QObject* parent = nullptr);
@@ -41,11 +42,15 @@ public:
     QVariantList triggers() const;
     QVariantList schedules() const;
     QVariantList history() const;
+    int midiChannel() const { return m_midiChannel; }
+    void setMidiChannel(int channel);
+    Q_INVOKABLE QString midiNoteName(int note) const;
 
 public slots:
     bool fire(const QString& action);
     bool addKeyTrigger(const QString& action, const QString& key);
     bool addMidiTrigger(const QString& action, int note);
+    bool configureMidiTrigger(const QString& id, int channel, bool velocityAsIndex);
     bool removeTrigger(const QString& id);
     bool addSchedule(const QString& name, const QString& time, const QString& action);
     bool removeSchedule(const QString& id);
@@ -72,6 +77,7 @@ private:
     QVariantList m_triggers;
     QVariantList m_schedules;
     QVariantList m_history;
+    int m_midiChannel = -1;
     QTimer m_timer;
     int m_frames = 0;
 };

@@ -279,6 +279,8 @@ public:
 
     Q_INVOKABLE QVariant setting(const QString& key) const;
     Q_INVOKABLE void setSetting(const QString& key, const QVariant& value);
+    Q_INVOKABLE bool exportDiagnostics(const QString& path) const;
+    Q_INVOKABLE bool submitFeedback(const QString& category, const QString& message);
 
 public slots:
     void setScreen(const QString& value);

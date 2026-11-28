@@ -70,6 +70,7 @@ void AutomationService::load()
     m_triggers = m_store.value(QStringLiteral(u"mxu/triggers")).toList();
     m_schedules = m_store.value(QStringLiteral(u"mxu/schedules")).toList();
     m_history = m_store.value(QStringLiteral(u"mxu/scheduleHistory")).toList();
+    m_midiChannel = m_store.value(QStringLiteral(u"mxu/midiChannel"), -1).toInt();
 }
 
 void AutomationService::save()
@@ -77,6 +78,7 @@ void AutomationService::save()
     m_store.setValue(QStringLiteral(u"mxu/triggers"), m_triggers);
     m_store.setValue(QStringLiteral(u"mxu/schedules"), m_schedules);
     m_store.setValue(QStringLiteral(u"mxu/scheduleHistory"), m_history);
+    m_store.setValue(QStringLiteral(u"mxu/midiChannel"), m_midiChannel);
     m_store.sync();
 }
 
@@ -119,6 +121,9 @@ bool AutomationService::addMidiTrigger(const QString& action, int note)
         { QStringLiteral(u"kind"), QStringLiteral(u"midi") },
         { QStringLiteral(u"action"), action },
         { QStringLiteral(u"value"), note },
+        { QStringLiteral(u"noteName"), midiNoteName(note) },
+        { QStringLiteral(u"channel"), -1 },
+        { QStringLiteral(u"velocityAsIndex"), false },
     });
     save();
     emit changed();
@@ -161,6 +166,38 @@ bool AutomationService::removeSchedule(const QString& id)
         if (m_schedules.at(i).toMap().value(QStringLiteral(u"id")).toString() != id)
             continue;
         m_schedules.removeAt(i);
+        save();
+        emit changed();
+        return true;
+    }
+    return false;
+}
+
+void AutomationService::setMidiChannel(int channel)
+{
+    m_midiChannel = channel < 1 ? -1 : qMin(channel, 16);
+    save();
+    emit changed();
+}
+
+QString AutomationService::midiNoteName(int note) const
+{
+    static const char* names[] = { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
+    if (note < 0 || note > 127)
+        return QStringLiteral(u"—");
+    return QStringLiteral(u"%1%2").arg(QLatin1String(names[note % 12])).arg(note / 12 - 1);
+}
+
+bool AutomationService::configureMidiTrigger(const QString& id, int channel, bool velocityAsIndex)
+{
+    for (qsizetype i = 0; i < m_triggers.size(); ++i) {
+        QVariantMap trigger = m_triggers.at(i).toMap();
+        if (trigger.value(QStringLiteral(u"id")).toString() != id
+            || trigger.value(QStringLiteral(u"kind")).toString() != QStringLiteral(u"midi"))
+            continue;
+        trigger.insert(QStringLiteral(u"channel"), channel);
+        trigger.insert(QStringLiteral(u"velocityAsIndex"), velocityAsIndex);
+        m_triggers[i] = trigger;
         save();
         emit changed();
         return true;

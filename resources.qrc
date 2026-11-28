@@ -41,6 +41,8 @@
         <file>qml/windows/LibraryWindow.qml</file>
         <file>qml/windows/ScreenConfigurationWindow.qml</file>
         <file>qml/windows/MediaEditorWindow.qml</file>
+        <file>qml/windows/MidiMapWindow.qml</file>
+        <file>qml/windows/FeedbackWindow.qml</file>
         <file>qml/screens/EditScreen.qml</file>
         <file>qml/screens/LibraryScreen.qml</file>
         <file>qml/screens/PresentScreen.qml</file>

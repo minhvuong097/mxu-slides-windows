@@ -1,6 +1,7 @@
 #include "AppController.h"
 #include "core/SceneRasterizer.h"
 
+#include <QFile>
 #include <QGuiApplication>
 #include <QImage>
 #include <QPainter>
@@ -910,6 +911,26 @@ bool AppController::addStyleRun(int line, int column, int length, const QString&
         emit notification(QStringLiteral(u"Style run added"));
     }
     return ok;
+}
+
+bool AppController::exportDiagnostics(const QString& path) const
+{
+    if (path.isEmpty())
+        return false;
+    QFile file(path);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate))
+        return false;
+    file.write(m_diagnostics.reportJson().toUtf8());
+    return file.flush();
+}
+
+bool AppController::submitFeedback(const QString& category, const QString& message)
+{
+    if (message.trimmed().isEmpty())
+        return false;
+    m_diagnostics.log(QStringLiteral(u"feedback.%1: %2").arg(category, message.trimmed()));
+    emit notification(QStringLiteral(u"Feedback recorded"));
+    return true;
 }
 
 bool AppController::addServiceItem(const QString& name, int section)
