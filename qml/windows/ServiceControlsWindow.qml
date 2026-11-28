@@ -335,6 +335,33 @@ Window {
                         }
                     }
                 }
+                Rectangle {
+                    width: parent.width
+                    height: 40
+                    radius: 10
+                    color: "#2c2c30"
+                    Row {
+                        anchors.fill: parent
+                        anchors.leftMargin: 12
+                        anchors.rightMargin: 12
+                        spacing: 8
+                        Text {
+                            text: "FADE CURVE"
+                            color: Theme.textDim
+                            font.pixelSize: 10
+                            font.weight: Font.Bold
+                        }
+                        Rectangle { width: 90; height: 26; radius: 7; color: Mxu.audioService.fadeCurve === "equalPower" ? Theme.accent : Theme.surface
+                            Text { anchors.centerIn: parent; text: "Equal power"; color: "white"; font.pixelSize: 10 }
+                            MouseArea { anchors.fill: parent; onClicked: Mxu.audioService.fadeCurve = "equalPower" } }
+                        Rectangle { width: 70; height: 26; radius: 7; color: Mxu.audioService.fadeCurve === "linear" ? Theme.accent : Theme.surface
+                            Text { anchors.centerIn: parent; text: "Linear"; color: "white"; font.pixelSize: 10 }
+                            MouseArea { anchors.fill: parent; onClicked: Mxu.audioService.fadeCurve = "linear" } }
+                        Rectangle { width: 70; height: 26; radius: 7; color: Mxu.audioService.fadeCurve === "sCurve" ? Theme.accent : Theme.surface
+                            Text { anchors.centerIn: parent; text: "S-curve"; color: "white"; font.pixelSize: 10 }
+                            MouseArea { anchors.fill: parent; onClicked: Mxu.audioService.fadeCurve = "sCurve" } }
+                    }
+                }
             }
         }
     }
@@ -404,6 +431,33 @@ Window {
                                 }
                             }
                         }
+                    }
+                }
+                Rectangle {
+                    width: parent.width
+                    height: 40
+                    radius: 10
+                    color: "#2c2c30"
+                    Row {
+                        anchors.fill: parent
+                        anchors.leftMargin: 12
+                        anchors.rightMargin: 12
+                        spacing: 8
+                        Text {
+                            text: "FADE CURVE"
+                            color: Theme.textDim
+                            font.pixelSize: 10
+                            font.weight: Font.Bold
+                        }
+                        Rectangle { width: 90; height: 26; radius: 7; color: Mxu.audioService.fadeCurve === "equalPower" ? Theme.accent : Theme.surface
+                            Text { anchors.centerIn: parent; text: "Equal power"; color: "white"; font.pixelSize: 10 }
+                            MouseArea { anchors.fill: parent; onClicked: Mxu.audioService.fadeCurve = "equalPower" } }
+                        Rectangle { width: 70; height: 26; radius: 7; color: Mxu.audioService.fadeCurve === "linear" ? Theme.accent : Theme.surface
+                            Text { anchors.centerIn: parent; text: "Linear"; color: "white"; font.pixelSize: 10 }
+                            MouseArea { anchors.fill: parent; onClicked: Mxu.audioService.fadeCurve = "linear" } }
+                        Rectangle { width: 70; height: 26; radius: 7; color: Mxu.audioService.fadeCurve === "sCurve" ? Theme.accent : Theme.surface
+                            Text { anchors.centerIn: parent; text: "S-curve"; color: "white"; font.pixelSize: 10 }
+                            MouseArea { anchors.fill: parent; onClicked: Mxu.audioService.fadeCurve = "sCurve" } }
                     }
                 }
             }
@@ -487,10 +541,22 @@ Window {
                         height: 48
                         radius: 10
                         color: "#2c2c30"
-                        Column {
-                            width: parent.width
-                            Text { text: modelData.name; color: Theme.text; font.pixelSize: 13; font.weight: Font.Bold; elide: Text.ElideRight }
-                            Text { text: modelData.value; color: Theme.textDim; font.pixelSize: 11; elide: Text.ElideRight }
+                        Row {
+                            anchors.centerIn: parent
+                            spacing: 8
+                            Column {
+                                width: parent.width - 110
+                                Text { text: modelData.name; color: Theme.text; font.pixelSize: 13; font.weight: Font.Bold; elide: Text.ElideRight }
+                                Text { text: modelData.value; color: Theme.textDim; font.pixelSize: 11; elide: Text.ElideRight }
+                            }
+                            Rectangle {
+                                width: 90
+                                height: 26
+                                radius: 8
+                                color: Theme.accent
+                                Text { anchors.centerIn: parent; text: "Apply"; color: "white"; font.pixelSize: 11; font.weight: Font.Bold }
+                                MouseArea { anchors.fill: parent; onClicked: Mxu.outputPresets.apply(modelData.id) }
+                            }
                         }
                     }
                 }
