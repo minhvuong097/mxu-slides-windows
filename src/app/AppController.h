@@ -287,6 +287,8 @@ public:
     Q_INVOKABLE bool restoreBackup(const QString& id);
     Q_INVOKABLE bool exportBackupBundle(const QString& path) const;
     Q_INVOKABLE bool importBackupBundle(const QString& path);
+    Q_INVOKABLE QString exportSyncJson() const;
+    Q_INVOKABLE bool importSyncJson(const QString& json);
 
 public slots:
     void setScreen(const QString& value);

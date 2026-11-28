@@ -76,6 +76,7 @@ ApplicationWindow {
             ToolButton { text: ""; icon: "image"; onClicked: mediaEditor.open(-1) }
             ToolButton { text: ""; icon: "keyboard"; onClicked: midiMap.open() }
             ToolButton { text: ""; icon: "info"; onClicked: feedbackWindow.open() }
+            ToolButton { text: ""; icon: "remote"; onClicked: followWindow.open() }
         }
 
         Rectangle {
@@ -152,6 +153,7 @@ ApplicationWindow {
     MediaEditorWindow { id: mediaEditor }
     MidiMapWindow { id: midiMap }
     FeedbackWindow { id: feedbackWindow }
+    FollowWindow { id: followWindow }
 
     NotesPanel {
         id: notesPanel
@@ -198,6 +200,7 @@ ApplicationWindow {
     Shortcut { sequence: "Ctrl+Shift+M"; context: Qt.ShortcutContext.Application; onActivated: mediaEditor.open(-1) }
     Shortcut { sequence: "Ctrl+Shift+K"; context: Qt.ShortcutContext.Application; onActivated: midiMap.open() }
     Shortcut { sequence: "Ctrl+Shift+F"; context: Qt.ShortcutContext.Application; onActivated: feedbackWindow.open() }
+    Shortcut { sequence: "Ctrl+Shift+P"; context: Qt.ShortcutContext.Application; onActivated: followWindow.open() }
     Shortcut { sequence: "Ctrl+T"; context: Qt.ShortcutContext.Application; onActivated: timelinePanel.open() }
     Shortcut { sequence: "F10"; context: Qt.ShortcutContext.Application; onActivated: animationTimeline.open() }
     Shortcut { sequence: "F8"; context: Qt.ShortcutContext.Application; onActivated: notesPanel.open() }

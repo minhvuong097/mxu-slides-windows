@@ -789,6 +789,16 @@ bool AppController::importBackupBundle(const QString& path)
     return true;
 }
 
+QString AppController::exportSyncJson() const
+{
+    return QString::fromUtf8(m_sync.exportJson());
+}
+
+bool AppController::importSyncJson(const QString& json)
+{
+    return m_sync.merge(json) > 0;
+}
+
 bool AppController::openDocument(const QString& path)
 {
     QString error;
