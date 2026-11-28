@@ -1,7 +1,10 @@
 #pragma once
 
 #include <QObject>
+#include <QSettings>
+#include <QString>
 #include <QTimer>
+#include <QVariant>
 #include <QVariantList>
 #include <QVariantMap>
 
@@ -27,11 +30,19 @@ public:
     bool playing() const { return m_playing; }
     qint64 duration() const;
 
+    Q_INVOKABLE QString timecodeAt(qint64 ms) const;
+    Q_INVOKABLE bool seekTimecode(const QString& timecode);
+    Q_INVOKABLE QString exportJson() const;
+    Q_INVOKABLE bool importJson(const QString& json);
+
 public slots:
     QString addCue(const QString& name, const QString& lane, qint64 atMs, qint64 durationMs);
     bool moveCue(const QString& id, qint64 atMs);
     bool resizeCue(const QString& id, qint64 durationMs);
     bool removeCue(const QString& id);
+    bool setCueProp(const QString& id, const QString& key, const QVariant& value);
+    bool toggleLock(const QString& id);
+    bool duplicateCue(const QString& id);
     void play();
     void pause();
     void stop();
@@ -45,6 +56,10 @@ private slots:
     void tick();
 
 private:
+    void load();
+    void save();
+
+    QSettings m_store;
     QVariantList m_cues;
     QTimer m_timer;
     qint64 m_playhead = 0;
