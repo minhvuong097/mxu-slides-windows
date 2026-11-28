@@ -4,7 +4,8 @@ import QtQuick.Window
 import "qrc:/qml/theme"
 
 // Operator service controls window (Mac ServiceControlsWindow): module rail
-// over the selected module surface. Kickoff hosts the Timers module surface.
+// over the selected module surface. Kickoff hosts module surfaces for the
+// Timers, Alerts, Combos, Confidence, Outputs and Timecode modules.
 Window {
     id: serviceControls
     width: 420
@@ -81,7 +82,13 @@ Window {
                 anchors.top: header.bottom
                 anchors.bottom: parent.bottom
                 width: parent.width
-                sourceComponent: module === "timers" ? timersModule : null
+                sourceComponent: module === "timers" ? timersModule
+                                 : module === "alerts" ? alertsModule
+                                 : module === "combos" ? combosModule
+                                 : module === "confidence" ? confidenceModule
+                                 : module === "outputs" ? outputsModule
+                                 : module === "timecode" ? timecodeModule
+                                 : null
             }
         }
     }
@@ -92,12 +99,10 @@ Window {
             width: moduleLoader.width
             height: moduleLoader.height
             color: "transparent"
-
             Column {
                 anchors.fill: parent
                 anchors.margins: 0
                 spacing: 8
-
                 Repeater {
                     model: Mxu.timerBoard.timers
                     delegate: Rectangle {
@@ -106,13 +111,11 @@ Window {
                         height: 56
                         radius: 10
                         color: "#2c2c30"
-
                         Row {
                             anchors.fill: parent
                             anchors.leftMargin: 12
                             anchors.rightMargin: 12
                             spacing: 8
-
                             Column {
                                 width: parent.width - 132
                                 Text {
@@ -128,7 +131,6 @@ Window {
                                     font.pixelSize: 11
                                 }
                             }
-
                             Rectangle {
                                 width: 40
                                 height: 28
@@ -152,6 +154,185 @@ Window {
                                 }
                             }
                         }
+                    }
+                }
+            }
+        }
+    }
+
+    Component {
+        id: alertsModule
+        Rectangle {
+            width: moduleLoader.width
+            height: moduleLoader.height
+            color: "transparent"
+            Column {
+                anchors.fill: parent
+                anchors.margins: 0
+                spacing: 8
+                Repeater {
+                    model: Mxu.alertPresets.presets
+                    delegate: Rectangle {
+                        width: parent.width
+                        height: 48
+                        radius: 10
+                        color: "#2c2c30"
+                        Row {
+                            anchors.fill: parent
+                            anchors.leftMargin: 12
+                            anchors.rightMargin: 12
+                            spacing: 8
+                            Text {
+                                width: parent.width - 100
+                                text: modelData.name
+                                color: Theme.text
+                                font.pixelSize: 13
+                                font.weight: Font.Bold
+                                elide: Text.ElideRight
+                            }
+                            Rectangle {
+                                width: 90
+                                height: 26
+                                radius: 8
+                                color: Theme.pink
+                                Text { anchors.centerIn: parent; text: "Fire"; color: "white"; font.pixelSize: 11; font.weight: Font.Bold }
+                                MouseArea {
+                                    anchors.fill: parent
+                                    onClicked: Mxu.alerts.fire(modelData.value, "both")
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    Component {
+        id: combosModule
+        Rectangle {
+            width: moduleLoader.width
+            height: moduleLoader.height
+            color: "transparent"
+            Column {
+                anchors.fill: parent
+                anchors.margins: 0
+                spacing: 8
+                Repeater {
+                    model: Mxu.automation.triggers
+                    delegate: Rectangle {
+                        width: parent.width
+                        height: 48
+                        radius: 10
+                        color: "#2c2c30"
+                        Row {
+                            anchors.fill: parent
+                            anchors.leftMargin: 12
+                            anchors.rightMargin: 12
+                            spacing: 8
+                            Text {
+                                width: parent.width - 100
+                                text: modelData.action
+                                color: Theme.text
+                                font.pixelSize: 13
+                                font.weight: Font.Bold
+                                elide: Text.ElideRight
+                            }
+                            Rectangle {
+                                width: 90
+                                height: 26
+                                radius: 8
+                                color: Theme.accent
+                                Text { anchors.centerIn: parent; text: "Fire"; color: "white"; font.pixelSize: 11; font.weight: Font.Bold }
+                                MouseArea {
+                                    anchors.fill: parent
+                                    onClicked: Mxu.automation.fire(modelData.action)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    Component {
+        id: confidenceModule
+        Rectangle {
+            width: moduleLoader.width
+            height: moduleLoader.height
+            color: "transparent"
+            Column {
+                anchors.fill: parent
+                anchors.margins: 0
+                spacing: 8
+                Repeater {
+                    model: Mxu.confidenceLayout.nodes
+                    delegate: Rectangle {
+                        width: parent.width
+                        height: 48
+                        radius: 10
+                        color: "#2c2c30"
+                        Column {
+                            width: parent.width
+                            Text { text: modelData.source; color: Theme.textDim; font.pixelSize: 11; font.weight: Font.Bold }
+                            Text { text: modelData.title; color: Theme.text; font.pixelSize: 13; font.weight: Font.Bold; elide: Text.ElideRight }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    Component {
+        id: outputsModule
+        Rectangle {
+            width: moduleLoader.width
+            height: moduleLoader.height
+            color: "transparent"
+            Column {
+                anchors.fill: parent
+                anchors.margins: 0
+                spacing: 8
+                Repeater {
+                    model: Mxu.outputPresets.presets
+                    delegate: Rectangle {
+                        width: parent.width
+                        height: 48
+                        radius: 10
+                        color: "#2c2c30"
+                        Column {
+                            width: parent.width
+                            Text { text: modelData.name; color: Theme.text; font.pixelSize: 13; font.weight: Font.Bold; elide: Text.ElideRight }
+                            Text { text: modelData.value; color: Theme.textDim; font.pixelSize: 11; elide: Text.ElideRight }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    Component {
+        id: timecodeModule
+        Rectangle {
+            width: moduleLoader.width
+            height: moduleLoader.height
+            color: "transparent"
+            Column {
+                anchors.fill: parent
+                anchors.margins: 0
+                spacing: 8
+                Rectangle {
+                    width: parent.width
+                    height: 80
+                    radius: 10
+                    color: "#2c2c30"
+                    Column {
+                        anchors.fill: parent
+                        anchors.margins: 12
+                        spacing: 4
+                        Text { text: Mxu.serviceClock; color: Theme.green; font.pixelSize: 28; font.weight: Font.Bold; horizontalAlignment: Text.AlignCenter }
+                        Text { text: "Timecode module"; color: Theme.textDim; font.pixelSize: 11; horizontalAlignment: Text.AlignCenter }
                     }
                 }
             }
