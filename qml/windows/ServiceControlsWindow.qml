@@ -519,6 +519,8 @@ Window {
                         spacing: 4
                         Text { text: Mxu.currentServiceItem; color: Theme.text; font.pixelSize: 16; font.weight: Font.Bold; elide: Text.ElideRight }
                         Text { text: "Item " + Mxu.serviceModel.currentItemIndex + " of " + Mxu.serviceModel.itemCount; color: Theme.textDim; font.pixelSize: 11 }
+                        Text { text: Mxu.serviceModel.serviceName; color: Theme.textFaint; font.pixelSize: 11 }
+                        Text { text: Mxu.serviceModel.serviceDate; color: Theme.textFaint; font.pixelSize: 11 }
                         Text { text: Mxu.serviceTimerText; color: Theme.green; font.pixelSize: 24; font.weight: Font.Bold; horizontalAlignment: Text.AlignCenter }
                     }
                 }
